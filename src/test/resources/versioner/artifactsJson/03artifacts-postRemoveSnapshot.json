@@ -1,0 +1,50 @@
+[
+  {
+    "version": "1.0.0.0",
+    "component": "PruebaRelease-App-1",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "App1-EAR"
+  },
+  {
+    "version": "1.0.0.0",
+    "component": "PruebaRelease-App-1",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "App1-WAR"
+  },
+  {
+    "version": "1.0.0.0",
+    "component": "PruebaRelease-App-1",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "App1-POM"
+  },
+  {
+    "version": "1.0.0.0",
+    "component": "PruebaRelease-App-2",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "App2-EAR"
+  },
+  {
+    "version": "1.0.0.0",
+    "component": "PruebaRelease-App-2",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "App2-WAR"
+  },
+  {
+    "version": "1.0.0.0",
+    "component": "PruebaRelease-App-2",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "App2-POM"
+  },
+  {
+    "version": "1.0.0.0",
+    "component": "PruebaRelease-Biblioteca-1",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "lib1"
+  },
+  {
+    "version": "1.0.0.0",
+    "component": "PruebaRelease-Biblioteca-2",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "lib2"
+  }
+]

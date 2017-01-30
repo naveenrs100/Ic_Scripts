@@ -1,0 +1,12 @@
+PruebaRelease-Biblioteca-1
+PruebaRelease-App-1
+PruebaRelease-Biblioteca-2
+PruebaRelease-App-2
+B2 depende de B1 -> true
+A1 depende de B1 -> true
+A2 depende de B1 -> true
+A1 depende de B2 -> false
+A2 depende de B2 -> true
+A2 depende de A1 -> false
+A1 depende de A2 -> false
+[["PruebaRelease-Biblioteca-1"],["PruebaRelease-App-1","PruebaRelease-Biblioteca-2"],["PruebaRelease-App-2"]]

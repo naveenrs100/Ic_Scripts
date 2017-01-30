@@ -1,0 +1,685 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define">
+<html>
+<head>
+<title>El Corte Ingl&amp;eacute;s - Oficina de
+	Certificaci&amp;oacute;n - Informe de Intergraci&amp;oacute;n Continua</title>
+<style>
+/* General */
+* {
+	font-family: "Lucida Sans", "Lucida Grande", Arial, Verdana;
+	/*border:1px solid red;*/
+}
+
+body {
+	padding: 0 10px 10px 10px;
+}
+
+.alCentro {
+	text-align: center
+}
+
+.alDcha {
+	text-align: right
+}
+
+/* Logo y titulo */
+#tblCabecera {
+	width: 100%;
+}
+
+#tblCabecera td {
+	border-bottom: 1px solid #030;
+	padding: 10px;
+	font-size: 15px;
+	color: #666;
+}
+
+#tblCabecera h1 { /*Ti­tulo "Informe de Integracion Continua" */
+	color: #000;
+	font-size: 16px;
+	margin: 0;
+}
+
+/* Capa de seccion */
+.seccion { /* SeparaciÃ³n entre mÃ³dulos */
+	margin-top: 25px;
+}
+
+.releasePhase {
+	color: #333;
+	background-color: #eee;
+}
+
+/* Datos del proyecto (nombre, fecha y demÃ¡s) */
+.datosProyecto {
+	margin: 0;
+	font-size: 14px;
+}
+
+.datosProyecto span {
+	font-weight: bold;
+	display: inline-block;
+	font-size: 14px;
+	color: #555;
+	width: 500px;
+	margin: 0 0 0 15px;
+}
+
+.resumen {
+	margin: 0;
+	font-size: 14px;
+}
+
+.resumen span {
+	display: inline-block;
+	font-size: 14px;
+	color: #555;
+	width: 200px;
+	margin: 0 0 0 15px;
+}
+
+.resumen p {
+	margin: 0;
+	padding: 2px 2px 2px 15px;
+}
+
+.BSUCCESS {
+	font-size: 18px;
+	color: #005828;
+	margin: 4px 0 0 15px;
+}
+
+.BNOT_EXECUTED {
+	font-size: 18px;
+	color: #C5C6C6;
+	margin: 4px 0 0 15px;
+}
+
+.BFAILURE {
+	font-size: 18px;
+	color: #900;
+	margin: 4px 0 0 15px;
+}
+
+.BUNSTABLE {
+	font-size: 18px;
+	color: #EBB834;
+	margin: 4px 0 0 15px;
+}
+
+.SUCCESS {
+	font-size: 16px;
+	color: #005828;
+	margin: 4px 0 0 15px;
+}
+
+.NOT_EXECUTED {
+	font-size: 16px;
+	color: #C5C6C6;
+	margin: 4px 0 0 15px;
+}
+
+.FAILURE {
+	font-size: 16px;
+	color: #900;
+	margin: 4px 0 0 15px;
+}
+
+.UNSTABLE {
+	font-size: 16px;
+	color: #EBB834;
+	margin: 4px 0 0 15px;
+}
+
+/* Elementos debajo de los estados pequenios [tipo "Checking report in attached file" bajo "Checking: success"] */
+.subEstado {
+	font-size: 13px;
+	color: #000;
+	margin: 2px 0 0 35px;
+}
+
+h2 {
+	/* titulos del tipo "SCM CHANGESET", "Cobertura Report" y similares */
+	color: #fff;
+	background-color: #007e3a;
+	font-size: 14px;
+	padding: 5px 5px 5px 15px;
+	margin: 0;
+}
+
+h3 { /* titulos del tipo "Project Coverage Summary" */
+	color: #000;
+	background-color: #ddd;
+	font-size: 13px;
+	padding: 5px 5px 5px 15px;
+	margin: 5px 0 0 0;
+}
+
+h4 { /* ti­tulos del tipo "Coverage Breakdown by Package" */
+	color: #333;
+	background-color: #eee;
+	font-size: 12px;
+	padding: 5px 5px 5px 15px;
+	margin: 20px 0 0 0;
+}
+
+p.normal {
+	font-size: 12px;
+	margin: 0;
+	padding: 5px 5px 5px 15px;
+}
+
+p.fila {
+	font-size: 12px;
+	margin: 0;
+	padding: 5px;
+	border-bottom: 1px solid #ccc;
+	padding: 8px 5px 8px 15px;
+}
+
+/* Tablas de datos */
+.datos {
+	margin: 10px 0 0 10px;
+    border-collapse: collapse;
+}
+
+.datos tbody tr {
+    background-color: white;
+}
+
+.datos tbody tr:hover {
+    background-color: #d9d9d9;
+}
+
+.datos td {
+	font-size: 12px;
+	border: 1px solid #ccc;
+	padding: 5px;
+	border-collapse: collapse;
+}
+
+.datos thead td {
+	font-weight: bold;
+	text-align: center;
+	color: #333;
+	background-color: #eee;
+    text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+	<table id="tblCabecera">
+		<tbody>
+			<tr>
+				<td style=""><img
+					src="http://www.elcorteingles.es/portada/css/img/logotipo.png" /></td>
+				<td class="alDcha">Oficina de Certificaci&amp;oacute;n<br />
+					<h1>Informe de Integraci&amp;oacute;n Continua</h1>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div id="divContenido">
+
+		<j:set var="MAIL_SUBJECT" value="${build.buildVariableResolver.resolve('MAIL_SUBJECT')}" />
+		<j:set var="duration" value="${build.buildVariableResolver.resolve('duration')}" />
+		<j:set var="process" value="${build.buildVariableResolver.resolve('action').toUpperCase()}" />
+		<j:set var="stream" value="${build.buildVariableResolver.resolve('stream')}" />
+		<j:set var="streamTarget" value="${build.buildVariableResolver.resolve('streamTarget')}" />
+		<j:set var="component" value="${build.buildVariableResolver.resolve('component')}" />
+		<j:set var="urlCheckin" value="${build.buildVariableResolver.resolve('urlCheckin')}" />
+		<j:set var="version" value="${build.buildVariableResolver.resolve('version')}" />
+		<j:set var="statusHTML" value="${build.buildVariableResolver.resolve('statusHTML')}" />
+		<j:set var="resumenHTML" value="${build.buildVariableResolver.resolve('resumenHTML')}" />
+		<j:set var="resultadoTraducido" value="${build.buildVariableResolver.resolve('resultadoTraducido')}" />
+		<j:set var="lastBaseline" value="${build.buildVariableResolver.resolve('lastBaseline')}" />
+		<j:set var="penultimateBaseline" value="${build.buildVariableResolver.resolve('penultimateBaseline')}" />
+		<j:invokeStatic className="hudson.model.Hudson" method="getInstance" var="instanciaHudson"/>
+		<j:invoke on="${instanciaHudson}" var="pluginManager" method="getPluginManager"/>
+		<j:catch var="e">
+			<j:invokeStatic className="java.util.logging.LogManager" method="getLogManager"
+				var="logManager2"/>
+			<j:invoke on="${logManager2}" method="getLogger" var="logger2">
+				<j:arg type="java.lang.String" value="hudson.WebAppMain"/>
+			</j:invoke>
+			<!-- Changeset -->
+			<j:new className="java.io.File" var="changeLogFile">
+				<j:arg type="java.lang.String" value="${build.buildVariableResolver.resolve('rutaFicheroChangeLog')}"/>
+			</j:new>
+			<!-- Esto va al log de Jenkins -->
+				<j:invoke on="${logger2}" method="severe">
+					<j:arg type="java.lang.String" value="****rutaFicheroReleaseNotesLog: ${build.buildVariableResolver.resolve('rutaFicheroReleaseNotesLog')}"/>
+				</j:invoke>
+			<j:new className="com.deluan.jenkins.plugins.rtc.changelog.JazzChangeLogReader" var="changeLogReader"
+				classLoader="${pluginManager.uberClassLoader}" />
+			<j:invoke on="${changeLogReader}" var="changeSet" method="parse">
+				<j:arg type="hudson.model.AbstractBuild" value="${build}"/>
+				<j:arg type="java.io.File" value="${changeLogFile}"/>
+			</j:invoke>
+			<j:if test="${build.buildVariableResolver.resolve('rutaFicheroReleaseNotesLog') != null}">
+				<j:new className="java.io.File" var="releaseNotesLogFile">
+					<j:arg type="java.lang.String" value="${build.buildVariableResolver.resolve('rutaFicheroReleaseNotesLog')}"/>
+				</j:new>
+				<j:invoke on="${releaseNotesLogFile}" var="existReleaseNotesLogFile" method="exists" />
+				<j:if test="${existReleaseNotesLogFile}">
+					
+					
+					<!-- Esto va al log de Jenkins -->
+					<j:invoke on="${logger2}" method="severe">
+						<j:arg type="java.lang.String" value="****rutaFicheroReleaseNotesLog: Existe el fichero"/>
+					</j:invoke>
+					
+					
+					<j:new className="com.deluan.jenkins.plugins.rtc.changelog.JazzChangeLogReader" var="releaseNotesLogReader"
+						classLoader="${pluginManager.uberClassLoader}" />
+					<j:invoke on="${releaseNotesLogReader}" var="releaseNotes" method="parse">
+						<j:arg type="hudson.model.AbstractBuild" value="${build}"/>
+						<j:arg type="java.io.File" value="${releaseNotesLogFile}"/>
+					</j:invoke>
+					<j:invoke on="${releaseNotesLogReader}" var="releaseNotes" method="parse">
+						<j:arg type="hudson.model.AbstractBuild" value="${build}"/>
+						<j:arg type="java.io.File" value="${releaseNotesLogFile}"/>
+					</j:invoke>
+				</j:if>
+			</j:if>
+			<!-- Determinar la causa -->
+			<j:invokeStatic className="java.lang.Class" method="forName"
+					var="claseUpstreamCause">
+				<j:arg type="java.lang.String" value="hudson.model.Cause$UpstreamCause" />
+			</j:invokeStatic>  
+			<!--<j:invoke on="${build}" method="getCauses" var="causas"/>
+			<j:forEach items="${causas}" var="causaTmp">
+				<j:invoke var="claseCausa" on="${causaTmp}" method="getClass"/>
+				<j:invoke var="nombreClaseCausa" on="${claseCausa}" method="getName"/>	
+				<j:if test="${ nombreClaseCausa == 'hudson.model.Cause$UpstreamCause' }">
+					<j:set var="causa" value="${causaTmp}"/>
+				</j:if>
+			</j:forEach>-->
+			<j:invoke on="${build}" method="getCause" var="causa">
+				<j:arg type="java.lang.Class" value="${claseUpstreamCause}" />
+			</j:invoke>
+			<!-- buildInvoker -->
+			<j:invoke on="${causa}" var="nombrePadre" method="getUpstreamProject"/>
+			<j:invoke on="${causa}" var="numeroPadre" method="getUpstreamBuild"/>
+			<j:invoke on="${instanciaHudson}" var="jobPadre" method="getJob">
+				<j:arg type="java.lang.String" value="${nombrePadre}" />
+			</j:invoke>
+			<j:invoke on="${jobPadre}" var="buildInvoker" method="getBuildByNumber">
+				<j:arg type="int" value="${numeroPadre}"/>
+			</j:invoke>
+			<!-- Acciones del buildInvoker -->
+			<j:invoke on="${buildInvoker}" method="getActions" var="actions"/>
+			<j:forEach items="${actions}" var="action">
+				<j:invoke var="claseAction" on="${action}" method="getClass"/>
+				<j:invoke var="nombreClaseAction" on="${claseAction}" method="getName"/>				
+				<!-- JUnit -->
+				<j:if test="${ nombreClaseAction == 'hudson.tasks.junit.TestResultAction' }">
+					<j:invoke on="${action}" method="getResult" var="packageResult"/>
+					<!--<j:invoke on="${junitResult}" method="getPassedTests" var="junitResultList"/>-->
+				</j:if>
+				<!-- Jacoco -->
+				<j:if test="${ nombreClaseAction == 'hudson.plugins.jacoco.JacocoBuildAction' }">
+					<j:set var="jacocoAction" value="${action}" />
+				</j:if>
+				<!-- Cobertura -->
+				<j:if test="${ nombreClaseAction == 'hudson.plugins.cobertura.CoberturaBuildAction' }">
+					<j:set var="coberturaAction" value="${action}" />
+				</j:if>
+			</j:forEach>
+		</j:catch>
+		<j:if test="${e != null}">
+			<j:new className="java.io.ByteArrayOutputStream" var="baos"/>
+			<j:new className="java.io.PrintStream" var="printStream">
+				<j:arg type="java.io.OutputStream" value="${baos}"/>
+			</j:new>
+			<j:invoke on="${e}" method="printStackTrace">
+				<j:arg type="java.io.PrintStream" value="${printStream}"/>
+			</j:invoke>
+			<j:invokeStatic className="java.util.logging.LogManager" method="getLogManager"
+				var="logManager"/>
+			<j:invoke on="${logManager}" method="getLogger" var="logger">
+				<j:arg type="java.lang.String" value="hudson.WebAppMain"/>
+			</j:invoke>
+			<!-- Esto va al log de Jenkins -->
+			<j:invoke on="${logger}" method="severe">
+				<j:arg type="java.lang.String" value="${baos.toString()}"/>
+			</j:invoke>			
+		</j:if>
+		<br />
+		<div class="resumen">
+			<p><span>Proceso IC:</span> ${process}</p>
+			<p><span>Corriente RTC:</span> ${stream}</p>
+			<j:if test="${process=='RELEASE'}">
+				<p><span>Corriente RTC de destino:</span> ${streamTarget}</p>
+			</j:if>
+			<p><span>Componente RTC:</span> ${component}</p>
+			<j:if test="${version!=''}">
+				<p><span>Versión:</span> ${version}</p>
+			</j:if>
+			<p><span>Fecha:</span> ${it.timestampString}</p>
+			<p class="B${build.result}"><span>Resultado final:</span> ${resultadoTraducido}</p>
+			<p><span>Duración:</span> ${duration}</p>
+			<j:if test="${urlCheckin!=''}">
+				<p><span>Análisis de código estático:</span> <a href="${urlCheckin}">Consultar pizarras de usuario</a></p>
+			</j:if>
+		</div>
+		<br /><br />
+		<div class="datosProyecto">
+			<h2>RESULTADOS</h2>
+			<br /><br />
+			${resumenHTML}
+			<br />
+			<p class="B${build.result}"><span>Resultado Final:</span> ${resultadoTraducido}</p>
+			<p class="normal"><span>Duración de la construcción:</span> ${duration}</p>
+		</div>
+		<j:if test="${statusHTML!=null &amp;&amp; statusHTML!=''}">
+			<br />
+			<div class="datosProyecto">
+				<h2>LOGS</h2>
+				<br /><br />
+				${statusHTML}
+			</div>
+		</j:if>
+
+		<j:set var="unknownMails" value="${build.buildVariableResolver.resolve('unknownMails')}" />
+		<j:if test="${unknownMails!=null &amp;&amp; unknownMails!=''}">
+			<div class="seccion">
+				<h2>USUARIOS SIN DIRECCIÓN DE CORREO ELECTRÓNICO</h2>
+				<p class="BFAILURE">AVISO: Se debe informar el correo electrónico de los siguientes usuarios en RTC:</p>
+				<p class="normal">
+					<ul>${unknownMails}</ul>
+				</p>
+			</div>
+		</j:if>
+
+		<!-- changeset -->
+		<j:set var="spc" value="&amp;nbsp;&amp;nbsp;" />
+		<j:if test="${changeSet!=null &amp;&amp; !changeSet.isEmptySet() &amp;&amp; process!='RELEASE'}">
+			<j:set var="hadChanges" value="false" />
+			<div class="seccion">
+				<h2>CAMBIOS EN EL REPOSITORIO DE CÓDIGO FUENTE</h2>
+				<p class="normal">
+					<j:forEach var="cs" items="${changeSet.logs}" varStatus="loop">
+						<j:set var="hadChanges" value="true" />
+						<j:set var="aUser" value="${cs.hudsonUser}" />
+								${spc}Revisión <b>${cs.rev}</b> por
+						<b>
+							<j:choose>
+								<j:when test="${aUser!=null}">
+										${aUser.displayName}:
+		         					</j:when>
+								<j:otherwise>
+										${cs.user}:
+		         					</j:otherwise>
+							</j:choose>
+						</b>
+								${spc}${cs.getDateStr()}
+								<b> ${spc}(${cs.msg}) </b>
+						<br />
+		       					${spc}Ficheros:<br />
+						<j:forEach var="p" items="${cs.items}">
+									${spc}${spc}<b>${p.editType.name}</b>${spc}${p.path}<br />
+						</j:forEach>
+	    						${spc}WorkItems:<br />
+						<j:forEach var="wkIt" items="${cs.workItems}">
+									${spc}${spc}${wkIt}<br />
+						</j:forEach>
+						<br />
+					</j:forEach>
+					<j:if test="${!hadChanges}">
+							NO HA HABIDO CAMBIOS EN EL REPOSITORIO DE CÓDIGO FUENTE
+						</j:if>
+				</p>
+			</div>
+		</j:if>
+		
+		<!-- release notes -->
+		<j:set var="spc" value="&amp;nbsp;&amp;nbsp;" />
+		<j:if test="${releaseNotes!=null &amp;&amp; !releaseNotes.isEmptySet() &amp;&amp; process=='RELEASE'}">
+			<j:set var="hadChanges" value="false" />
+			<div class="seccion">
+				<h2>CAMBIOS INTRODUCIDOS EN LA VERSIÓN ${version}</h2>
+				<p class="normal">
+					<j:forEach var="cs" items="${releaseNotes.logs}" varStatus="loop">
+						<j:set var="hadChanges" value="true" />
+						<j:set var="aUser" value="${cs.hudsonUser}" />
+								${spc}Revisión <b>${cs.rev}</b> por
+						<b>
+							<j:choose>
+								<j:when test="${aUser!=null}">
+										${aUser.displayName}:
+		         					</j:when>
+								<j:otherwise>
+										${cs.user}:
+		         					</j:otherwise>
+							</j:choose>
+						</b>
+								${spc}${cs.getDateStr()}
+								<b> ${spc}(${cs.msg}) </b>
+						<br />
+						<!-- <br />
+		       					${spc}Ficheros:<br />
+						<j:forEach var="p" items="${cs.items}">
+									${spc}${spc}<b>${p.editType.name}</b>${spc}${p.path}<br />
+						</j:forEach>
+	    						${spc}WorkItems:<br />
+						<j:forEach var="wkIt" items="${cs.workItems}">
+									${spc}${spc}${wkIt}<br />
+						</j:forEach>
+						<br />-->
+					</j:forEach>
+					<j:if test="${!hadChanges}">
+							NO HA HABIDO CAMBIOS EN EL REPOSITORIO DE CÓDIGO FUENTE
+						</j:if>
+				</p>
+			</div>
+		</j:if>
+
+					<!-- ARTIFACTS -->
+			<j:set var="artifacts" value="${build.artifacts}" />
+			<j:if test="${artifacts!=null and artifacts.size()&gt;0}">
+				<div class="seccion">
+					<h2>COMPILE ARTIFACTS</h2>
+					<p class="normal">
+						<j:forEach var="f" items="${artifacts}">
+							<li><a href="#">${f}</a></li>
+						</j:forEach>
+					</p>
+				</div>
+			</j:if>
+
+			<!-- MAVEN ARTIFACTS -->
+			<j:set var="mbuilds" value="${build.moduleBuilds}" />
+			<j:if test="${mbuilds!=null}">
+				<div class="seccion">
+					<h2>COMPILACIÓN DE ARTEFACTOS</h2>
+					<p class="normal">
+						<j:forEach var="m" items="${mbuilds}">
+							<b>${m.key.displayName}</b>
+							<j:forEach var="mvnbld" items="${m.value}">
+								<j:set var="artifacts" value="${mvnbld.artifacts}" />
+								<j:if test="${artifacts!=null and artifacts.size()&gt;0}">
+									<j:forEach var="f" items="${artifacts}">
+										<li><a href="#">${f}</a></li>
+									</j:forEach>
+								</j:if>
+							</j:forEach>
+						</j:forEach>
+					</p>
+				</div>
+			</j:if>
+
+			<!-- Resultados Junit -->
+			<!--<j:set var="junitResultList" value="${it.JUnitTestResult}" />-->
+			<!--<j:if test="${junitResultList != null &amp;&amp; junitResultList.isEmpty()!=true &amp;&amp; junitResultList.size()>0}">-->
+			<j:if test="${ packageResult != null }" >
+				<div class="seccion">
+					<h2>PRUEBAS UNITARIAS</h2>
+					<!--<j:forEach var="junitResult" items="${it.JUnitTestResult}">
+						<j:forEach var="packageResult" items="${junitResult.getChildren()}">-->
+							<p class="fila">Name: ${packageResult.getName()} Fallados:
+									${packageResult.getFailCount()} test(s), Correctos:
+									${packageResult.getPassCount()} test(s), Omitidos:
+									${packageResult.getSkipCount()} test(s), Total:
+									${packageResult.getPassCount()+packageResult.getFailCount()+packageResult.getSkipCount()}
+									test(s)
+							</p>
+							<j:forEach var="failed_test" items="${packageResult.getFailedTests()}">
+								<p class="fila">
+									<li>Failed: ${failed_test.getFullName()}</li>
+								</p>
+							</j:forEach>
+						<!--</j:forEach>
+					</j:forEach>-->
+				</div>
+			</j:if>
+			<!-- Resultado global nulo -->
+			<j:if test="${build.result=='SUCCESS' &amp;&amp; jacocoAction==null &amp;&amp; coberturaAction==null}">
+				<div class="seccion">
+	            	<h2>INFORME DE COBERTURA DE PRUEBAS UNITARIAS</h2>
+	            	<div class="subEstado">0% (el proyecto no dispone de información de cobertura)</div>
+                </div>
+			</j:if>
+			<!-- Resultados de Jacoco -->
+            <j:if test="${jacocoAction!=null}">
+            	<j:set var="jacocoResult" value="${jacocoAction.result}" />
+                <j:if test="${jacocoResult!=null}">
+                	<div class="seccion">        
+                	    <h2>INFORME DE COBERTURA</h2>
+                		<h3>Resumen de Cobertura de Proyecto</h3>	
+                    	<table class="datos">
+                    	 	<thead>
+	                        	<tr>
+	                            	<td>Package</td>
+	                              	<td>Branches</td>
+	                              	<td>Complexity</td>
+	                              	<td>Instructions</td>
+	                              	<td>Methods</td>
+	                              	<td>Lines</td>
+	                              	<td>Classes</td>
+	                            </tr>
+	                  		</thead>
+	                  		<tbody>
+	                            <j:forEach var="child" items="${jacocoResult.getChildren().entrySet()}">
+	                             	<j:set var="cResult" value="${child.value}"/>
+	                              	<tr>
+	                                <td>${child.key}</td>
+	                                <td>${cResult.branchCoverage.percentage}%</td>
+	                                <td>${cResult.complexityScore.percentage}%</td>
+	                                <td>${cResult.instructionCoverage.percentage}%</td>
+	                                <td>${cResult.methodCoverage.percentage}%</td>
+	                                <td>${cResult.lineCoverage.percentage}%</td>
+	                                <td>${cResult.classCoverage.percentage}%</td>
+	                              </tr>
+	                            </j:forEach>
+	                            <tr>
+	                              <td>
+	                                <b>Overall</b>
+	                              </td>
+	                              <td>${jacocoResult.branchCoverage.percentage}%</td>
+	                              <td>${jacocoResult.complexityScore.percentage}%</td>
+	                              <td>${jacocoResult.instructionCoverage.percentage}%</td>
+	                              <td>${jacocoResult.methodCoverage.percentage}%</td>
+	                              <td>${jacocoResult.lineCoverage.percentage}%</td>
+	                              <td>${jacocoResult.classCoverage.percentage}%</td>
+	                            </tr>
+	                    	</tbody>
+                          </table>
+                    </div>
+       			</j:if>
+      		</j:if>
+			
+			
+			<!-- Resultados cobertura -->			
+			<j:if test="${coberturaAction!=null}">
+				<j:set var="coberturaResult" value="${coberturaAction.result}" />
+				<j:if test="${coberturaResult!=null}">
+					<div class="seccion">
+	            		<h2>INFORME DE COBERTURA</h2>
+                		<h3>Resumen de Cobertura de Proyecto</h3>
+                		<table class="datos">
+                			<thead>
+                    			<tr>
+                    				<td>Nombre</td>
+                    				<j:forEach var="metric" items="${coberturaResult.metrics}">
+                        				<td>${metric.name}</td>
+                        			</j:forEach>
+		                        </tr>
+		                    </thead>
+		                    <tbody>
+	                    		<tr>
+		                        	<td>${coberturaResult.name}</td>
+		                        	<j:forEach var="metric" items="${coberturaResult.metrics}">
+		                            	<td data="${coberturaResult.getCoverage(metric).percentageFloat}">
+		                            		${coberturaResult.getCoverage(metric).percentage}%
+		                            		(${coberturaResult.getCoverage(metric)})
+		                            	</td>
+		                            </j:forEach>
+	                        	</tr>
+                    		</tbody>
+                		</table>
+                		<!-- meter SOURCE si existe -->
+                		<j:if test="${coberturaResult.sourceCodeLevel}">
+                			<h2>Fuente</h2>
+                			<j:choose>
+								<j:when test="${coberturaResult.sourceFileAvailable}">
+									<div style="overflow-x:scroll;">
+										<table class="datos">
+											<thead>
+												<tr><th colspan="3">${coberturaResult.relativeSourcePath}</th></tr>
+											</thead>
+											${coberturaResult.sourceFileContent}
+										</table>
+									</div>
+								</j:when>
+								<j:otherwise>
+									<p class="normal"><i>El código fuente no está disponible</i></p>
+								</j:otherwise>
+							</j:choose>
+                		</j:if>
+
+                		<j:forEach var="element" items="${coberturaResult.childElements}">
+							<j:set var="childMetrics" value="${coberturaResult.getChildMetrics(element)}" />
+							<h4>Desglose de cobertura por ${element.displayName}</h4>
+
+							<table class="datos">
+								<thead>
+									<tr>
+										<td>Nombre</td>
+										<j:forEach var="metric" items="${childMetrics}">
+											<td>${metric.name}</td>
+										</j:forEach>
+									</tr>
+								</thead>
+								<tbody>
+									<j:forEach var="c" items="${coberturaResult.children}">
+										<j:set var="child" value="${coberturaResult.getChild(c)}" />
+										<tr>
+											<td>${child.xmlTransform(child.name)}</td>
+											<j:forEach var="metric" items="${childMetrics}">
+												<j:set var="childResult" value="${child.getCoverage(metric)}" />
+													<j:choose>
+														<j:when test="${childResult!=null}">
+															<td data="${childResult.percentageFloat}">
+																${childResult.percentage}%
+																(${childResult})
+															</td>
+														</j:when>
+														<j:otherwise>
+															<td data="101">N/A</td>
+														</j:otherwise>
+													</j:choose>
+											</j:forEach>
+                						</tr>
+                					</j:forEach>
+								</tbody>
+							</table>
+						</j:forEach>
+                	</div>
+				</j:if>
+			</j:if>
+	</div>
+</body>
+</html>
+</j:jelly>

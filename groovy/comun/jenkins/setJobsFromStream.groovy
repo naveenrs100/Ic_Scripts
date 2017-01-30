@@ -1,0 +1,139 @@
+import java.util.List;
+import components.MavenComponent;
+import es.eci.utils.RTCBuildFileHelper;
+import es.eci.utils.ScmCommand;
+import es.eci.utils.Stopwatch;
+import es.eci.utils.TmpDir;
+import groovy.io.*;
+import groovy.json.*;
+import hudson.model.*;
+import es.eci.utils.pom.SortGroupsStrategy;
+import es.eci.utils.ParamsHelper;
+import es.eci.utils.jenkins.GetJobsUtils;
+
+tecnologias = ["maven":"pom\\.xml","gradle":"build\\.gradle"]
+
+def build = Thread.currentThread().executable
+def resolver = build.buildVariableResolver
+
+// Se determina si es un proyecto Git o RTC
+def stream = resolver.resolve("stream")
+def streamTarget = resolver.resolve("streamTarget")
+def gitGroup = resolver.resolve("gitGroup")
+def streamCargaInicial = resolver.resolve("streamCargaInicial")
+if (streamCargaInicial != null && streamCargaInicial.trim() != '') {
+	stream = streamCargaInicial
+}
+def action = resolver.resolve("action")
+def onlyChanges = resolver.resolve("onlyChanges")
+def todos_o_ninguno = resolver.resolve("todos_o_ninguno")
+def makeSnapshot = resolver.resolve("makeSnapshot")
+def getOrdered = resolver.resolve("getOrdered")
+def workspaceRTC = resolver.resolve("workspaceRTC")
+def jenkinsHome	= build.getEnvironment(null).get("JENKINS_HOME")
+def scmToolsHome = build.getEnvironment(null).get("SCMTOOLS_HOME");
+def daemonsConfigDir = build.getEnvironment(null).get("DAEMONS_HOME");
+def light = true;
+def typeOrigin = "workspace"
+def typeTarget = "stream"
+def nameOrigin = "${workspaceRTC}";
+def nameTarget = "${stream}";
+def userRTC = build.getEnvironment(null).get("userRTC");
+def pwdRTC = resolver.resolve("pwdRTC");
+def urlRTC = build.getEnvironment(null).get("urlRTC");
+def parentWorkspace = build.workspace.toString();
+String componentesRelease = resolver.resolve("componentesRelease");
+
+// Parámetros que viene de Git. Ir limp
+def branch = resolver.resolve("originBranch");
+def commitsId = resolver.resolve("commitsId");
+def gitHost = build.getEnvironment(null).get("GIT_HOST");
+def keystoreVersion = build.getEnvironment(null).get("GITLAB_KEYSTORE_VERSION");
+def privateGitLabToken = build.getEnvironment(null).get("GITLAB_PRIVATE_TOKEN");
+def technology = resolver.resolve("technology");
+def urlGitlab = build.getEnvironment(null).get("GIT_URL");
+def urlNexus = build.getEnvironment(null).get("MAVEN_REPOSITORY");
+def lastUserIC = build.getEnvironment(null).get("lastUserIC");
+def gitCommand = build.getEnvironment(null).get("GIT_SH_COMMAND");
+def mavenHome = build.getEnvironment(null).get("MAVEN_HOME");
+
+// Naturaleza del SCM del proyecto
+def projectNature;
+if(gitGroup != null && !gitGroup.trim().equals("")) {
+	projectNature = "git";
+} else if(stream != null && !stream.trim().equals("")) {
+	projectNature = "rtc";
+}
+
+GetJobsUtils gju = new GetJobsUtils(build, projectNature, action, onlyChanges,
+									workspaceRTC, jenkinsHome, scmToolsHome,
+									daemonsConfigDir, userRTC, pwdRTC, urlRTC,
+									parentWorkspace, commitsId, gitHost, keystoreVersion,
+									privateGitLabToken, technology, urlGitlab,
+									urlNexus, lastUserIC, gitCommand, mavenHome,
+									stream, todos_o_ninguno, getOrdered,
+									componentesRelease, gitGroup, branch);
+
+gju.initLogger { println it };
+
+/** CÁLCULO DE COMPONENTES INTRODUCIDOS A MANO **/
+List<String> listaComponentesRelease = gju.getComponentsReleaseList();
+println("listaComponentesRelease -> ${listaComponentesRelease}")
+
+/** CÁLCULO DE COMPONENTES TOTALES QUE CUELGAN DEL GRUPO ADECUADO EN EL SCM (stream ó gitGroup) **/
+List<String> scmComponentsList = gju.getScmComponentsList();
+println("scmComponentsList -> ${scmComponentsList}")
+
+/** CÁLCULO DE COMPONENTES SI HAY CAMBIOS **/
+List<String> finalComponentsList = gju.getFinalComponentList(scmComponentsList,listaComponentesRelease);
+println("finalComponentsList -> ${finalComponentsList}")
+
+/** CÁLCULO DEL ORDEN DE LOS COMPONENTES (SI ES NECESARIO) Y DE SUS COMPONENTES ARRASTRADOS POR DEPENDENCIAS **/
+List<List<String>> sortedMavenCompoGroups = gju.getOrderedList(finalComponentsList, scmComponentsList);
+println("sortedMavenCompoGroups -> ${sortedMavenCompoGroups}")
+
+/** CÁLCULO DE LA LISTA DE LISTAS DE JOBS SEGÚN EL REQUERIMIENTO DE ORDENACIÓN **/
+List<List<String>> jobs = gju.getJobsList(finalComponentsList, sortedMavenCompoGroups);
+println("jobs -> ${jobs}")
+
+if (jobs!=null) {
+	def params = []
+	
+	// Calculamos si la lista de listas de jobs está vacía.
+	boolean emptyJobs = true;
+	jobs.each {
+		if(it.size() > 0) {
+			emptyJobs = false
+		}
+	}
+	def jobsString = JsonOutput.toJson(jobs);
+	if(!emptyJobs) {
+		params.add(new StringParameterValue("jobs","${jobsString}"))
+	} else if(!emptyJobs) {
+		params.add(new StringParameterValue("jobs",""))
+	}
+	
+	
+	params.add(new StringParameterValue("homeStream","${build.workspace}"));
+	if (projectNature.equals("rtc") && action!="release" && action != "addFix" && action != "addHotfix") {
+		params.add(new StringParameterValue("streamTarget",stream));
+	}
+	File fArtifacts = new File(build.workspace.toString() + '/artifacts.json');
+	// Así aseguramos que el artifacts.json pasa a los esclavos
+	if (fArtifacts.exists()) {
+		String artifacts = fArtifacts.text;
+		params.add(new StringParameterValue("artifactsFile", artifacts));
+		params.add(new StringParameterValue("artifactsJson", artifacts));
+	}
+	def componentsUrban = gju.getComponentsUrban(jobsString);
+	params.add(new StringParameterValue("componentsUrban","${componentsUrban}"));
+
+	gju.setParams(build,params)
+	
+	if (emptyJobs) {
+		println("La lista de jobs en setJobsFromStream ha resultado ser vacía.");
+		build.setResult(Result.NOT_BUILT);
+	}
+}
+
+

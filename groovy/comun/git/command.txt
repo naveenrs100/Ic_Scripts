@@ -1,0 +1,40 @@
+########################### UPLOAD ###########################################
+
+groovy 
+-cp "C:\OpenDevECI\Workspace64\DIC - Scripts\groovy\classes" 
+-Dparam.commitMessage=Testing 
+-Dparam.parentWorkspace=C:\jenkins\workspace\testGitRelease 
+-Dparam.originFolder=MASTER
+-Dparam.sameBranch=false 
+-Dparam.targetBranch=branch2 
+-Dparam.gitUser=git 
+-Dparam.gitHost=MX00000018D0323.eci.geci 
+-Dparam.gitPath=GrupoPruebaRelease/Proyecto-Prueba-Release.git 
+stepGitUpload.groovy 
+
+groovy -cp "C:\OpenDevECI\Workspace64\DIC - Scripts\groovy\classes" -Dparam.commitMessage=Testing -Dparam.parentWorkspace=C:\jenkins\workspace\testGitRelease -Dparam.originFolder=MASTER -Dparam.sameBranch=true -Dparam.targetBranch=branch2 -Dparam.gitUser=git -Dparam.gitHost=MX00000018D0323.eci.geci -Dparam.gitPath=GrupoPruebaRelease/Proyecto-Prueba-Release.git stepGitUpload.groovy 
+
+########################### CLONE ###########################################
+
+groovy 
+-cp "C:\OpenDevECI\Workspace64\DIC - Scripts\groovy\classes" 
+-Dparam.gitUser=git 
+-Dparam.gitHost=MX00000018D0323.eci.geci 
+-Dparam.gitPath=GrupoPruebaRelease/Proyecto-Prueba-Release.git 
+-Dparam.gitBranch=master
+-Dparam.localFolderName=MASTER
+-Dparam.parentWorkspace=C:\Users\dcastro.jimenez\Git_tests
+stepGitClone.groovy
+
+groovy -cp "C:\OpenDevECI\Workspace64\DIC - Scripts\groovy\classes" -Dparam.gitUser=git -Dparam.gitHost=MX00000018D0323.eci.geci -Dparam.gitPath=X72983BA/Proyecto-Prueba-Release.git -Dparam.gitBranch=master -Dparam.localFolderName=MASTER -Dparam.parentWorkspace=C:\Users\dcastro.jimenez\Git_tests stepGitClone.groovy 
+
+############################ MERGE ##########################################
+
+groovy 
+-cp "C:\OpenDevECI\Workspace64\DIC - Scripts\groovy\classes" 
+-Dparam.parentWorkspace=C:\jenkins\workspace\testGitRelease
+-Dparam.originBranch=master
+-Dparam.targetBranch=branch2
+stepGitMergeBranches.groovy
+
+groovy -cp "C:\OpenDevECI\Workspace64\DIC - Scripts\groovy\classes" -Dparam.parentWorkspace=C:\jenkins\workspace\testGitRelease -Dparam.originBranch=master -Dparam.targetBranch=branch2 stepGitMergeBranches.groovy 

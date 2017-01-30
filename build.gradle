@@ -1,0 +1,104 @@
+buildscript {
+	repositories {
+		maven {
+			name = 'ECI Nexus Public Repository'
+			url = "$project.nexusUrl/public"
+		}		
+		mavenLocal()		
+	}	
+}
+
+apply plugin: 'groovy'
+
+dependencies {
+	compile gradleApi()
+	compile localGroovy()
+}
+
+apply plugin: 'maven'
+apply plugin: 'eclipse'
+
+sourceSets {
+	main {
+		groovy {
+			srcDirs 'groovy/classes'
+			srcDirs 'groovy/comun/broker'
+			srcDirs 'groovy/comun/checking'
+			srcDirs 'groovy/comun/clarive'
+			srcDirs 'groovy/comun/ftp'
+			srcDirs 'groovy/comun/git'
+			srcDirs 'groovy/comun/jenkins'
+			srcDirs 'groovy/comun/portal'
+			srcDirs 'groovy/comun/rtc'			
+			srcDirs 'groovy/comun/tpv'
+			srcDirs 'groovy/comun/version'
+			srcDirs 'groovy/comun/npm'
+			srcDirs 'groovy/comun/was'
+			srcDirs 'groovy/maven/was'
+		}
+	}
+	test {
+		groovy {
+			srcDirs 'src/integration-test/groovy'
+		}
+	}
+}
+
+repositories {
+	maven {
+		name = 'ECI Nexus Public Repository'
+		url = "$project.nexusUrl/public"
+	}	
+}
+
+dependencies {
+	compile "org.acegisecurity:acegi-security:1.0.7"
+	compile "org.apache.commons:commons-collections4:4.0"
+	compile "org.jenkins-ci:commons-jelly:1.1-jenkins-20120928"
+	compile "commons-logging:commons-logging:1.1.3"
+	compile "com.google.code.findbugs:findbugs:3.0.1"
+	compile "com.google.inject:guice:4.0-beta"
+	compile "org.jenkins-ci.main:jenkins-core:1.612"
+	compile "org.kohsuke.stapler:json-lib:2.4-jenkins-2"
+	compile "com.google.code.findbugs:jsr305:1.3.9"
+	compile "org.jenkins-ci.main:remoting:2.51"
+	compile "com.atsistemas.rtc:rtc:5.0.1"
+	compile "org.kohsuke.stapler:stapler:1.237"
+	compile "org.kohsuke.stapler:stapler-jelly:1.237"
+	compile "org.jenkins-ci:task-reactor:1.4"
+	compile "org.jenkins-ci:version-number:1.1"
+	compile "com.thoughtworks.xstream:xstream:1.4.7"
+	compile "org.apache.commons:commons-vfs2:2.0"
+	compile "com.jcraft:jsch:0.1.50"
+	compile "org.hamcrest:hamcrest-core:1.3"
+	compile "org.codehaus.groovy.modules.http-builder:http-builder:0.7.1"
+	compile "org.apache.httpcomponents:httpmime:4.4"
+	compile "org.apache.poi:poi-ooxml:3.10.1"
+	compile "org.codehaus.groovy:groovy-xmlrpc:0.8"	 
+	compile "com.ibm.icu:icu4j:57.1"
+	compile "com.cloudbees.plugins:build-flow-plugin:0.16@jar" // Si no se va a bajar el hpi
+	
+	groovy "org.codehaus.groovy:groovy:1.8.9" 	// Remove with "compile" configuration in Gradle 2.0
+	groovy "org.apache.ivy:ivy:2.4.0"			// Remove with "compile" configuration in Gradle 2.0
+}
+
+jar {
+	manifest {
+		attributes 'Implementation-Group': "$project.group",
+		'Implementation-Name': "$project.baseName",
+		'Implementation-Version': "$project.version"
+	}
+}
+
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			repository(url: "$project.nexusUrl/eci") {
+				authentication(userName: "$project.nexusUserName", password: "$project.nexusUserPwd")
+			}
+			snapshotRepository(url: "$project.nexusUrl/eci") {
+				authentication(userName: "$project.nexusUserName", password: "$project.nexusUserPwd")
+			}
+		}
+	}
+}

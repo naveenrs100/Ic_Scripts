@@ -1,0 +1,26 @@
+[
+  {
+    "version": "1.0.7.0-SNAPSHOT",
+    "component": "",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "App2-EAR"
+  },
+  {
+    "version": "1.0.7.0-SNAPSHOT",
+    "component": "",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "hijo2"
+  },
+  {
+    "version": "1.0.7.0-SNAPSHOT",
+    "component": "",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "App2-WAR"
+  },
+  {
+    "version": "1.0.7.0-SNAPSHOT",
+    "component": "",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "App2-POM"
+  }
+]

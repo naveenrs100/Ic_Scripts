@@ -1,0 +1,419 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>&lt;form method=&quot;post&quot; action=&quot;build?delay=0sec&quot; name=&quot;parameters&quot;&gt;
+&lt;table width=&quot;100%&quot; class=&quot;parameters&quot;&gt;
+<%if (action=="release" || action=="addFix" || action=="addHotfix") { %>
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;setting-leftspace&quot;&gt; &lt;/td&gt;
+&lt;td class=&quot;setting-name&quot;&gt;EJECUTAR A PARTIR DE SNAPSHOT (RTC)&lt;/td&gt;
+&lt;td class=&quot;setting-main&quot;&gt;
+&lt;div name=&quot;parameter&quot; description=&quot;&quot;&gt;
+&lt;input value=&quot;snapshot&quot; type=&quot;hidden&quot; name=&quot;name&quot; /&gt;
+&lt;input value=&quot;&quot; class=&quot;setting-input   &quot; type=&quot;text&quot; name=&quot;value&quot; /&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;validation-error-area&quot;&gt;
+&lt;td colspan=&quot;2&quot;&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;setting-leftspace&quot;&gt; &lt;/td&gt;
+&lt;td class=&quot;setting-name&quot;&gt;WorkItem para subir versión&lt;/td&gt;
+&lt;td class=&quot;setting-main&quot;&gt;
+&lt;div name=&quot;parameter&quot; description=&quot;&quot;&gt;
+&lt;input value=&quot;workItem&quot; type=&quot;hidden&quot; name=&quot;name&quot; /&gt;
+&lt;input value=&quot;${workItem}&quot; class=&quot;setting-input   &quot; type=&quot;text&quot; name=&quot;value&quot; /&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;validation-error-area&quot;&gt;
+&lt;td colspan=&quot;2&quot;&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+<% } %>
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;setting-leftspace&quot;&gt; &lt;/td&gt;
+&lt;td class=&quot;setting-name&quot;&gt;Lanza procesos solo si hay cambios en RTC&lt;/td&gt;
+&lt;td class=&quot;setting-main&quot;&gt;
+&lt;div name=&quot;parameter&quot; description=&quot;&quot;&gt;
+&lt;input value=&quot;onlyChanges&quot; type=&quot;hidden&quot; name=&quot;name&quot; /&gt;
+&lt;input ${onlyChanges?"checked":""} class=&quot; &quot; type=&quot;checkbox&quot; name=&quot;value&quot; /&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;validation-error-area&quot;&gt;
+&lt;td colspan=&quot;2&quot;&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;setting-leftspace&quot;&gt; &lt;/td&gt;
+&lt;td class=&quot;setting-name&quot;&gt;Hace snapshot en RTC&lt;/td&gt;
+&lt;td class=&quot;setting-main&quot;&gt;
+&lt;div name=&quot;parameter&quot; description=&quot;&quot;&gt;
+&lt;input value=&quot;makeSnapshot&quot; type=&quot;hidden&quot; name=&quot;name&quot; /&gt;
+&lt;input ${makeSnapshot?"checked":""} class=&quot; &quot; type=&quot;checkbox&quot; name=&quot;value&quot; /&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;validation-error-area&quot;&gt;
+&lt;td colspan=&quot;2&quot;&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;setting-leftspace&quot;&gt; &lt;/td&gt;
+&lt;td class=&quot;setting-name&quot;&gt;Reintentar&lt;/td&gt;
+&lt;td class=&quot;setting-main&quot;&gt;
+&lt;div name=&quot;parameter&quot; description=&quot;&quot;&gt;
+&lt;input value=&quot;retry&quot; type=&quot;hidden&quot; name=&quot;name&quot; /&gt;
+&lt;input ${retry?"checked":""} class=&quot; &quot; type=&quot;checkbox&quot; name=&quot;value&quot; /&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;validation-error-area&quot;&gt;
+&lt;td colspan=&quot;2&quot;&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;setting-leftspace&quot;&gt; &lt;/td&gt;
+&lt;td class=&quot;setting-name&quot;&gt;Ordenar según dependencias&lt;/td&gt;
+&lt;td class=&quot;setting-main&quot;&gt;
+&lt;div name=&quot;parameter&quot; description=&quot;&quot;&gt;
+&lt;input value=&quot;getOrdered&quot; type=&quot;hidden&quot; name=&quot;name&quot; /&gt;
+&lt;input ${getOrdered?"checked":""} class=&quot; &quot; type=&quot;checkbox&quot; name=&quot;value&quot; /&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;validation-error-area&quot;&gt;
+&lt;td colspan=&quot;2&quot;&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tbody style=&quot;display: none&quot;&gt;
+&lt;tr&gt;
+&lt;td class=&quot;setting-leftspace&quot;&gt; &lt;/td&gt;
+&lt;td class=&quot;setting-name&quot;&gt;&lt;/td&gt;
+&lt;td class=&quot;setting-main&quot;&gt;
+&lt;div name=&quot;parameter&quot; description=&quot;&quot;&gt;
+&lt;input value=&quot;stream&quot; type=&quot;hidden&quot; name=&quot;name&quot; /&gt;
+&lt;input value=&quot;${stream}&quot; type=&quot;text&quot; name=&quot;value&quot; /&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;validation-error-area&quot;&gt;
+&lt;td colspan=&quot;2&quot;&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tbody style=&quot;display: none&quot;&gt;
+&lt;tr&gt;
+&lt;td class=&quot;setting-leftspace&quot;&gt; &lt;/td&gt;
+&lt;td class=&quot;setting-name&quot;&gt;&lt;/td&gt;
+&lt;td class=&quot;setting-main&quot;&gt;
+&lt;div name=&quot;parameter&quot; description=&quot;&quot;&gt;
+&lt;input value=&quot;streamTarget&quot; type=&quot;hidden&quot; name=&quot;name&quot; /&gt;
+&lt;input value=&quot;${streamTarget}&quot; type=&quot;text&quot; name=&quot;value&quot; /&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;validation-error-area&quot;&gt;
+&lt;td colspan=&quot;2&quot;&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tbody style=&quot;display: none&quot;&gt;
+&lt;tr&gt;
+&lt;td class=&quot;setting-leftspace&quot;&gt; &lt;/td&gt;
+&lt;td class=&quot;setting-name&quot;&gt;&lt;/td&gt;
+&lt;td class=&quot;setting-main&quot;&gt;
+&lt;div name=&quot;parameter&quot; description=&quot;&quot;&gt;
+&lt;input value=&quot;workspaceRTC&quot; type=&quot;hidden&quot; name=&quot;name&quot; /&gt;
+&lt;input value=&quot;${workspaceRTC}&quot; type=&quot;text&quot; name=&quot;value&quot; /&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;validation-error-area&quot;&gt;
+&lt;td colspan=&quot;2&quot;&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tbody style=&quot;display: none&quot;&gt;
+&lt;tr&gt;
+&lt;td class=&quot;setting-leftspace&quot;&gt; &lt;/td&gt;
+&lt;td class=&quot;setting-name&quot;&gt;&lt;/td&gt;
+&lt;td class=&quot;setting-main&quot;&gt;
+&lt;div name=&quot;parameter&quot; description=&quot;&quot;&gt;
+&lt;input value=&quot;action&quot; type=&quot;hidden&quot; name=&quot;name&quot; /&gt;
+&lt;input value=&quot;${action}&quot; type=&quot;text&quot; name=&quot;value&quot; /&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;validation-error-area&quot;&gt;
+&lt;td colspan=&quot;2&quot;&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tbody style=&quot;display: none&quot;&gt;
+&lt;tr&gt;
+&lt;td class=&quot;setting-leftspace&quot;&gt; &lt;/td&gt;
+&lt;td class=&quot;setting-name&quot;&gt;&lt;/td&gt;
+&lt;td class=&quot;setting-main&quot;&gt;
+&lt;div name=&quot;parameter&quot; description=&quot;&quot;&gt;
+&lt;input value=&quot;deleteDeploy&quot; type=&quot;hidden&quot; name=&quot;name&quot; /&gt;
+&lt;input value=&quot;${deleteDeploy}&quot; type=&quot;text&quot; name=&quot;value&quot; /&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;validation-error-area&quot;&gt;
+&lt;td colspan=&quot;2&quot;&gt;
+&lt;/td&gt;
+&lt;td&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tr&gt;
+&lt;td colspan=&quot;3&quot;&gt;
+&lt;input value=&quot;Build&quot; class=&quot;submit-button&quot; type=&quot;submit&quot; name=&quot;Submit&quot; /&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/form&gt;</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>stream</name>
+          <description></description>
+          <defaultValue>${stream}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>streamTarget</name>
+          <description></description>
+          <defaultValue>${streamTarget}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>workspaceRTC</name>
+          <description></description>
+          <defaultValue>${workspaceRTC}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>action</name>
+          <description></description>
+          <defaultValue>${action}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>onlyChanges</name>
+          <description></description>
+          <defaultValue>${onlyChanges}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>makeSnapshot</name>
+          <description></description>
+          <defaultValue>${makeSnapshot}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>retry</name>
+          <description></description>
+          <defaultValue>${retry}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>getOrdered</name>
+          <description></description>
+          <defaultValue>${getOrdered}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>deleteDeploy</name>
+          <description></description>
+          <defaultValue>${deleteDeploy}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>snapshot</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>workItem</name>
+          <description></description>
+          <defaultValue>${workItem}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <de.pellepelster.jenkins.walldisplay.WallDisplayJobProperty/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>triggers</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <jdk>(Default)</jdk>
+  <triggers class="vector">${timing}</triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <customWorkspace>\$JENKINS_HOME/workspace/${streamNoW}_${action}</customWorkspace>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>export typeOrigin=&quot;workspace&quot;
+export nameOrigin=&quot;\${workspaceRTC}&quot;
+export typeTarget=&quot;stream&quot;
+export nameTarget=&quot;\${stream}&quot;
+export fileOut=&quot;componentsCompare.txt&quot;
+bash \$JENKINS_HOME/jobs/ScriptsCore/workspace/bash/comun/rtc/getComponents.sh</command>
+    </hudson.tasks.Shell>
+    <hudson.plugins.groovy.SystemGroovy>
+      <scriptSource class="hudson.plugins.groovy.FileScriptSource">
+        <scriptFile>\$JENKINS_HOME/jobs/ScriptsCore/workspace/groovy/comun/jenkins/setJobsFromStream.groovy</scriptFile>
+      </scriptSource>
+      <bindings></bindings>
+      <classpath></classpath>
+    </hudson.plugins.groovy.SystemGroovy>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+      <condition class="org.jenkins_ci.plugins.run_condition.contributed.ShellCondition">
+        <command>if ! [ -f &quot;pom.xml&quot; ]; then
+exit -1
+fi</command>
+      </condition>
+      <buildStep class="hudson.tasks.Maven">
+        <targets>validate -l reactor.log</targets>
+        <mavenName>Maven3.0.4</mavenName>
+        <usePrivateRepository>false</usePrivateRepository>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner\$Fail"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <hudson.plugins.groovy.SystemGroovy>
+      <scriptSource class="hudson.plugins.groovy.FileScriptSource">
+        <scriptFile>\$JENKINS_HOME/jobs/ScriptsCore/workspace/groovy/comun/jenkins/setOrderedJobs.groovy</scriptFile>
+      </scriptSource>
+      <bindings></bindings>
+      <classpath></classpath>
+    </hudson.plugins.groovy.SystemGroovy>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+      <condition class="org.jenkins_ci.plugins.run_condition.contributed.ShellCondition">
+        <command>if [ &quot;\${jobs}&quot; = &quot;&quot; ]; then
+exit -1
+fi</command>
+      </condition>
+      <buildStep class="hudson.plugins.parameterizedtrigger.TriggerBuilder">
+        <configs>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.CurrentBuildParameters/>
+            </configs>
+            <projects>Trigger</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <block>
+              <buildStepFailureThreshold>
+                <name>FAILURE</name>
+                <ordinal>2</ordinal>
+                <color>RED</color>
+              </buildStepFailureThreshold>
+              <unstableThreshold>
+                <name>UNSTABLE</name>
+                <ordinal>1</ordinal>
+                <color>YELLOW</color>
+              </unstableThreshold>
+              <failureThreshold>
+                <name>FAILURE</name>
+                <ordinal>2</ordinal>
+                <color>RED</color>
+              </failureThreshold>
+            </block>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+        </configs>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner\$Fail"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <hudson.plugins.groovy.SystemGroovy>
+      <scriptSource class="hudson.plugins.groovy.FileScriptSource">
+        <scriptFile>\$JENKINS_HOME/jobs/ScriptsCore/workspace/groovy/comun/version/setMajorVersionJobs.groovy</scriptFile>
+      </scriptSource>
+      <bindings></bindings>
+      <classpath></classpath>
+    </hudson.plugins.groovy.SystemGroovy>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+      <condition class="org.jenkins_ci.plugins.run_condition.contributed.ShellCondition">
+        <command>echo &quot;makeSnapshot: \${makeSnapshot}&quot;
+if [ &quot;\${makeSnapshot}&quot; != &quot;true&quot; ] || [ &quot;\${jobs}&quot; = &quot;&quot; ]; then
+exit -1
+fi</command>
+      </condition>
+      <buildStep class="hudson.plugins.parameterizedtrigger.TriggerBuilder">
+        <configs>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>tagType=snapshot
+parentWorkspace=\${homeStream}
+streamInVersion=true
+stream=\${streamTarget}
+description=JENKINS SNAPSHOT: \${action}
+version=local
+</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>stepRTCTagger</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <block>
+              <buildStepFailureThreshold>
+                <name>FAILURE</name>
+                <ordinal>2</ordinal>
+                <color>RED</color>
+              </buildStepFailureThreshold>
+              <unstableThreshold>
+                <name>UNSTABLE</name>
+                <ordinal>1</ordinal>
+                <color>YELLOW</color>
+              </unstableThreshold>
+              <failureThreshold>
+                <name>FAILURE</name>
+                <ordinal>2</ordinal>
+                <color>RED</color>
+              </failureThreshold>
+            </block>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+        </configs>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner\$Fail"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper/>
+  </buildWrappers>
+</project>

@@ -1,0 +1,14 @@
+[
+  {
+    "version": "1.0.0.0",
+    "component": "PruebaRelease-App-1",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "testHotfix1"
+  },
+  {
+    "version": "1.0.0.0-1",
+    "component": "PruebaRelease-App-1",
+    "groupId": "es.eci.release.prueba",
+    "artifactId": "testHotfix2"
+  }
+]

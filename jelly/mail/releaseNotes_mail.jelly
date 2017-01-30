@@ -1,0 +1,319 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define">
+<html>
+<head>
+<title>El Corte Ingl&amp;eacute;s - Oficina de
+	Certificaci&amp;oacute;n - Informe de Intergraci&amp;oacute;n Continua</title>
+<style>
+/* General */
+* {
+	font-family: "Lucida Sans", "Lucida Grande", Arial, Verdana;
+	/*border:1px solid red;*/
+}
+
+body {
+	padding: 0 10px 10px 10px;
+}
+
+.alCentro {
+	text-align: center
+}
+
+.alDcha {
+	text-align: right
+}
+
+/* Logo y titulo */
+#tblCabecera {
+	width: 100%;
+}
+
+#tblCabecera td {
+	border-bottom: 1px solid #030;
+	padding: 10px;
+	font-size: 15px;
+	color: #666;
+}
+
+#tblCabecera h1 { /*Ti­tulo "Informe de Integracion Continua" */
+	color: #000;
+	font-size: 16px;
+	margin: 0;
+}
+
+/* Capa de seccion */
+.seccion { /* SeparaciÃ³n entre mÃ³dulos */
+	margin-top: 25px;
+}
+
+.releasePhase {
+	color: #333;
+	background-color: #eee;
+}
+
+/* Datos del proyecto (nombre, fecha y demÃ¡s) */
+.datosProyecto {
+	margin: 0;
+	font-size: 14px;
+}
+
+.datosProyecto span {
+	font-weight: bold;
+	display: inline-block;
+	font-size: 14px;
+	color: #555;
+	width: 400px;
+	margin: 0 0 0 15px;
+}
+
+.resumen {
+	margin: 0;
+	font-size: 14px;
+}
+
+.resumen span {
+	display: inline-block;
+	font-size: 14px;
+	color: #555;
+	width: 200px;
+	margin: 0 0 0 15px;
+}
+
+.resumen p {
+	margin: 0;
+	padding: 2px 2px 2px 15px;
+}
+
+.BSUCCESS {
+	font-size: 18px;
+	color: #005828;
+	margin: 4px 0 0 15px;
+}
+
+.BNOT_EXECUTED {
+	font-size: 18px;
+	color: #C5C6C6;
+	margin: 4px 0 0 15px;
+}
+
+.BFAILURE {
+	font-size: 18px;
+	color: #900;
+	margin: 4px 0 0 15px;
+}
+
+.BUNSTABLE {
+	font-size: 18px;
+	color: #EBB834;
+	margin: 4px 0 0 15px;
+}
+
+.SUCCESS {
+	font-size: 16px;
+	color: #005828;
+	margin: 4px 0 0 15px;
+}
+
+.NOT_EXECUTED {
+	font-size: 16px;
+	color: #C5C6C6;
+	margin: 4px 0 0 15px;
+}
+
+.FAILURE {
+	font-size: 16px;
+	color: #900;
+	margin: 4px 0 0 15px;
+}
+
+.UNSTABLE {
+	font-size: 16px;
+	color: #EBB834;
+	margin: 4px 0 0 15px;
+}
+
+/* Elementos debajo de los estados pequenios [tipo "Checking report in attached file" bajo "Checking: success"] */
+.subEstado {
+	font-size: 13px;
+	color: #000;
+	margin: 2px 0 0 35px;
+}
+
+h2 {
+	/* titulos del tipo "SCM CHANGESET", "Cobertura Report" y similares */
+	color: #fff;
+	background-color: #007e3a;
+	font-size: 14px;
+	padding: 5px 5px 5px 15px;
+	margin: 0;
+}
+
+h3 { /* titulos del tipo "Project Coverage Summary" */
+	color: #000;
+	background-color: #ddd;
+	font-size: 13px;
+	padding: 5px 5px 5px 15px;
+	margin: 5px 0 0 0;
+}
+
+h4 { /* ti­tulos del tipo "Coverage Breakdown by Package" */
+	color: #333;
+	background-color: #eee;
+	font-size: 12px;
+	padding: 5px 5px 5px 15px;
+	margin: 20px 0 0 0;
+}
+
+p.normal {
+	font-size: 12px;
+	margin: 0;
+	padding: 5px 5px 5px 15px;
+}
+
+p.fila {
+	font-size: 12px;
+	margin: 0;
+	padding: 5px;
+	border-bottom: 1px solid #ccc;
+	padding: 8px 5px 8px 15px;
+}
+
+/* Tablas de datos */
+.datos {
+	margin: 10px 0 0 10px;
+	border-collapse: collapse;
+}
+
+.datos td {
+	font-size: 12px;
+	border: 1px solid #ccc;
+	padding: 5px;
+	border-collapse: collapse;
+}
+
+.datos thead td {
+	font-weight: bold;
+	text-align: center;
+	color: #333;
+	background-color: #eee;
+	text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+	<table id="tblCabecera">
+		<tbody>
+			<tr>
+				<td style=""><img
+					src="http://www.elcorteingles.es/portada/css/img/logotipo.png" /></td>
+				<td class="alDcha">Oficina de Certificaci&amp;oacute;n<br />
+					<h1>Informe de Integraci&amp;oacute;n Continua</h1>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div id="divContenido">
+
+		<j:set var="MAIL_SUBJECT" value="${build.buildVariableResolver.resolve('MAIL_SUBJECT')}" />
+		<j:set var="duration" value="${build.buildVariableResolver.resolve('duration')}" />
+		<j:set var="streamTarget" value="${build.buildVariableResolver.resolve('streamTarget')}" />
+		<j:set var="component" value="${build.buildVariableResolver.resolve('component')}" />
+		<j:set var="lastBaseline" value="${build.buildVariableResolver.resolve('lastBaseline')}" />
+		<j:set var="penultimateBaseline" value="${build.buildVariableResolver.resolve('penultimateBaseline')}" />
+		<j:invokeStatic className="hudson.model.Hudson" method="getInstance" var="instanciaHudson"/>
+		<j:invoke on="${instanciaHudson}" var="pluginManager" method="getPluginManager"/>
+		<j:catch var="e">
+			
+			<j:new className="java.io.File" var="releaseNotesLogFile">
+				<j:arg type="java.lang.String" value="${build.buildVariableResolver.resolve('rutaFicheroReleaseNotesLog')}"/>
+			</j:new>
+			<j:invoke on="${releaseNotesLogFile}" var="existReleaseNotesLogFile" method="exists" />
+			<j:if test="${existReleaseNotesLogFile}">
+				<j:new className="com.deluan.jenkins.plugins.rtc.changelog.JazzChangeLogReader" var="releaseNotesLogReader"
+					classLoader="${pluginManager.uberClassLoader}" />
+				<j:invoke on="${releaseNotesLogReader}" var="releaseNotes" method="parse">
+					<j:arg type="hudson.model.AbstractBuild" value="${build}"/>
+					<j:arg type="java.io.File" value="${releaseNotesLogFile}"/>
+				</j:invoke>
+				<j:invoke on="${releaseNotesLogReader}" var="releaseNotes" method="parse">
+					<j:arg type="hudson.model.AbstractBuild" value="${build}"/>
+					<j:arg type="java.io.File" value="${releaseNotesLogFile}"/>
+				</j:invoke>
+			</j:if>
+		</j:catch>
+		<j:if test="${e != null}">
+			<j:new className="java.io.ByteArrayOutputStream" var="baos"/>
+			<j:new className="java.io.PrintStream" var="printStream">
+				<j:arg type="java.io.OutputStream" value="${baos}"/>
+			</j:new>
+			<j:invoke on="${e}" method="printStackTrace">
+				<j:arg type="java.io.PrintStream" value="${printStream}"/>
+			</j:invoke>
+			<j:invokeStatic className="java.util.logging.LogManager" method="getLogManager"
+				var="logManager"/>
+			<j:invoke on="${logManager}" method="getLogger" var="logger">
+				<j:arg type="java.lang.String" value="hudson.WebAppMain"/>
+			</j:invoke>
+			<!-- Esto va al log de Jenkins -->
+			<j:invoke on="${logger}" method="severe">
+				<j:arg type="java.lang.String" value="${baos.toString()}"/>
+			</j:invoke>			
+		</j:if>
+		<br />
+		<div class="resumen">
+			<p><span>RTC Stream Target:</span> ${streamTarget}</p>
+			<p><span>RTC Component:</span> ${component}</p>
+			<p><span>COMPARANDO:</span>[${lastBaseline}] - [${penultimateBaseline}]</p>
+			<p><span>Date:</span> ${it.timestampString}</p>
+			<p class="B${build.result}"><span>Final Result:</span> ${build.result}</p>
+			<p><span>Duration:</span> ${duration}</p>
+		</div>
+		<br /><br />
+		
+		<j:set var="unknownMails" value="${build.buildVariableResolver.resolve('unknownMails')}" />
+		<j:if test="${unknownMails!=null &amp;&amp; unknownMails!=''}">
+			<div class="seccion">
+				<h2>NO MAIL USERS</h2>
+				<p class="BFAILURE">IMPORTANT: Mail information must be set in
+					RTC for this users:</p>
+				<p class="normal">
+					<ul>${unknownMails}</ul>
+				</p>
+			</div>
+		</j:if>
+
+		<!-- release notes -->
+		<j:set var="spc" value="&amp;nbsp;&amp;nbsp;" />
+		<j:if test="${releaseNotes!=null &amp;&amp; !releaseNotes.isEmptySet()}">
+			<j:set var="hadChanges" value="false" />
+			<div class="seccion">
+				<h2>RELEASE NOTES</h2>
+				<p class="normal">
+					<j:forEach var="cs" items="${releaseNotes.logs}" varStatus="loop">
+						<j:set var="hadChanges" value="true" />
+						<j:set var="aUser" value="${cs.hudsonUser}" />
+								${spc}Revision <b>${cs.rev}</b> by
+						<b>
+							<j:choose>
+								<j:when test="${aUser!=null}">
+										${aUser.displayName}:
+		         					</j:when>
+								<j:otherwise>
+										${cs.user}:
+		         					</j:otherwise>
+							</j:choose>
+						</b>
+								${spc}${cs.getDateStr()}
+								<b> ${spc}(${cs.msg}) </b>
+						<br/>
+					</j:forEach>
+					<j:if test="${!hadChanges}">
+							NO CHANGES IN SCM REPOSITORY
+						</j:if>
+				</p>
+			</div>
+		</j:if>
+	</div>
+</body>
+</html>
+</j:jelly>

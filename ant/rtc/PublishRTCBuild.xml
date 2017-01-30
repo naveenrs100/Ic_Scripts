@@ -1,0 +1,225 @@
+<!--
+This sample build demonstrates use of ant build that is run using Hudson (https://hudson.dev.java.net/) using an RTC build 
+definition. Build status and results are published to an RTC build result that is viewable in RTC.
+
+Pre-requisites:
+1. Java JDK is installed and JAVA_HOME is set the JDK install path
+2. Apache Ant is installed. The system path includes the bin directory in the ant install path (i.e. C:/apache-ant-1.7.1/bin)
+3. Hudson is installed and the server is running (java -jar hudson.war)
+4. An RTC build definition for the target build. It should be defined as follows:
+	a) In the wizard General Information page select: Generic
+	b) In the wizard Additional Configuration page check: General and Properties
+	c) Press Finish to complete the build definition.
+	d) In the build definition editor, Properties page, set the following properties
+		- Property: hudsonURL Value: hudson URL (i.e. http://localhost:8080)
+		- Property: targetBuildPath Value: path relative to the ant build script in the Hudson Job's workspace folder (i.e. releng/buildJUnit-calledFromHudson.xml)
+		- Property: workspaceId Value: UUID of the RTC workspace assigned to this build 
+		- Property: buildOnlyIfChangesAccepted Value: true 
+		(optional. if property is set then then the target build is not called unless there were changes since the previous build)	
+5. An RTC build engine exclusively for Hudson. The build definition in the previous step is assigned to this engine.
+6. A Hudson job is defined with the name that matches the name of the RTC build definition above.
+  (RTC Junit was used for the sample build) and is defined with the following configuration information
+	a) Job type is: Build a free-style software project 
+	b) Source code management: None
+	c) Build is set to: Invoke Ant
+	d) Targets field contains:
+		all
+		-lib <path to RTC build toolkit (i.e. c:/jazz/buildsystem/buildtoolkit) >
+		-DrepositoryAddress=https://<repository URL>:9443/jazz
+		-DbuildDefinitionId=<name of the build engine defined above>
+		-DbuildEngineId=<name of build engine defined above)
+		-DjazzBuildSystemPath=<RTC installation path (i.e. c:/jazz)>
+	e) Build File: buildOnHudson.xml	
+-->
+
+<project name="RTC Jenkins" default="all">
+<!--
+Properties passed from the RTC build definition for this build script:
+	hudsonURL: URL to support publish of a link to build result on Hudson
+	targetBuildPath: relative path to the application build script that will be called from this script
+	workspaceId: UUID of the repository workspace used by the build
+
+Properties passed from the Hudson build definition to this build script:
+	repositoryAddress: URL to the Jazz server
+	buildDefinitionId: Name of the RTC build definition of the application build
+	buildEngineId: Name of the RTC build engine that is associated with the RTC build definition (buildDefinitionId)
+	jazzBuildSystemPath: path to the installation of the RTC where the Build System client exists
+-->
+<taskdef resource="net/sf/antcontrib/antlib.xml"/>
+<!-- This import provides visibility to all the build toolkit tasks -->
+<import file="${jazzBuildSystemPath}/jazz/buildsystem/buildtoolkit/BuildToolkitTaskDefs.xml"/>
+	<!--	Property userid is a build user defined in RTC with a Build System client license
+	Use of an encrypted password file is a more appropriate approach. See this information center link for more info:
+	http://publib.boulder.ibm.com/infocenter/rtc/v2r0m0/index.jsp?topic=/com.ibm.team.build.doc/topics/tcreatepasstxt.html
+	When a password file is used then all build tasks will use the task attribute, passwordFile, in place of attribute, password.
+	--> 
+	<property environment="env"/> <!--environmental properties provided by Hudson -->
+	<property name="userId" value="JENKINS_RTC" />
+	<target name="all" depends="checkEnv">		
+		<echo message="Hudson build label: ${hudsonBuildLabel}" />				
+		<echo message="Jazz build system install path: ${jazzBuildSystemPath}" />
+		
+		<!--  Application builds can flag build errors by creating file appBuildErrors (using Ant "touch" task). This
+		is used to set property appBuildErrors -->			
+		<delete file="appBuildErrors" />  <!-- Remove indication of prior application build failure -->
+		
+		<!-- Notify jazz that a build is starting. To use this task
+			 you must have already defined a build definition and	
+			 a build engine registration in the jazz repository. -->
+		<startTeamBuild buildDefinitionId="${buildDefinitionId}"
+		                engineId="${buildEngineId}"
+		                label="${buildDefinitionId} ${hudsonBuildLabel}"
+		                autoComplete="false"
+		                resultUUIDProperty="buildResultUUID"
+		                repositoryAddress="${repositoryAddress}"
+		                userId="${userId}"
+		                password="${password}" />					
+		
+		<echo message="Build result UUID: ${buildResultUUID}" />
+		
+		<!-- Invoke the main build steps. -->
+		<antcall target="runTargetBuild" />
+		
+		<!-- The build is completed. Finish up -->
+		
+		<!-- 
+		Comentado porque no se está generando de momento nada en este directorio...
+		se deja por si en el futuro se quiere adjuntar algún fichero más a RTC.
+		
+		Publish log in the build result directory produced by Hudson
+		<logPublisher filePath="${logFile}"
+		              label="Build log"
+		              buildResultUUID="${buildResultUUID}"
+		              repositoryAddress="${repositoryAddress}"
+		              userId="${userId}"
+		              password="${password}"/>
+		 -->
+		<!--<logPublisher filePath="${checkingZipFile}"
+				              label="Checking reports"
+				              buildResultUUID="${buildResultUUID}"
+				              repositoryAddress="${repositoryAddress}"
+				              userId="${userId}"
+				              password="${password}"/>	-->
+		<!--
+		<for param="file">
+			 <path>
+				<fileset dir="${rtc.publish.dir}" includes="correo_*.html"/>
+			</path>
+			<sequential>
+				<logPublisher filePath="@{file}"
+		              label="Componet Build log"
+		              buildResultUUID="${buildResultUUID}"
+		              repositoryAddress="${repositoryAddress}"
+		              userId="${userId}"
+		              password="${password}"/>
+			</sequential>
+		</for>
+		-->
+			
+		<completeTeamBuild status="${status}"
+						   buildResultUUID="${buildResultUUID}"
+		                   repositoryAddress="${repositoryAddress}"
+		                   userId="${userId}"
+		                   password="${password}"
+		                   verbose="true" />
+			
+		<echo message="Build ${hudsonBuildLabel} completed." />	
+			
+	</target>
+	
+	<!-- The real work gets done here. The task callRequestedBuild transfers control to the application build script
+	identified in property targetBuildPath.
+	-->
+
+	<target name="runTargetBuild"
+	        depends="setBuildLabel, publishBuildResults, informWorkItem">
+	</target>
+		
+	<target name="setBuildLabel">
+		<tstamp>
+			<format property="label" pattern="yyyyMMdd-HHmm" />
+		</tstamp>
+
+		<buildResultPublisher label="${hudsonBuildLabel} - ${label}"
+		                      buildResultUUID="${buildResultUUID}"
+		                      repositoryAddress="${repositoryAddress}"
+		                      userId="${userId}"
+		                      password="${password}" />
+		<echo message="Team Concert build label: ${hudsonBuildLabel} ${label}" />		
+	</target>
+	
+	<!-- Se informa al RTC del workItem asociado en caso de que se haya indicado alguno mediante
+	el parámetro de entrada "workItem" -->
+	<target name="informWorkItem" depends="deleteWIfile" if="workItem">
+		<echo message="Se ha informado de un WorkItem. Se informa a RTC." />
+		<touch file="workItems.txt"/>
+		<echo file="workItems.txt" append="true" message="${workItem}"/>
+		<workItemPublisher repositoryAddress="${repositoryAddress}"
+							userId="${userId}"
+							password="${password}"
+							buildResultUUID="${buildResultUUID}"
+							failOnError="false"
+							inputFileType="WORKITEM"
+							filePath="workItems.txt" />
+		<antcall target="deleteWIfile"/>
+	</target>
+		
+	<target name="checkWifile">		
+		<available file="workItems.txt" property="existsWIfile"/>
+	</target>
+		
+	<target name="deleteWIfile" if="existsWIfile" depends="checkWifile">
+		<echo message="Existía el archivo workItems.txt. Se borra." />
+		<delete file="workItems.txt"/>
+	</target>	
+	
+	<target name="publishBuildResults">
+		<!--  Links published in this way are shown in the Links section
+			  of the build result editor. -->
+			  
+		<!-- Publish link to RTC build result that is available in the RTC web UI -->
+		<!--<linkPublisher buildResultUUID="${buildResultUUID}"
+		               verbose="true"
+		               label="Team Concert Build Result"
+		               url="${repositoryAddress}/web/projects/JUnit%20Project#action=com.ibm.team.build.viewResult&amp;id=${buildResultUUID}"
+		               repositoryAddress="${repositoryAddress}"
+		               userId="${userId}"
+		               password="${password}" />-->
+					   
+		<!-- Publish link to Hudson build result that is available in the Hudson web UI -->			   
+		<!--<linkPublisher buildResultUUID="${buildResultUUID}"
+		               verbose="true"
+		               label="Hudson Build Result: ${hudsonBuildLabel}"
+		               url="${hudsonURL}/job/${env.JOB_NAME}/${env.BUILD_NUMBER}"
+		               repositoryAddress="${repositoryAddress}"
+		               userId="${userId}"
+		               password="${password}" /> -->
+	</target>
+
+	<target name="checkEnv">
+		<fail message="The repositoryAddress property must be defined."
+		      unless="repositoryAddress" />
+		<echo message="Using repositoryAddress = ${repositoryAddress}" />
+
+		<fail message="The buildDefinitionId property must be defined."
+		      unless="buildDefinitionId" />
+		<echo message="Using buildDefinitionId = ${buildDefinitionId}" />
+
+		<fail message="The buildEngineId property must be defined."
+		      unless="buildEngineId" />
+		<echo message="Using buildEngineId = ${buildEngineId}" />
+
+		      	
+		<fail message="The userId property must be defined."
+		      unless="userId" />
+		<echo message="Using userId = ${userId}" />
+
+		<fail message="The password property must be defined."
+		      unless="password" />
+		<!-- Don't echo the password. -->
+		<fail message="The status property must be defined."
+		      unless="status" />
+		<echo message="Using status = ${status}" />
+	</target>
+
+</project>

@@ -1,0 +1,4485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="eci_cobol" updated="2013-06-14 12:55">
+	<description>Reglas correspondientes al Modelo COBOL ECI</description>
+	<rule name="OPT.COBOL.SQL_COBOL.ControlSqlcodeAfterExecSql" message="SQL_COBOL.ControlSqlcodeAfterExecSql: Debe controlarse el valor de SQLCODE después de cada EXEC SQL" class="com.als.cobol.rules.sql.ControlSqlcodeAfterExecSql" technology="COBOL" active="true">
+		<description><![CDATA[
+    Después de cada sentencia EXEC SQL debe comprobarse el valor de SQLCODE.
+    Para la comprobación, se tendrán en cuenta las cláusulas 'EVALUATE' e 'IF' incluidas en la sentencia EXEC  SQL.
+    Debido a que es tecnicamente imposible contemplar todas las posibilidades de condición y evalúacion presentes en un IF,
+    la regla solo asegura que se comprueban explícitamente todos los valores incluidos en el parámetro {codesToCheck}.
+    Ademas, se comprueba si en las evalúaciones con IF existe un ELSE y en las comprobaciones con EVALUATE existe un WHEN OTHER,
+    de modo que quedarían considerados otros posibles valores.
+    ]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Se controlan posibles errores en la ejecución de la consulta]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+           PROCEDURE DIVISION.
+                  EXEC SQL
+                       select * into :var :indicatorvar from t1
+                  END-EXEC
+    ]]></example>
+		<repair><![CDATA[
+        PROCEDURE DIVISION.
+          EXEC SQL
+               select * into :indicatorvar from t1
+          END-EXEC
+          EVALUATE SQLCODE
+          WHEN -911 OR -913 OR -904
+             EXIT
+          END-EVALUATE.
+          (...)
+          EXEC SQL
+               select * from t1 into :var :indicatorvar
+          END-EXEC
+          EVALUATE SQLCODE
+          WHEN -1
+             EXIT
+          WHEN OTHER
+             EXIT
+          END-EVALUATE.
+          (...)
+          EXEC SQL
+               select * from t1
+          END-EXEC
+          IF SQLCODE = -911 OR SQLCODE = -913 OR SQLCODE = -904
+               EXIT
+          END-IF
+          (...)
+          EXEC SQL
+               select * from t1
+          END-EXEC
+          IF SQLCODE = -911
+               EXIT
+          ELSE
+               EXIT
+          END-IF
+    ]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="codesToCheck" descname="codesToCheck" value="904,911,913"/>
+		</properties>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.OptimizeVarcharMoves" message="SQL_COBOL.OptimizeVarcharMoves: Optimice la sentencia MOVE para variables varchar." class="com.als.cobol.rules.sql.OptimizeVarcharMoves" technology="COBOL" active="true">
+		<description><![CDATA[A un campo de longitud VARIABLE, es conveniente pasarle la longitud de la cadena que que se va a mover antes de moverla. De esta forma lo que hacemos es optimizar la longitud de la variable y por tanto del espacio.]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Optimizacion.]]></benefits>
+		<inconvenients><![CDATA[N/A]]></inconvenients>
+		<example><![CDATA[
+           MOVE WK-COMENTARIO       TO DATOS350V-COMENT-TEXT
+                                                     OF ACCOMENT-COBROS.
+]]></example>
+		<repair><![CDATA[
+           MOVE 62                  TO DATOS350V-COMENT-LEN
+                                                     OF ACCOMENT-COBROS.
+           MOVE WK-COMENTARIO       TO DATOS350V-COMENT-TEXT
+                                                     OF ACCOMENT-COBROS.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="lengthSuffix" descname="lengthSuffix" value="-LEN"/>
+			<property name="textSuffix" descname="textSuffix" value="-TEXT"/>
+		</properties>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.NoCurrentClause" message="SQL_COBOL.NoCurrentClause: No debe usarse la cláusula CURRENT" class="com.als.cobol.rules.sql.NoCurrentClause" technology="COBOL" active="false">
+		<description><![CDATA[No usar la cláusula CURRENT. Nota: Regla deprecada, use SQL_PERFORMANCE.NoCurrentClause de SQL en su lugar.]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Se evita una cláusula bastante pesada en cuanto a procesamiento]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+XXXXXX    EXEC SQL
+XXXXXX         UPDATE sampleTable SET sampleColumn = sampleValue
+XXXXXX           WHERE CURRENT OF sampleCursor;
+XXXXXX    END-EXEC
+]]></example>
+		<repair><![CDATA[
+XXXXXX    EXEC SQL
+XXXXXX      UPDATE sampleTable SET sampleColumn = sampleValue
+XXXXXX        WHERE sampleColumn = sampleValue;
+XXXXXX    END-EXEC
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.SORT" message="OYR_COBOL.SORT: Evitar la instrucción SORT." class="com.als.cobol.rules.oyr.COBOYR_SORT" technology="COBOL" active="true">
+		<description><![CDATA[Se prohíbe el uso de la instrucción SORT de COBOL.
+NOTA: Ciertos compiladores permiten activar opciones más eficientes para la ordenacion. Por ejemplo, DFSORT de IBM.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[La instrucción SORT es muy ineficiente, es recomendable el uso de una subrutina externa que realice el trabajo.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+
+FILE-CONTROL.
+SELECT AGENDA ASSIGN TO RANDOM "AGENDA.DAT"
+ORGANIZATION INDEXED ACCESS DYNAMIC
+RECORD KEY KEYAGE.
+SELECT ORDEN ASSIGN TO SORT.  //VIOLACIÓN
+DATA DIVISION.
+FILE SECTION.
+FD    AGENDA  LABEL RECORD STANDARD.
+01    REGAGE.
+  02  KEYAGE.
+    03  AGECOD   PIC 9(4).
+  02  AGENOM       PIC X(30).
+  02  AGEDOM       PIC X(30).
+  02  AGEPOS       PIC 9(5).
+]]></example>
+		<repair><![CDATA[
+
+FILE-CONTROL.
+SELECT AGENDA ASSIGN TO RANDOM "AGENDA.DAT"
+ORGANIZATION INDEXED ACCESS DYNAMIC
+RECORD KEY KEYAGE.
+* Realizar el SORT externamente
+SELECT ORDEN //ARREGLADO
+DATA DIVISION.
+FILE SECTION.
+FD    AGENDA  LABEL RECORD STANDARD.
+01    REGAGE.
+  02  KEYAGE.
+    03  AGECOD   PIC 9(4).
+  02  AGENOM       PIC X(30).
+  02  AGEDOM       PIC X(30).
+  02  AGEPOS       PIC 9(5).
+]]></repair>
+		<reference><![CDATA[IBM Enterprise COBOL Version 3 Release 1 Performance Tuning]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.DetectUnawareCrossJoins" message="SQL_COBOL.DetectUnawareCrossJoins: Las tablas referenciadas en cláusulas FROM deben estar restringidas por sentencias WHERE, si no se pueden         producir productos cartesianos la mayoria de las veces no deseado" class="com.als.cobol.rules.sql.DetectUnawareCrossJoins" technology="COBOL" active="true">
+		<description><![CDATA[
+    Las tablas referenciadas en cláusulas FROM deben estar restringidas por sentencias WHERE, si no se pueden producir productos cartesianos la mayoria de las veces no deseados.
+    Nota: Regla deprecada, use SQL_PB.DetectUnawareCrossJoins de SQL en su lugar.
+    ]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ahorro de recursos.]]></benefits>
+		<inconvenients><![CDATA[Puede producir falsos positivos si la cláusula WHERE hace comparaciones basadas en nombres de columnas sin referenciar la tabla a la que pertenecen.
+Esto provocaría que pudieran saltar violaciones si se accede a una columna de una tabla cuyo nombre no está en ningún otro punto de la sentencia WHEN.]]></inconvenients>
+		<example><![CDATA[SELECT DrawingNo, DrawingName, maxPercentage, maxRevision, Date\n"+
+  FROM drawing d,
+    (SELECT drawingId, max(percentage) as maxPercentage
+       FROM timesheet GROUP BY drawingId) p,
+    (SELECT drawingId, max(revisionNo) as maxRevision
+       FROM timesheet,h p where p.col=2 group by drawingId) r,timesheet t
+  WHERE d.id=2 AND d.id=r.drawingId
+     AND d.id=t.drawingId AND t.revisionNo = r.maxRevision;
+--VIOLATION, TABLE TIMESHEET REFERENCED BUT NOT USED ]]></example>
+		<repair><![CDATA[SELECT DrawingNo, DrawingName, maxPercentage, maxRevision, Date\n"+
+  FROM drawing d,
+    (SELECT drawingId, max(revisionNo) as maxRevision
+       FROM timesheet,h p where p.col=2 group by drawingId) r,timesheet t
+  WHERE d.id=2 AND d.id=r.drawingId
+     AND d.id=t.drawingId AND t.revisionNo = r.maxRevision;   --FIXED
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.FetchAndDeclareSameFields" message="SQL_COBOL.FetchAndDeclareSameFields: Deben declararse y recuperarse los mismos parámetros" class="com.als.cobol.rules.sql.FetchAndDeclareSameFields" technology="COBOL" active="true">
+		<description><![CDATA[
+    Los campos de la sentencia FETCH han de ser los mismos que se definen para recuperar en la sentencia DECLARE.
+    Nota: Regla deprecada, use SQL_PERFORMANCE.FetchAndDeclareSameFields de SQL en su lugar.
+    ]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora la consistencia]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+XXXXXX      EXEC SQL
+XXXXXX           DECLARE wrongCursor CURSOR FOR SELECT sampleColumn FROM
+XXXXXX             sampleTable
+XXXXXX      END-EXEC
+XXXXXX      EXEC SQL
+XXXXXX           FETCH FROM wrongCursor INTO :sampleParameter1
+XXXXXX              :sampleParameter2
+XXXXXX      END-EXEC
+]]></example>
+		<repair><![CDATA[
+XXXXXX      EXEC SQL
+XXXXXX           DECLARE rightCursor CURSOR FOR SELECT sampleColumn
+XXXXXX             FROM sampleTable
+XXXXXX      END-EXEC
+XXXXXX      EXEC SQL
+XXXXXX           FETCH FROM rightCursor INTO :sampleParameter
+XXXXXX      END-EXEC
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.PINI" message="MAN_COBOL.PINI: Debe comenzarse la PROCEDURE DIVISION con un párrafo de la forma P-ddpptnnn." class="com.als.cobol.rules.nom.COBNOM_PINI" technology="COBOL" active="false">
+		<description><![CDATA[En este tipo de nomenclatura ddpptnnn es el nombre del programa.
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a la legibilidad del código identificando de forma única en cada programa el primer párrafo de la ejecucion.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+*INICIO DEL PROGRAMA DE GESTION DE COBROS
+ PROCEDURE DIVISION.
+ GESTION-DE-COBROS.        //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+*INICIO DEL PROGRAMA DE GESTION DE COBROS
+ PROCEDURE DIVISION.
+ P-GESTION-DE-COBROS.        //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="namePattern" descname="namePattern" value="^P\-"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.INBY" message="RG_COBOL.INBY: La cláusula INDEX BY es obligatoria en las tablas." class="com.als.cobol.rules.ng.COBNG_INBY" technology="COBOL" active="true">
+		<description><![CDATA[Cuando se declare una tabla, es obligatorio declarar a la vez un índice que recorra la tabla.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a la indexacion de una tabla.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+WORKING-STORAGE SECTION.
+* DECLARACIÓN DE UNA TABLA EN COBOL
+01 TRANSCRIPT.
+   02 COURSE OCCURS 200 TIMES.        //VIOLACIÓN
+      03 COURSE-ID     PIC X(5).
+      03 FINAL-GRADE   PIC X(1).
+]]></example>
+		<repair><![CDATA[
+WORKING-STORAGE SECTION.
+* DECLARACIÓN DE UNA TABLA EN COBOL
+01 TRANSCRIPT.
+   02 COURSE OCCURS 200 TIMES INDEXED BY WS.    //REPARACIÓN
+      03 COURSE-ID     PIC X(5).
+      03 FINAL-GRADE   PIC X(1).
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.MVD" message="RG_COBOL.MVD: MOVE de valor constante directo." class="com.als.cobol.rules.ng.COBNG_MVD" technology="COBOL" active="true">
+		<description><![CDATA[Se prohiben los MOVE de valores constates directos, es preferible hacerlo de una variable definida en la WORKING que contenga los valores especificados.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Con esto mejoraremos la mantenibilidad del código, ya que cuando tengamos que modificar algún valor lo haremos en su definición y no en cada sitio que se utilice.
+Asimismo, el nombre de la constante facilita entender su propósito.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+MOVE 'USER MESSAGE' TO LMGS // VIOLATION
+]]></example>
+		<repair><![CDATA[
+77 USER-MESSAGE PIC X(12) VALUE 'USER MESSAGE'.
+...
+MOVE MSG1 TO LMGS  // FIXED
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.DC" message="RG_COBOL.DC: Comprueba que con las instrucciones DIVIDE o COMPUTE y una division,se use ON SIZE ERROR para controlar posibles divisiones por cero" class="com.als.cobol.rules.ng.COBNG_DC" technology="COBOL" active="true">
+		<description><![CDATA[En todos los cálculos con una division (DIVIDE o COMPUTE con /), debe especificarse un bloque ON SIZE ERROR para controlar posible division por cero.]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Evita divisiones por cero sin controlar.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+88 CTE PIC 9(3) VALUE 0.
+...
+COMPUTE A = 100 / CTE.    // VIOLACIÓN
+DIVIDE 0 INTO CTE         // VIOLACIÓN
+...
+]]></example>
+		<repair><![CDATA[
+88 CTE PIC 9(3) VALUE 0.
+...
+COMPUTE A = 100 / CTE
+   ON SIZE ERROR DISPLAY "Error".   // ARREGLADO
+DIVIDE 0 INTO CTE
+   ON SIZE ERROR DISPLAY "Error."   // ARREGLADO
+  ...
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.PIC" message="MAN_COBOL.PIC: Program-ID en Call" class="com.als.cobol.rules.nom.COBNOM_PIC" technology="COBOL" active="false">
+		<description><![CDATA[Cuando desde un programa principal se llame a subprogramas en el nombre de la variable, que contiene el nombre del programa llamado, debe indicar en las posiciones 2 y 3 "LA APLICACIÓN" de el/los programas llamados]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[***************************************]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+ CALL nnnnnnnn;                    // VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+CALL n76nnnnn;                    // ARREGLADO
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.OcurrencesTableElements" message="OYR_COBOL.OcurrencesTableElements: Optimiza el acceso a los elementos de una tabla" class="com.als.cobol.rules.oyr.COBOYR_OcurrencesTableElements" technology="COBOL" active="false">
+		<description><![CDATA[Comprueba si el acceso a los elementos de una tabla se realiza de la manera más óptima posible.
+    Los tipos de la variable índice sobre tablas debe estar en el grupo especificado en la propiedad 'binaryField' (BINARY, COMP, COMP-4 o COMP-4 por defecto);
+    adicionalmente, el tipo debe ser una media palabra de CPU para tablas por debajo de 32000 entradas, o palabra completa por encima de 32000 entradas.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora el rendimiento]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+01  RESUL              PIC S9(11) COMP-3.
+
+01  LISTA.
+   02  LST-ELEM            PIC 99.
+   02  LPIC ST-LISTA.
+       03  LST-DESC        PIC X(40) OCCURS 99.
+
+
+PERFORM VARYING I FROM 1 BY 1 UNTIL ACABAR
+    MOVE CODIGO(I)       TO LST-DESC(RESUL)(1:L)
+]]></example>
+		<repair><![CDATA[
+01  RESUL              PIC S9(11) BINARY.
+
+01  LISTA.
+   02  LST-ELEM            PIC 99.
+   02  LPIC ST-LISTA.
+       03  LST-DESC        PIC X(40) OCCURS 99.
+
+PERFORM VARYING I FROM 1 BY 1 UNTIL ACABAR
+    MOVE CODIGO(I)       TO LST-DESC(RESUL)(1:L)
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="binaryField" descname="lista, separada por comas, de los tipos permitidos para variables índice de tablas" value="BINARY,COMP,COMP-4,COMP-5"/>
+			<property name="bytesFullWord" descname="Longitud de palabra de CPU, en bytes" value="8"/>
+		</properties>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.CPIC" message="RG_COBOL.CPIC: Usar la abreviatura PIC en lugar de PICTURE." class="com.als.cobol.rules.ng.COBNG_CPIC" technology="COBOL" active="false">
+		<description><![CDATA[La abreviatura PIC es estándar en COBOL.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[La cláusula PIC es más corta que PICTURE y ayuda a la legitibilidad de todo el código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+77 x PICTURE x(20)    //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+77 x PIC x(20)      //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.PIF" message="MAN_COBOL.PIF: Usar PERFORM en lugar de IF para muchas líneas de código." class="com.als.cobol.rules.ng.COBNG_PIF" technology="COBOL" active="true">
+		<description><![CDATA[Si dentro de in IF existen muchas líneas de código se aconseja utilizar un PERFORM y desarrollarlas en un párrafo diferente.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a la mantenibilidad y claridad del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+IF (RUT-AUX-CLIENTE = PRE-RUT-CLIENTE) AND
+              (CODIGO-AUX-PELICULA = PRE-COD-PELICULA) THEN
+                  //VIOLACIÓN
+               MOVE LOW-VALUE TO PRE-RUT-CLIENTE
+               START PRESTAMO KEY NOT < PRE-RUT-CLIENTE
+                 INVALID KEY
+                 PERFORM PAGINA-HISTORIAL THRU F-PAGINA-HISTORIAL
+                 DISPLAY "ERROR EN LA FUNCION START" LINE 12 POSITION 20
+                 DISPLAY "            O"             LINE 13 POSITION 20
+                 DISPLAY "  NO EXISTEN PELICULAS"    LINE 14 POSITION 20
+                 ACCEPT PAUSA                        LINE 25 POSITION 80
+                 GO TO F-LISTA-HISTORIAL
+      *           STOP RUN
+               END-START
+               MOVE 0 TO CONT
+               DISPLAY SPACE ERASE
+               PERFORM PAGINA-HISTORIAL THRU F-PAGINA-HISTORIAL
+               PERFORM LEE-PRESTAMO2 THRU F-LEE-PRESTAMO2
+               PERFORM MUESTRA-HISTORIAL THRU F-MUESTRA-HISTORIAL
+                   UNTIL (FIN-PRESTAMO = "S")
+                   ACCEPT PAUSA LINE 25 POSITION 80
+           END-IF.
+]]></example>
+		<repair><![CDATA[
+IF (RUT-AUX-CLIENTE = PRE-RUT-CLIENTE) AND
+              (CODIGO-AUX-PELICULA = PRE-COD-PELICULA) THEN
+  PERFORM INCIA.              //REPARACIÓN
+END-IF.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="statementLimit" descname="statementLimit" value="30"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.NTHN" message="RG_COBOL.NTHN: No utililizar la cláusula THEN dentro de un if." class="com.als.cobol.rules.ng.COBNG_NTHN" technology="COBOL" active="false">
+		<description><![CDATA[Se debe omitir la cláusula THEN en la instrucción "if".
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[La cláusula no es obligatoria y no contribuye a la comprensión del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+IF LIQ-CFORMAPAGO = 'F' THEN    //VIOLACIÓN
+  MOVE 'T' TO RC36006-CFORMPAGO
+ELSE
+        MOVE LIQ-CFORMAPAGO TO RC36006-CFORMPAGO
+END-IF
+]]></example>
+		<repair><![CDATA[
+IF LIQ-CFORMAPAGO = 'F'     //REPARACIÓN
+  MOVE 'T' TO RC36006-CFORMPAGO
+ELSE
+        MOVE LIQ-CFORMAPAGO TO RC36006-CFORMPAGO
+END-IF
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.NORE" message="OYR_COBOL.NORE: No utilizar RELEASE." class="com.als.cobol.rules.ng.COBNG_NORE" technology="COBOL" active="true">
+		<description><![CDATA[Se prohíbe el uso de la instrucción RELEASE.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a evitar posibles fallos por perdidas de datos inesperadas. En el caso de los ficheros es recomendable usar en su lugar OPEN y realizar lecturas.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+ CARGAR SECTION.
+INI-CAR.
+      OPEN INPUT AGENDA.
+LEER.
+      READ AGENDA NEXT RECORD AT END GO FIN-CAR.
+      MOVE AGENOM TO ORDCOBNOM.
+      MOVE AGEPOB TO ORDPOB.
+      MOVE AGEPRO TO ORDPRO.
+      RELEASE REGORD.          //VIOLACIÓN
+      GO LEER.
+FIN-CAR.
+      CLOSE AGENDA.
+      EXIT.
+]]></example>
+		<repair><![CDATA[]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.FCOC" message="RG_COBOL.FCOC: Se usa DFHCOMMAREA pero no se asigna valor CISC a CAB-COD-LIBRERIA" class="com.als.cobol.rules.ng.COBNG_FCOI" technology="COBOL" active="true">
+		<description><![CDATA[
+      En la copy de arquitectura hay que informar del campo CAB-COD-LIBRERIA = "CISC".
+    ]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+      *****************
+      LINKAGE SECTION.
+      *****************
+         01 DFHCOMMAREA. //VIOLATION, no existe MOVE 'CICS' TO CAB-COD-LIBRERIA.
+         ...
+    ]]></example>
+		<repair><![CDATA[
+      *****************
+      LINKAGE SECTION.
+      *****************
+         01 DFHCOMMAREA.
+         .....
+         MOVE 'CISC' TO CAB-COD-LIBRERIA. // ARREGLADO
+    ]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="value" descname="Valor a establecer" value="CICS"/>
+			<property name="field" descname="Nombre de variable a establecer" value="CAB-COD-LIBRERIA"/>
+		</properties>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.DECP" message="FIA_COBOL.DECP: Es obligatorio el uso de la cláusula DECIMAL POINT IS COMMA para utilizar la coma como separador decimal." class="com.als.cobol.rules.ng.COBNG_DECP" technology="COBOL" active="true">
+		<description><![CDATA[Es obligatorio codificar la cláusula DECIMAL POINT IS COMMA en la CONFIGURATION SECTION de la ENVIROMENT DIVISION.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Permite cambiar de forma automática la manera de mostrar los decimales. Por defecto esta codificada la manera inglesa.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+002700 CONFIGURATION SECTION.
+]]></example>
+		<repair><![CDATA[
+002700 CONFIGURATION SECTION DECIMAL-POINT IS COMMA.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.CCAL" message="MAN_COBOL.CCAL: Documentar la llamada a un programa externo antes de hacerla." class="com.als.cobol.rules.doc.COBDOC_CCAL" technology="COBOL" active="false">
+		<description><![CDATA[Antes de realizar una llamada a un programa externo es aconsejable poner un comentario que documente la llamada y las condiciones.
+ ]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora la mantenibilidad y comprensión del código al saber los condicionantes y resultados de la llamada sin explorar el código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+PROCEDURE DIVISION.
+
+        //VIOLACIÓN
+ CALL "sub1" USING a b c
+]]></example>
+		<repair><![CDATA[
+ PROCEDURE DIVISION.
+
+* SUB1 ORDENA TRIADAS DE DATOS
+* LA LLAMADA PARA QUE A PARTIR DE AHORA LOS DATOS ESTEN ORDENADOS  //REPARACIÓN
+ CALL "sub1" USING a b c
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.QualifiedTablesInQueries" message="SQL_COBOL.QualifiedTablesInQueries: Los nombres de tablas deben cualificarse" class="com.als.cobol.rules.sql.QualifiedTablesInQueries" technology="COBOL" active="false">
+		<description><![CDATA[Las tablas deben ir cualificadas en las consultas. Nota: Regla deprecada, use SQL_MAINTAINABILITY.QualifiedTablesInQueries de SQL en su lugar.]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Se evitan posibles confusiones y se mejora la identificación de las tablas]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+XXXXXX       EXEC SQL
+XXXXXX              SELECT sampleColumn FROM wrongTable WHERE a = b
+XXXXXX       END-EXEC
+]]></example>
+		<repair><![CDATA[
+XXXXXX       EXEC SQL
+XXXXXX              SELECT sampleColumn FROM                 sampleCatalog.rightTable
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.LISE" message="MAN_COBOL.LISE: Evitar secciones con más líneas que las parametrizadas." class="com.als.cobol.rules.pb.COBPB_LISE" technology="COBOL" active="false">
+		<description><![CDATA[No se permite codificar SECTIONS con más líneas de código de las que se especifican como umbral.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Al dividir el código en varias SECTIONS se consigue un código más modular, con lo que aumenta la mantenibilidad y claridad del mismo. Se recomienda dividir el código en varias SECTIONS cada cual con una función especifica.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+Una SECTION con más líneas de las permitidas. Por defecto, el umbral vale 100.
+]]></example>
+		<repair><![CDATA[
+SECTION con menor número de líneas.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="threshold" descname="threshold" value="100"/>
+			<property name="allSections" descname="allSections" value="false"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.FCOI" message="RG_COBOL.FCOI: Se usa DFHCOMMAREA pero no se asigna valor IDMS a CAB-COD-LIBRERIA" class="com.als.cobol.rules.ng.COBNG_FCOI" technology="COBOL" active="false">
+		<description><![CDATA[
+      En la copy de la arquitectura hay que informar del campo CAB-COD-LIBRERIA = "IDMS"
+    ]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+      *****************
+      LINKAGE SECTION.
+      *****************
+         01 DFHCOMMAREA. //VIOLATION, no existe MOVE 'IDMS' TO CAB-COD-LIBRERIA.
+         ...
+    ]]></example>
+		<repair><![CDATA[
+      *****************
+      LINKAGE SECTION.
+      *****************
+         01 DFHCOMMAREA.
+         ...
+         MOVE 'IDMS' TO CAB-COD-LIBRERIA. // ARREGLADO
+    ]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="value" descname="Valor a establecer" value="IDMS"/>
+			<property name="field" descname="Nombre de variable a establecer" value="CAB-COD-LIBRERIA"/>
+		</properties>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.IFW" message="RG_COBOL.IFW: Inicio y fin de la working" class="com.als.cobol.rules.ng.COBNG_IFW" technology="COBOL" active="false">
+		<description><![CDATA[Existirá un nivel 03 inicial de la siguiente forma:
+03 FILLER PIC X(16) VALUE 'INICIO DE WORKING'
+
+Existirá un último nivel de la siguiente forma:
+03 FILLER PIC X(16) VALUE 'FINAL DE WORKING']]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+Ausencia de las líneas anteriores o incorrección de estas.
+]]></example>
+		<repair><![CDATA[
+03 FILLER PIC X(16) VALUE 'INICIO DE WORKING' //ARREGLADO
+...
+03 FILLER PIC X(16) VALUE 'FINAL DE WORKING'  //ARREGLADO
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="workingStartPrefix" descname="working storage begin name">
+				<value><![CDATA['BEGINNING OF WORKING']]></value>
+			</property>
+			<property name="workingEndPrefix" descname="working storage end name">
+				<value><![CDATA['END OF WORKING']]></value>
+			</property>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COD_COBOL.NPAR" message="COD_COBOL.NPAR: Nombre del párrafo mal formado." class="com.als.cobol.rules.nom.COBNOM_NPAR" technology="COBOL" active="true">
+		<description><![CDATA[Los nombres de los párrafos debe seguir una cierta convencion de nombre (p.ej. tener un prefijo numérico que indica la posición del párrafo en la jerarquia de módulos del programa).
+Dicha convencion debe codificarse como una expresion regular en la propiedad 'paragraphNamePattern'.
+]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a la mantenibilidad del código y a la legibilidad del mismo identificando los párrafos de forma única.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+PROCEDURE DIVISION.
+   DECLARATIVES.
+
+   F1 SECTION.
+       USE AFTER STANDARD ERROR PROCEDURE ON CLIENTE.
+   P1.                //VIOLACIÓN
+       IF (FS-CLIENTE = "35") THEN
+           DISPLAY SPACE ERASE
+           OPEN OUTPUT CLIENTE
+           CLOSE CLIENTE
+           OPEN I-O CLIENTE
+       ELSE
+           DISPLAY "ERROR FATAL N§ " FS-CLIENTE
+           ACCEPT PAUSA
+           STOP RUN
+       END-IF.
+]]></example>
+		<repair><![CDATA[
+PROCEDURE DIVISION.
+   DECLARATIVES.
+
+   F1 SECTION.
+       USE AFTER STANDARD ERROR PROCEDURE ON CLIENTE.
+   111-P1.                //REPARACIÓN
+       IF (FS-CLIENTE = "35") THEN
+           DISPLAY SPACE ERASE
+           OPEN OUTPUT CLIENTE
+           CLOSE CLIENTE
+           OPEN I-O CLIENTE
+       ELSE
+           DISPLAY "ERROR FATAL N§ " FS-CLIENTE
+           ACCEPT PAUSA
+           STOP RUN
+       END-IF.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="paragraphNamePattern" descname="paragraphNamePattern" value="^\d{1,6}\-"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.INVF" message="MAN_COBOL.INVF: Evitar rutinas con alta complejidad de integracion." class="com.als.cobol.rules.pb.COBPB_INVF" technology="COBOL" active="true">
+		<description><![CDATA[Los caminos de integración son los caminos del grafo de control de flujo de los objetos invocados. La complejidad de integración mide el número de caminos independientes de integracion.
+
+ ]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Una alta complejidad de integración implica un alto riesgo de errores. Se aconseja que se revise el diseño de rutinas para reducir el número de caminos independientes de integracion.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+** The parameterized maximum number is 2
+
+PROCEDURE DIVISION USING DFHCOMMAREA.
+  PROCESO.
+    CALL PROCESO.
+    CALL PROCESO1.
+    CALL PROCESO2.   //VIOLATION
+GOBACK.
+]]></example>
+		<repair><![CDATA[
+** The parameterized maximum number is 2
+
+PROCEDURE DIVISION USING DFHCOMMAREA.
+  PROCESO.
+    CALL PROCESO.
+    CALL PROCESO1.
+
+GOBACK.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="maxComplexity" descname="maxComplexity" value="5"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.NNS" message="OYR_COBOL.NNS: No usar NEXT SENTENCE." class="com.als.cobol.rules.oyr.COBOYR_NSS" technology="COBOL" active="true">
+		<description><![CDATA[No usar la sentencia NEXT SENTENCE para ramificaciones por defecto.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[No usar NEXT SENTENCE. Su comportamiento es "GOTO la sentencia que sigue al proximo punto", y puede hacer cometer errores lógicos difíciles de detectar.
+Evitense tales sentencias, reordenando la lógica (o use un GOTO explicito si se desea saltar a cierta sentencia, pero recuerde que GOTO choca con la programacion estructurada).]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+
+IF NOT INPUT-EOF
+  IF INPUT-REC-TYPE = '55'
+     PERFORM 2100-PROCESS-WTN
+  ELSE
+     NEXT SENTENCE // VIOLACIÓN
+  END-IF
+  ADD +1 TO INPUT-COUNT. // Esto NO se ejecuta con NEXT SENTENCE
+]]></example>
+		<repair><![CDATA[
+
+IF NOT INPUT-EOF
+  IF INPUT-REC-TYPE = '55'
+     PERFORM 2100-PROCESS-WTN
+  END-IF  // ARREGLADO
+  ADD +1 TO INPUT-COUNT. // Se ejecuta
+]]></repair>
+		<reference><![CDATA[The Kasten COBOL Page (http://home.swbell.net/mck9/cobol/style/continue.html)]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.CLAU" message="RG_COBOL.CLAU: No incluir cláusulas como DATE-COMPILED, DATE-WRITTEN, INSTALLATION, AUTHOR, SECURITY. " class="com.als.cobol.rules.ng.COBNG_CLAU" technology="COBOL" active="true">
+		<description><![CDATA[No incluir dentro de la IDENTIFICATION DIVISION las cláusulas opcionales.
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Las cláusulas no son obligatorias y la información que se obtiene de ellas debe estar de forma más detallada en los comentarios de inicio del programa.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+IDENTIFICATION DIVISION    //VIOLACIÓN
+PROGRAM-ID. Exemplo1.
+AUTHOR.  Rodrigo.
+INSTALLATION. Micrológica.
+DATE-WRITTEN. Agosto de 1999.
+DATE-COMPILED. Dezembro de 1999.
+]]></example>
+		<repair><![CDATA[
+IDENTIFICATION DIVISION    //ARREGLADO
+PROGRAM-ID. Exemplo1.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="disallowedClauses" descname="disallowedClauses" value="AuthorParagraph,InstallationParagraph,DateWrittenParagraph,DateCompiledParagraph,SecurityParagraph"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.DontSelectKnownFields" message="SQL_COBOL.DontSelectKnownFields: Debe evitarse seleccionar campos conocidos en el SELECT" class="com.als.cobol.rules.sql.DontSelectKnownFields" technology="COBOL" active="false">
+		<description><![CDATA[
+    Evitar seleccionar en la sentencia SELECT campos conocidos usados en la cláusula WHERE.
+    Nota: Regla deprecada, use SQL_PERFORMANCE.DontSelectKnownFields de SQL en su lugar.
+    ]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Alivia al servidor de carga de recuperacion de datos]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+XXXXXX    EXEC SQL
+XXXXXX        SELECT sampleTable.sampleColumn, secondSampleColumn
+XXXXXX          FROM sampleTable WHERE
+XXXXXX           sampleColumn = sampleValue
+XXXXXX    END-EXEC
+]]></example>
+		<repair><![CDATA[]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.AvoidDeclaredUnopenedCursors" message="SQL_COBOL.AvoidDeclaredUnopenedCursors: Evita declarar cursores que no sean abiertos." class="com.als.cobol.rules.sql.AvoidDeclaredUnopenedCursors" technology="COBOL" active="true">
+		<description><![CDATA[Evitar declarar cursores que no sean abiertos. Nota: Regla deprecada, use SQL_PERFORMANCE.AvoidDeclaredUnopenedCursors de SQL en su lugar.]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ahorro de recursos y descriptores.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[]]></example>
+		<repair><![CDATA[]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.GOTO" message="RG_COBOL.GOTO: No usar GOTO para manejar el flujo del programa." class="com.als.cobol.rules.pb.COBPB_GOTO" technology="COBOL" active="true">
+		<description><![CDATA[Se prohíbe el uso de la sentencia GOTO dentro del código del programa.
+
+ ]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[El uso del GOTO hace más complejo la traza del programa y por tanto su mantenibilidad.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+ GO TO 2199-EXIT.
+]]></example>
+		<repair><![CDATA[]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.PRID" message="MAN_COBOL.PRID: El nombre del PROGRAM-ID debe coincidir con el nombre del programa." class="com.als.cobol.rules.nom.COBNOM_PRID" technology="COBOL" active="true">
+		<description><![CDATA[El nombre del programa que aparece en la instrucción de COBOL PROGRAM-ID debe ser el mismo que el nombre del fichero donde se guarda el programa.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Este párrafo sirve para especiar el nombre del programa. Este nombre será utilizado por el compilador o durante la ejecución para indicar en que programa ocurrio algún error. Al coincidir con el nombre del fichero se identifica el programa fácilmente.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+Nombre fichero: PROGRAMA.cbl
+
+IDENTIFICATION DIVISION.
+PROGRAM-ID. PROG1.
+]]></example>
+		<repair><![CDATA[
+Nombre fichero: PROGRAMA.cbl
+
+IDENTIFICATION DIVISION.
+PROGRAM-ID. PROGRAMA.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COBBP.CSIM" message="COBBP.CSIM: No utilizar los símbolos de comparacion." class="com.als.cobol.rules.pb.COBPB_CSIM" technology="COBOL" active="true">
+		<description><![CDATA[No usar caracteres especiales, en su lugar usar los nombres correspondientes, EQUAL...]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Existen terminales e impresoras que no tienen la posibilidad de impresión de estos caracteres especiales.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+IF A = B THEN        //VIOLACIÓN
+  MOVE 'IGUALES' TO RESULTADO
+END-IF.
+]]></example>
+		<repair><![CDATA[
+IF A EQUAL B THEN        //VIOLACIÓN
+  MOVE 'IGUALES' TO RESULTADO
+END-IF.
+
+END-EVALUATE;
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.TIME" message="OYR_COBOL.TIME: Acceder una vez a las variables del sistema DATE, DAY, TIME, CURRENT DATE y TIME-OF-DAY." class="com.als.cobol.rules.oyr.COBOYR_TIME" technology="COBOL" active="true">
+		<description><![CDATA[Solo se debe acceder una vez a las variables del sistema DATE, DAY, DAY-OF-WEEK, TIME, CENTURY-DATE, CENTURY-DAY, ESCAPE-KEY  variable de entorno. Obtener el dato una vez en la rutina de inicialización y guardarlo en un dato de la WORKING STORAGE.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora el rendimiento minimizando las llamadas al sistema.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+
+WORKING-STORAGE SECTION.
+77  DIA  PIC 9.
+77  FECHA PIC 9(6).
+77  FECHA8 PIC 9(8).
+
+PROCEDURE DIVISION.
+INICIO.
+       ACCEPT DIA FROM DAY-OF-WEEK.
+       ACCEPT FECHA FROM DATE.
+       ACCEPT FECHA8 FROM CENTURY-DATE.
+...
+       ACCEPT DIA2 FROM DAY-OF-WEEK.        //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+WORKING-STORAGE SECTION.
+77  DIA  PIC 9.
+77  FECHA PIC 9(6).
+77  FECHA8 PIC 9(8).
+
+PROCEDURE DIVISION.
+INICIO.
+       ACCEPT DIA FROM DAY-OF-WEEK.
+       ACCEPT FECHA FROM DATE.
+       ACCEPT FECHA8 FROM CENTURY-DATE.
+...
+       MOVE DIA TO DIA2.          //VIOLACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.ObligatoryEndEvaluate" message="FIA_COBOL.ObligatoryEndEvaluate: Comprueba que cada Evaluate tiene su correspondiente End-Evaluate" class="com.als.cobol.rules.pb.COBPB_ObligatoryEndEvaluate" technology="COBOL" active="true">
+		<description><![CDATA[Esta regla comprueba que en el código se encuentra correlativamente un End-Evaluate por cada sentencia Evaluate.]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora la claridad del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+EVALUATE SQLCODE
+  WHEN 0
+   CONTINUE
+  WHEN OTHER
+   MOVE 'S'
+   TO WK-ZERROR
+]]></example>
+		<repair><![CDATA[
+EVALUATE SQLCODE
+  WHEN 0
+   CONTINUE
+  WHEN OTHER
+   MOVE 'S'
+   TO WK-ZERROR
+END-EVALUATE.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.PDES" message="MAN_COBOL.PDES: Comentarios de descripción del programa antes de PROGRAM-ID." class="com.als.cobol.rules.doc.COBDOC_PDES" technology="COBOL" active="false">
+		<description><![CDATA[Se deben describir las funciónes del programa resumidamente haciendo especial hincapié a la lógica o procedimiento del mismo.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Este tipo de comentarios al inicio del programa permite tener una idea global de todas las acciones que realiza el mismo sin ahondar demasiado en el código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+PROGRAM-ID. GESTION.
+]]></example>
+		<repair><![CDATA[
+*****************************************************************
+*  APLICACION:  GESTION                                         *
+*                                                               *
+*  ANALISTA:                                                    *
+*                                                               *
+*  PROGRAMADOR: JUAN GARCIA                                     *
+*                                                               *
+*  FECHA DE REALIZACION: 15/05/2000                             *
+*                                                               *
+*  BREVE DESCRIPCION DEL PROGRAMA:                              *
+*                                                               *
+*  EL PROGRAMA ORDENA LAS TABLAS A1 Y A2 DE LA BASE DE DATOS    *
+*  LIBROS EN ORDEN CRECIENTE DE ISBN. DESPUES SACA UN INFORME   *
+*  POR LA PANTALLA DE LA CANTIDAD DE LISBROS DADOS DE BAJA EN   *
+*  EL DIA                                                       *
+*                                                               *
+*  SITUACIONES DE SINIESTRO / EXPEDIENTE                        *
+*****************************************************************
+* CODIGOS DE RETORNO:                                           *
+* '00' OK.                                                      *
+* '01' ERROR NO EXISTEN DATOS                                   *
+* '02' ERROR DB2/DATOS INCORRECTOS/LLAMADAS SERVICIOS           *
+*****************************************************************
+PROGRAM-ID. GESTION.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="minCommentLines" descname="minCommentLines" value="4"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.ReadOrWriteOpenFiles" message="FIA_COBOL.ReadOrWriteOpenFiles: Comprueba que los ficheros abiertos sean escritos o leídos." class="com.als.cobol.rules.pb.COBPB_ReadOrWriteOpenFiles" technology="COBOL" active="true">
+		<description><![CDATA[Esta regla comprueba que los ficheros que han sido abiertos van a ser leídos o escritos. Si la propiedad que controla el estado de los ficheros tiene valor True, la regla revisa todos los ficheros. Si es False solo los de entrada. Se ha añadido una propiedad para mostrar o no los warnings, inicialmente tiene valor True.]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Previene posibles bugs]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+OPEN FILE1
+....
+....
+CLOSE FILE1
+]]></example>
+		<repair><![CDATA[
+OPEN FILE1
+....
+READ ENTRAD1 INTO RD48000
+....
+CLOSE FILE1
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="stateOpenFile" descname="Estado Fichero" value="true"/>
+			<property name="showWarning" descname="Mostrar warnings" value="true"/>
+		</properties>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.EDP" message="MAN_COBOL.EDP: Evitar que la descripción del programa exceda de N líneas." class="com.als.cobol.rules.doc.COBDOC_EDP" technology="COBOL" active="true">
+		<description><![CDATA[Se debe evitar que los comentarios del programa que especifica la regla PDES excedan de un número de líneas que son parametrizables.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Capacidad de síntesis y uniformidad que ayuda a mantener los programas.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+******************************************************************  APLICACION:  GESTION                                         *
+*                                                               *
+*  ANALISTA:                                                    *
+*                                                               *
+*  PROGRAMADOR: JUAN GARCIA                                     *
+*                                                               *
+*  FECHA DE REALIZACION: 15/05/2000                             *
+*                                                               *
+*  BREVE DESCRIPCION DEL PROGRAMA:                              *
+*                                                               *
+*  EL PROGRAMA ORDENA LAS TABLAS A1 Y A2 DE LA BASE DE DATOS    *
+*  LIBROS EN ORDEN CRECIENTE DE ISBN. DESPUES SACA UN INFORME   *
+*  POR LA PANTALLA DE LA CANTIDAD DE LISBROS DADOS DE BAJA EN   *
+*  EL DIA                                                       *
+*                                                               *
+*  SITUACIONES DE SINIESTRO / EXPEDIENTE                        *
+*****************************************************************
+* CODIGOS DE RETORNO:                                           *
+* '00' OK.                                                      *
+* '01' ERROR NO EXISTEN DATOS                                   *
+* '02' ERROR DB2/DATOS INCORRECTOS/LLAMADAS SERVICIOS           *
+*                                                               *
+*                                                               *
+*                                                               *
+*                                                               *
+*                                                               *
+*                                                               *
+*                                                               *
+*****************************************************************
+PROGRAM-ID. GESTION.
+]]></example>
+		<repair><![CDATA[
+*****************************************************************
+*  APLICACION:  GESTION                                         *
+*                                                               *
+*  ANALISTA:                                                    *
+*                                                               *
+*  PROGRAMADOR: JUAN GARCIA                                     *
+*                                                               *
+*  FECHA DE REALIZACION: 15/05/2000                             *
+*                                                               *
+*  BREVE DESCRIPCION DEL PROGRAMA:                              *
+*                                                               *
+*  EL PROGRAMA ORDENA LAS TABLAS A1 Y A2 DE LA BASE DE DATOS    *
+*  LIBROS EN ORDEN CRECIENTE DE ISBN. DESPUES SACA UN INFORME   *
+*  POR LA PANTALLA DE LA CANTIDAD DE LISBROS DADOS DE BAJA EN   *
+*  EL DIA                                                       *
+*                                                               *
+*  SITUACIONES DE SINIESTRO / EXPEDIENTE                        *
+*****************************************************************
+* CODIGOS DE RETORNO:                                           *
+* '00' OK.                                                      *
+* '01' ERROR NO EXISTEN DATOS                                   *
+* '02' ERROR DB2/DATOS INCORRECTOS/LLAMADAS SERVICIOS           *
+*****************************************************************
+PROGRAM-ID. GESTION.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="maxCommentLines" descname="maxCommentLines" value="10"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.FLCB" message="MAN_COBOL.FLCB: Falta línea comentario blanco" class="com.als.cobol.rules.doc.COBDOC_FLCB" technology="COBOL" active="false">
+		<description><![CDATA[Es obligatorio incluir una línea de comentario en blanco antes de cada nombre de párrafo]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora la claridad y legibilidad del código]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+IDENTIFICATION DIVISION.    // VIOLACIÓN
+PROGRAM-ID. EXISTE IS COMMON.
+]]></example>
+		<repair><![CDATA[
+*                                                   // ARREGLADO
+IDENTIFICATION DIVISION.
+PROGRAM-ID. EXISTE IS COMMON.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.MLS" message="MAN_COBOL.MLS: Máximo número de líneas superado" class="com.als.cobol.rules.ng.COBNG_MLS" technology="COBOL" active="true">
+		<description><![CDATA[El número máximo de líneas por programa es de 4000]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Los programas extremadamente largos pueden ser difíciles de comprender y a menudo contienen varias funciónes no relacionadas conceptualmente.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+ Contamos desde la línea en la que empieza el programa
+]]></example>
+		<repair><![CDATA[
+Descomponer el programa en varios programa que cumplan cada uno una función sencilla diferente.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="numLineas" descname="numLineas" value="4000"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.CMFD" message="MAN_COBOL.CMFD: Es obligatorio incluir delante de cada FD un comentario referente al fichero fichero (función, propósito, particularidades...)." class="com.als.cobol.rules.doc.COBDOC_CMFD" technology="COBOL" active="false">
+		<description><![CDATA[Se debe especificar la descripción de cada fichero sobre el al declararlo en la FD. La información que se debe especificar es su función, el propósito de su uso, la estructura y las particularidades o datos necesarios para su manejo.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Se obtiene una idea intuitiva del uso del recurso sin necesidad de profundizar en el código del programa.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+   FILE SECTION.
+*-------------
+            //VIOLACIÓN
+ FD  ENTRAD1
+     BLOCK CONTAINS 0 RECORDS
+     RECORDING MODE IS F
+     LABEL RECORDS ARE STANDARD.
+ 01  REGFOUE PIC X(80).
+]]></example>
+		<repair><![CDATA[
+FILE SECTION.
+*-------------
+
+* DECLARACIÓN ESTRUCTURA DE FICHERO DE ENTRADA (DATOS)    //REPARACIÓN
+* ESTE FICHERO GUARDA LAS FECHAS DE LAS ULTIMAS 0 VENTAS
+* EL FICHERO NO PUEDE ESTAR VACIO, EN CASO DE NO HABER
+* VENTAS SE CODIFICARA UNA FECHA 0/0/00
+*
+ FD  ENTRAD1
+     BLOCK CONTAINS 0 RECORDS
+     RECORDING MODE IS F
+     LABEL RECORDS ARE STANDARD.
+ 01  REGFOUE PIC X(80).
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.MERG" message="FIA_COBOL.MERG: Evitar la instrucción MERGE." class="com.als.cobol.rules.oyr.COBOYR_MERG" technology="COBOL" active="true">
+		<description><![CDATA[Se prohíbe el uso de la instrucción MERGE de COBOL.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[La instrucción MERGE es muy ineficiente, es recomendable el uso de una subrutina externa que realice el trabajo.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+MERGE nombre-archivo-1          //VIOLACIÓN
+ASENDING
+ON KEY nombre-de dato-1
+DESENDING
+COLLATING SECUANCES IS nombre-alfabetico-1
+UNSING SEQUENCES IS nombre-archivo-2 nombre-archivo-3
+]]></example>
+		<repair><![CDATA[]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.NA" message="RG_COBOL.NA: No alters" class="com.als.cobol.rules.ng.COBNG_NA" technology="COBOL" active="true">
+		<description><![CDATA[Nunca se debe usar la instrucción ALTER]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+ Aparece la instrucción ALTER
+]]></example>
+		<repair><![CDATA[
+Se suprime la instrucción ALTER
+]]></repair>
+		<reference><![CDATA[IBM Cobol Language Reference]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.CheckSqlcodeOrIndicatorVarsInSelect" message="SQL_COBOL.CheckSqlcodeOrIndicatorVarsInSelect: Deberan usarse variables indicadoras en sentencias SELECT o controlar el valor de SQLCODE" class="com.als.cobol.rules.sql.CheckSqlcodeOrIndicatorVarsInSelect" technology="COBOL" active="true">
+		<description><![CDATA[Deberan usarse variables indicadoras en sentencias SELECT.
+Si no se usan variables indicadoras en la sentencia SELECT, debera controlarse la variable SQLCODE.
+Para la comprobación, se tendrán en cuenta las cláusulas 'EVALUATE' e 'IF' incluidas en la sentencia EXEC  SQL.
+Debido a que es tecnicamente imposible contemplar todas las posibilidades de condición y evalúacion presentes en un IF,
+la regla solo asegura que se comprueba explícitamente el valor 305.
+Ademas, se comprueba si en las evalúaciones con IF existe un ELSE y en las comprobaciones con EVALUATE existe un WHEN OTHER,
+de modo que quedarían considerados otros posibles valores. ]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Se controlan posibles errores en la ejecución de la consulta]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+PROCEDURE DIVISION.
+  EXEC SQL
+    SELECT FIELD INTO :VAR FROM T1 // VIOLATION
+  END-EXEC.
+]]></example>
+		<repair><![CDATA[
+PROCEDURE DIVISION.
+  EXEC SQL
+    SELECT FIELD INTO :VAR :HOSTVAR FROM T1 // FIXED
+  END-EXEC
+  IF HOSTVAR < 0 ... // NULL properly checked for
+* Alternatively, check SQLCODE
+  EXEC SQL
+    SELECT FIELD INTO :VAR FROM T1
+  END-EXEC
+  IF SQLCODE = -305 ...
+  (...)
+  EXEC SQL
+    SELECT FIELD INTO :VAR FROM T1
+  END-EXEC
+  EVALUATE SQLCODE WHEN -305
+  (...)
+  EXEC SQL
+    SELECT FIELD INTO :VAR FROM T1
+  END-EXEC
+  EVALUATE SQLCODE WHEN -1
+    EXIT
+  WHEN OTHER
+  (...)
+  EXEC SQL
+    SELECT FIELD INTO :VAR FROM T1
+  END-EXEC
+  IF SQLCODE = -1
+    EXIT
+  ELSE ...
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.CINW" message="MAN_COBOL.CINW: Codificación incorrecta de los nombres de la working" class="com.als.cobol.rules.nom.COBNOM_CINW" technology="COBOL" active="true">
+		<description><![CDATA[Las variables de primer nivel (01 o 77) de la working tienen que seguir alguno de una serie de prefijos (propiedad 'prefixes', por defecto SW-, Xn-, CT-, CI-, WS- y TB-)]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Facilita la comprensión del código (el prefijo documenta el tipo de la variable), mejorando la mantenibilidad de este.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+WORKING-STORAGE SECTION.
+   COPY HPCOPY2.
+   01  BN-I        PIC S9(23) BINARY.     //VIOLATION
+   01  K           PIC S9(6) BINARY.      //VIOLATION
+]]></example>
+		<repair><![CDATA[
+WORKING-STORAGE SECTION.
+   COPY HPCOPY2.
+   01  SW-I        PIC S9(23) BINARY. //FIXED
+   01  CT-K        PIC S9(6) BINARY.  //FIXED
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="prefixes" descname="Lista de prefijos, separada por comas" value="SW-,XN-,CT-,CI-,WS-,TB-"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.CloseOpenFiles" message="FIA_COBOL.CloseOpenFiles: Comprueba que todos los ficheros abiertos son cerrados." class="com.als.cobol.rules.pb.COBPB_CloseOpenFiles" technology="COBOL" active="true">
+		<description><![CDATA[Esta regla comprueba que todos los ficheros que sean abiertos en un programa cobol también sean cerrados.
+Nota: La regla puede emitir falsos positivos, por ejemplo si la sentencia CLOSE correspondiente a un OPEN se incluye en un subprograma llamado (lo cual, ciertamente, es una mala práctica).
+Nota2: La regla no puede comprobar el cierre en todas las ramas de ejecución potenciales, por lo que incluso con un CLOSE asociado a cada OPEN, el fichero pudiera no cerrarse en tiempo de ejecucion.
+]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Optimiza los recursos de la aplicacion y evita posibles bugs.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+OPEN  INPUT ENTRAD1.
+   READ ENTRAD1 INTO RD48000
+   AT END MOVE 'S' TO SW-FIN-ENTRAD1.
+]]></example>
+		<repair><![CDATA[
+OPEN  INPUT ENTRAD1.
+   READ ENTRAD1 INTO RD48000
+   AT END MOVE 'S' TO SW-FIN-ENTRAD1.
+CLOSE ENTRAD1.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COBBP.PVAC" message="COBBP.PVAC: Evitar párrafos de procedimientos vacios." class="com.als.cobol.rules.ng.COBNG_PVAC" technology="COBOL" active="true">
+		<description><![CDATA[Se debe evitar la codificacion de párrafos que no contengan código dentro de los mismos.]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[No se codificará código innecesario que no realiza ninguna función.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+SALIDA-FORZADA.        //VIOLACIÓN
+
+SALIDA-SIN-FORZAR.
+
+IF NOT INPUT-EOF
+        IF INPUT-REC-TYPE = '55'
+           PERFORM 2100-PROCESS-WTN
+        END-IF
+        ADD +1 TO INPUT-COUNT.
+]]></example>
+		<repair><![CDATA[
+SALIDA-SIN-FORZAR.    //ARREGLADO
+
+IF NOT INPUT-EOF
+        IF INPUT-REC-TYPE = '55'
+           PERFORM 2100-PROCESS-WTN
+        END-IF
+        ADD +1 TO INPUT-COUNT.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.NI" message="RG_COBOL.NI: Niveles no impares" class="com.als.cobol.rules.ng.COBNG_NI" technology="COBOL" active="false">
+		<description><![CDATA[La working utiliza niveles numerados con impares.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Facilita la comprensión del código]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+ 04 FILLER PIC X(16) VALUE 'INICIO DE WORKING'    // VIOLACIÓN
+05 FILLER PIC X(16) VALUE 'FINAL DE WORKING'
+]]></example>
+		<repair><![CDATA[
+03 FILLER PIC X(16) VALUE 'INICIO DE WORKING'    // ARREGLADO
+05 FILLER PIC X(16) VALUE 'FINAL DE WORKING'
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.AvoidOpenedUnusedCursors" message="SQL_COBOL.AvoidOpenedUnusedCursors: Evita cursores abiertos y no usados" class="com.als.cobol.rules.sql.AvoidOpenedUnusedCursors" technology="COBOL" active="false">
+		<description><![CDATA[Evitar cursores abiertos y no usados. Nota: Regla deprecada, use SQL_PERFORMANCE.AvoidOpenedUnusedCursors de SQL en su lugar.]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ahorro de recursos y descriptores]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[]]></example>
+		<repair><![CDATA[]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COBBP.RIB" message="COBBP.RIB: Record in block" class="com.als.cobol.rules.ng.COBNG_RIB" technology="COBOL" active="true">
+		<description><![CDATA[En la FD se incluye siempre BLOCK CONTAINS O RECORDS]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Los ficheros almacenados en disco se agrupan en un bloque para hacer más eficiente la utilización del espacio y aumentar la velocidad de procesamiento.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+ BLOCK CONTAINS 5 RECORDS.              // VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+BLOCK CONTAINS O RECORDS.              // ARREGLADO
+]]></repair>
+		<reference><![CDATA[IBM Enterprise COBOL Version 3 Release 1 Performance Tuning]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.IINI" message="FIA_COBOL.IINI: Inicializacion con INITIALIZE." class="com.als.cobol.rules.pb.COBPB_IINI" technology="COBOL" active="true">
+		<description><![CDATA[Todas las variables que no hayan sido inicializadas en la WORKING STORAGE deben ser inicializadas al inicio del programa con el verbo INITIALIZE.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a evitar posibles fallos de código por falta de inicialización.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+01  CAT-AND-DOG.
+    05  CAT    PIC 9.  //VIOLACIÓN
+    05  DOG    PIC X. //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+01  CAT-AND-DOG.
+    05  CAT    PIC 9.
+    05  DOG    PIC X.
+
+INITIALIZE CAT.
+INITIALIZE DOG.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.LPRE" message="MAN_COBOL.LPRE: La longitud de los nombres de párrafo debe estar entre ciertos límites." class="com.als.cobol.rules.nom.COBNOM_LPRE" technology="COBOL" active="false">
+		<description><![CDATA[La lomngitud de los nombres de párrafo debe encontrarse entre los valores de las propiedades 'minLength' y 'maxLength'.
+Para comprobar que los nombres de párrafo siguen cierto patron, use la regla COBNOM.NPAR en lugar de esta.
+]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Nombres de párrafo excesivamente cortos/largos son dificiles de identificar al leer el código. La regla establece una longitud de nombres apropiada.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+PROCEDURE DIVISION.
+   DECLARATIVES.
+
+   F1 SECTION.
+       USE AFTER STANDARD ERROR PROCEDURE ON CLIENTE.
+   2458789-P1.                //VIOLACIÓN
+       IF (FS-CLIENTE = "35") THEN
+           DISPLAY SPACE ERASE
+           OPEN OUTPUT CLIENTE
+           CLOSE CLIENTE
+           OPEN I-O CLIENTE
+       ELSE
+           DISPLAY "ERROR FATAL N§ " FS-CLIENTE
+           ACCEPT PAUSA
+           STOP RUN
+       END-IF.
+]]></example>
+		<repair><![CDATA[
+PROCEDURE DIVISION.
+   DECLARATIVES.
+
+   F1 SECTION.
+       USE AFTER STANDARD ERROR PROCEDURE ON CLIENTE.
+   245878-P1.                //REPARACIÓN
+       IF (FS-CLIENTE = "35") THEN
+           DISPLAY SPACE ERASE
+           OPEN OUTPUT CLIENTE
+           CLOSE CLIENTE
+           OPEN I-O CLIENTE
+       ELSE
+           DISPLAY "ERROR FATAL N§ " FS-CLIENTE
+           ACCEPT PAUSA
+           STOP RUN
+       END-IF.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="maxLength" descname="maxLength" value="40"/>
+			<property name="minLength" descname="minLength" value="1"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.NOSR" message="FIA_COBOL.NOSR: No usar STOP RUN usar GOBACK." class="com.als.cobol.rules.pb.COBPB_NOSR" technology="COBOL" active="true">
+		<description><![CDATA[STOP RUN para el proceso actual. En los programas CICS esta prohibido usar STOP RUN porque pararía el proceso en lugar de devolver el control al proceso que lo invoco.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Se mantiene el control del proceso en los programas y subprogramas CICS.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+IDENTIFICATION DIVISION.
+       PROGRAM-ID. principal.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       77 x OCCURS 9 TIMES PIC 99999.
+       77 y OCCURS 9 TIMES PIC 99999.
+       PROCEDURE DIVISION.
+         PERFORM llenar VARYING i FROM 1 BY 1 UNTIL 9.
+         CALL valor USING x, y(5).
+      * se llama a valor con un vector y un entero
+         STOP RUN.            //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+IDENTIFICATION DIVISION.
+       PROGRAM-ID. principal.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       77 x OCCURS 9 TIMES PIC 99999.
+       77 y OCCURS 9 TIMES PIC 99999.
+       PROCEDURE DIVISION.
+         PERFORM llenar VARYING i FROM 1 BY 1 UNTIL 9.
+         CALL valor USING x, y(5).
+      * se llama a valor con un vector y un entero
+         GOBACK.                       //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.PARN" message="OYR_COBOL.PARN: Elevado número de parámetros en la rutina." class="com.als.cobol.rules.oyr.COBOYR_PARN" technology="COBOL" active="false">
+		<description><![CDATA[El número de parámetros que se le pasa a una rutina no tiene que superar un valor predeterminado, este valor es parametrizable.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Para la mejora de la mantenibilidad y legibilidad se de reducir el número de parámetros.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+ CALL "px1.cob" USING U-KEY-CFAC U-DEVICES
+U-COPIAS U-TEXTO-PIE U-MEMBRETE .       //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+ CALL "px1.cob" USING U-KEY-CFAC U-DEVICES.             //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="callParameters" descname="callParameters" value="3"/>
+		</properties>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.APIC" message="RG_COBOL.APIC: Uso de paréntesis en la cláusula PIC." class="com.als.cobol.rules.ng.COBNG_APIC" technology="COBOL" active="true">
+		<description><![CDATA[Toda cadena de caracteres de la cláusula PIC se escribira entre paréntesis.
+Use la propiedad 'repeatedChars' para controlar el número máximo de X, A o 9 consecutivos admitidos (2 por defecto)
+]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a ver el número de digitos que tiene la variable sin necesidad de contarlos.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+01 VAR1 PIC S9999V99     //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+01 VAR1 PIC S9(4)V99    //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="repeatedChars" descname="repeatedChars" value="2"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.MSEC" message="MAN_COBOL.MSEC: Evitar programas con demasiadas secciones procedurales." class="com.als.cobol.rules.ng.COBNG_MSEC" technology="COBOL" active="false">
+		<description><![CDATA[Por norma general programas con muchas SECTIONS complican la mantenibilidad. Se debe evitar codificar más SECTIONS de las parametrizadas.
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Aumenta la mantenibilidad.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+N/A
+]]></example>
+		<repair><![CDATA[
+N/A
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="maxSections" descname="maxSections" value="15"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COD_COBOL.NVWS" message="COD_COBOL.NVWS: Nomenclatura de las variables de la WORKING STORAGE." class="com.als.cobol.rules.nom.COBNOM_NVWS" technology="COBOL" active="false">
+		<description><![CDATA[Las variables y las constantes de la WORKING STORAGE deben tener un prefijo correspondiente a su tipo de datos. Tanto tipo como prefijo se especifica como propiedad de la regla. Si se desea que un mismo tipo pueda tener más de un prefijo especificarlo doblemente en la propiedad de la regla. (Propiedad type= COMP,COMP y prefixes=NUM,COMP , ambas propiedades deben tener correspondencia uno a uno.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a la legibilidad del código identificando los tipos de las variables en el mismo nombre.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+WORKING-STORAGE SECTION.
+
+COPY HPCOPY2.
+01 BN-I PIC S9(23) BINARY.
+01 K PIC S9(6) PACKED-DECIMAL. //Violación
+]]></example>
+		<repair><![CDATA[
+WORKING-STORAGE SECTION.
+
+COPY HPCOPY2.
+01 BN-I PIC S9(23) BINARY.
+01 DC-K PIC S9(6) PACKED-DECIMAL. //Arreglado
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="types" descname="Comma-delímited list of Cobol types to be checked for prefixes" value="PACKED-DECIMAL,BINARY"/>
+			<property name="prefixes" descname="Comma-delímited list of  prefixes " value="DC-,BN-"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.WD" message="RG_COBOL.WD: Orden de las definiciones de la sección Working-storage." class="com.als.cobol.rules.ng.COBNG_WD" technology="COBOL" active="false">
+		<description><![CDATA[
+    	En la sección WORKING-STORAGE, colocar juntos todos los campos que tengan el mismo propósito.
+    	La regla comprueba que todos los campos de primer nivel (01 ó 77) de la sección WORKING-STORAGE
+    	siguen una secuencia de patrones, con ningún campo fuera de su grupo.
+    	Utilizando un prefijo, por ejemplo, puede agrupar campos en categorías como switches (prefijo SW-),
+    	contadores (prefijos CT- y CI-) o tablas (prefijo TB-).
+    	La regla se configura utilizando la propiedad 'fieldPatterns', una lista separada por comas de
+    	expressiones regulares que cada grupo de campos debe cumplir.
+    	Se emitirá una única violación, mostrando el primer campo que no cumple con ninguno de los patrones
+    	o que está definido fuera de orden
+    ]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[
+    	Un estándar de nombres, con todas las variables con el mismo propósito agrupadas juntas, hace que sea
+    	más sencillo encontrar ciertos campos para su mantenimiento.
+
+    	Una estructura ordenada facilita la legibilidad y comprensión del código.
+    ]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+    * Patrones configurados: ^SW- ^XN- ^CT- ^CI- ^TB- ^WS-
+		 01  Xn- 9(8).
+		 01  CT- PIC S9(9).
+		 01  CI- PIC S9(9)V9(2)COMP-2.
+		 01  TB- ........*Según contenido*
+		 01  WS- ........*Según contenido*
+		 01  SW- PIC X.                          // VIOLACIÓN
+		]]></example>
+		<repair><![CDATA[
+		* Patrones configurados: ^SW- ^XN- ^CT- ^CI- ^TB- ^WS-
+		 01  SW- PIC X.                          // ARREGLADO
+		 01  Xn- 9(8).
+		 01  CT- PIC S9(9).
+		 01  CI- PIC S9(9)V9(2)COMP-2.
+		 01  TB- ........*Según contenido*
+		 01  WS- ........*Según contenido*
+		]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="fieldPatterns" descname="Expresiones regulares para cada grupo de campos, en el orden deseado." value="^SW\-,^XN\-,^CT\-,^CI\-,^TB\-,^WS\-"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.AvoidSelectAsterisk" message="SQL_COBOL.AvoidSelectAsterisk: Evita sentencias del tipo SELECT *" class="com.als.cobol.rules.sql.AvoidSelectAsterisk" technology="COBOL" active="true">
+		<description><![CDATA[Evitar sentencias del tipo SELECT *. Nota: Regla deprecada, use SQL_PERFORMANCE.AvoidSelectAsterisk de SQL en su lugar.]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Reduce el tamaño del resultado devuelto]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[]]></example>
+		<repair><![CDATA[]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.MCOR" message="OYR_COBOL.MCOR: No usar MOVE CORRESPONDING...TO..." class="com.als.cobol.rules.oyr.COBOYR_MCOR" technology="COBOL" active="false">
+		<description><![CDATA[Debe cambiarse por MOVE normales.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Aunque los MOVE generan más código utilizandolos se copian exactamente los campos que se desean y no los objetos completos. De esta manera mejora el rendimiento por el tamaño del movimiento y la legibilidad de la operacion.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+WORKING-STORAGE SECTION.
+  01 MIREG.
+  02 CONTADOR PIC X(11) value "0000001234u".
+  01 MIREG2.
+  02 CONTADOR PIC S9(11).
+
+PROCEDURE DIVISION.
+INICIO.
+  OPEN OUTPUT FICHER3.
+
+  MOVE corresponding MIREG TO MIREG2.    //VIOLACIÓN
+  MOVE corresponding MIREG2 TO REGFI3.     //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+WORKING-STORAGE SECTION.
+  01 MIREG.
+  02 CONTADOR PIC X(11) value "0000001234u".
+  01 MIREG2.
+  02 CONTADOR PIC S9(11).
+
+PROCEDURE DIVISION.
+INICIO.
+  OPEN OUTPUT FICHER3.
+
+  MOVE MIREG TO MIREG2.        //REPARACIÓN
+  MOVE MIREG2 TO REGFI3.         //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COBBP.IPL" message="COBBP.IPL: Instrucción por línea" class="com.als.cobol.rules.ng.COBNG_IPL" technology="COBOL" active="true">
+		<description><![CDATA[Siempre habrá una única instrucción por línea]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Si se sigue el mismo estilo de formato, se facilita la lectura y comprensión del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+IDENTIFICATION DIVISION.
+  PROGRAM-ID. EXISTE IS COMMON.
+ENVIRONMENT DIVISION.
+DATA DIVISION.
+PROCEDURE DIVISION.
+  INICIO SECTION.
+    MOVE 0 TO POW-ENABLE OF AGE-COD.
+    MOVE AGECOD TO POW-NUMERIC OF AGE-COD. // VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+IDENTIFICATION DIVISION.
+  PROGRAM-ID. EXISTE IS COMMON.
+ENVIRONMENT DIVISION.
+DATA DIVISION.
+PROCEDURE DIVISION.
+  INICIO SECTION.
+    MOVE 0 TO POW-ENABLE OF AGE-COD.       // ARREGLADO
+    MOVE AGECOD TO POW-NUMERIC OF AGE-COD. // ARREGLADO
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.RACC" message="MAN_COBOL.RACC: Evitar rutinas con alta complejidad ciclomática." class="com.als.cobol.rules.pb.COBPB_RACC" technology="COBOL" active="true">
+		<description><![CDATA[Se define la complejidad ciclomática como el número de caminos independientes del conjunto básico de un módulo. No se debe pasar del valor configurado como parámetro.]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a mantener la legibilidad del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+* PARAMETERIZED MAX_CC = 5
+ ...
+  EVALUATE FOOVAR
+    WHEN (CONDITION0)
+      MOVE SOURCECONTROLVAR TO TARGETCONTROLVAR
+      IF CONDITION1
+        MOVE SOURCEERRORVAR TO TARGETERRORVAR
+        IF ((CONDITION2 AND CONDITION3) OR
+           (CONDITION4 AND CONDITION5))
+          MOVE SOURCEVAR TO TARGETVAR
+          CONTINUE
+        ELSE
+          MOVE SOURCEVAR2 TO TARGETVAR
+          EXIT
+ ...
+]]></example>
+		<repair><![CDATA[
+N/A
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="maxCyclomaticComplexity" descname="maxCyclomaticComplexity" value="100"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.FDSN" message="RG_COBOL.FDSN: FD sin nivel 01" class="com.als.cobol.rules.ng.COBNG_FDSN" technology="COBOL" active="true">
+		<description><![CDATA[En la FD se incluye un campo 01 al que se moverá el contenido hacia/desde la copy]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+003100 FILE SECTION.
+003200
+003300 FD CIERROR.
+003400 03 REG-CIERROR PIC X(200).
+003500
+003600 FD CICOSERR.
+003700 03 REG-CICOSERR PIC X(200).
+]]></example>
+		<repair><![CDATA[
+003100 FILE SECTION.
+003200
+003300 FD CIERROR.
+003400 01 REG-CIERROR PIC X(200).
+003500
+003600 FD CICOSERR.
+003700 03 REG-CICOSERR PIC X(200).
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COBNOM_CallNamingConvention" message="COBNOM_CallNamingConvention: Convencion de nomenclatura para CALL" class="com.als.cobol.rules.nom.COBNOM_CallNamingConvention" technology="COBOL" active="true">
+		<description><![CDATA[No se admite el nombre de la rutina entrecomillado en la sentencia CALL.
+ Se debe definir en la WORKING un campo alfanumérico de X posiciones.El nombre de la variable y su valor deben coindidir.La regla es parametrizable para poder
+ indicar el formato deseado; por defecto será X(08) (campo alfanumérico de 8 posiciones). ]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mantener nombres de variables cumpliendo normas de nomenclatura del programa facilita la legibilidad y comprensión del código.
+]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+   CALL 'RCSQLERR' USING WK-SQLCA
+   CALL 'RCEURO1' USING WK-REG-WCEURO1 ]]></example>
+		<repair><![CDATA[
+*----------- DECLARACIÓN DE COPYS Y RUTINAS -----------------*
+ 01 RACANCEL PIC X(08) VALUE 'RACANCEL'.
+
+ 01 RCSQLERR PIC X(08) VALUE 'RCSQLERR'.
+
+ 01 RCEURO1 PIC X(08) VALUE 'RCEURO1 '.
+ COPY WCEURO1.
+
+ 01 RCHO0103 PIC X(08) VALUE 'RCHO0103'.
+ 01 COPY-WCHO0103.
+   COPY WCHO0103.
+*------------ LLAMADA DINÁMICA A LA RUTINA ------------------*
+   CALL RCSQLERR USING WK-SQLCA
+   CALL RACANCEL.
+   CALL RCEURO1 USING WK-REG-WCEURO1 ]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="positions" descname="Posiciones" value="8"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.NCSW" message="MAN_COBOL.NCSW: Elevado número de EVALUATE WHEN." class="com.als.cobol.rules.ng.COBNG_NCSW" technology="COBOL" active="true">
+		<description><![CDATA[Es conveniente no anidar más WHEN EVALUATE de los parametrizados.
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a mantener la legibilidad del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+
+EVALUATE menu-input
+  WHEN "0"
+    PERFORM init-proc
+  WHEN "1" THRU "9"
+    PERFORM process-proc
+  WHEN "R"
+    PERFORM read-parms
+  WHEN "X"
+    PERFORM cleanup-proc
+  WHEN OTHER      // VIOLATION
+    EVALUATE menu2-input
+      WHEN "0"
+        PERFORM init-proc
+      WHEN "1" THRU "9"
+        PERFORM process-proc
+      WHEN "R"
+        PERFORM read-parms
+      WHEN "X"
+        PERFORM cleanup-proc
+    END-EVALUATE
+END-EVALUATE
+]]></example>
+		<repair><![CDATA[
+
+EVALUATE menu-input
+  WHEN "0"
+    PERFORM init-proc
+  WHEN "1" THRU "9"
+    PERFORM process-proc
+  WHEN "R"
+    PERFORM read-parms
+  WHEN "X"
+    PERFORM cleanup-proc
+  WHEN OTHER
+    PERFORM check-menu2-input  // FIXED
+END-EVALUATE
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="maxNested" descname="maxNested" value="1"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.VODT" message="OYR_COBOL.VODT: No realizar varias operaciones con variables de distinto tipo." class="com.als.cobol.rules.oyr.COBOYR_VODT" technology="COBOL" active="true">
+		<description><![CDATA[No se permite realizar varias operaciones sobre variables de distinto tipo. En lugar de ello, convertir la variable y después realizar las operaciones.]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejra la eficiencia porque cada vez que se realiza una operación con operandos de distinto tipo, el compilador convierte los datos intermedios para la operacion.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+77 VAR1           PIC S9(2) COMP-3.
+77 VAR2           PIC S9(2).
+77 VAR3           PIC S9(2).
+77 VAR4           PIC S9(2).
+
+PROCEDURE DIVISION.
+
+ADD VAR2 TO VAR1.
+ADD VAR3 TO VAR1.        //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+
+77 VAR1           PIC S9(2) COMP-3.
+77 VAR2           PIC S9(2).
+77 VAR3           PIC S9(2).
+77 VAR4           PIC S9(2).
+
+PROCEDURE DIVISION.
+
+MOVE VAR1 TO VAR4.
+ADD VAR2 TO VAR4.
+ADD VAR3 TO VAR4.
+MOVE VAR4 TO VAR1.        //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.AvoidNaturalJoins" message="SQL_COBOL.AvoidNaturalJoins: NATURAL JOINs tienen implementaciones defectuosas, son dificiles de mantener y propensos a errores" class="com.als.cobol.rules.sql.AvoidNaturalJoins" technology="COBOL" active="true">
+		<description><![CDATA[
+    Las sentencias NATURAL JOIN son frágiles ante cambios en las columnas de la tabla y muchos SGBD ofrecen implementaciones erroneas de ellas.
+    Nota: Regla deprecada, use SQL_PB.AvoidNaturalJoins de SQL en su lugar.
+    ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Evita resultados erroneos, fallos en las consultas y bugs]]></benefits>
+		<inconvenients><![CDATA[Ninguno]]></inconvenients>
+		<example><![CDATA[SELECT isbn, title
+    FROM customers NATURAL JOIN orders
+    WHERE firstname='JAKE' AND lastname='LUCAS';]]></example>
+		<repair><![CDATA[SELECT isbn, title
+    FROM customers INNER JOIN orders
+    ON firstname='JAKE' AND lastname='LUCAS'
+    AND customers.responsableId = orders.responsableId;]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.AvoidQualifiedTablesInQueries" message="SQL_COBOL.AvoidQualifiedTablesInQueries: Los nombres de tablas no deben cualificarse" class="com.als.cobol.rules.sql.AvoidQualifiedTablesInQueries" technology="COBOL" active="false">
+		<description><![CDATA[Las tablas no deben ir cualificadas en las consultas. Nota: Regla deprecada, use SQL_MAINTAINABILITY.AvoidQualifiedTablesInQueries de SQL en su lugar.]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Se particulariza la normativa en función del cliente, que puede desear que las tablas no estén cualificadas  o sí lo estenm en cuyo caso deberían activar la regla QualifiedTablesInQueries]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+EXEC SQL
+  SELECT sampleColumn FROM sampleCatalog.wrongTable // ARREGLADO
+END-EXEC
+]]></example>
+		<repair><![CDATA[
+EXEC SQL
+  SELECT sampleColumn FROM rightTable // ARREGLADO
+END-EXEC
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.DPIC" message="RG_COBOL.DPIC: Especifique DECIMAL-POINT IS COMMA cuando existen campos de edición o constantes decimales." class="com.als.cobol.rules.ng.COBNG_DPIC" technology="COBOL" active="true">
+		<description><![CDATA[Al definir un campo de edición o constante decimal, es obligatorio poner DECIMAL-POINT IS COMA.
+La cláusula DECIMAL-POINT IS COMMA indica que la función de la coma y el punto en los valores numéricos será intercambiada en la cláusula PICTURE y en literales numéricos.
+Dado que en Estados Unidos y otros lugares se usa punto para indicar los decimales y coma como separador de miles, debemos incluir esta cláusula en todos aquellos programas que hagan uso de constantes decimales numéricos o cláusulas PICTURE donde el punto o la coma se usen en el formato.
+]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Se evitan errores de conversión, en países donde la coma sea el separador decimal.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[Ausencia de la cláusula]]></example>
+		<repair><![CDATA[DECIMAL-POINT IS COMMA // ARREGLADO]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.FSR" message="RG_COBOL.FSR: Defina FD como LABEL RECORD STANDARD, bloques de 0 registros, y modo de registro F o V" class="com.als.cobol.rules.ng.COBNG_FSR" technology="COBOL" active="true">
+		<description><![CDATA[Cada FD debe definirse con las siguientes cláusulas:
+ * LABEL RECORD STANDARD
+ * BLOCK CONTAINS 0 RECORDS
+ * RECORDING MODE F|V
+]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[B]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+ FD FCARTA //violacion
+]]></example>
+		<repair><![CDATA[
+ FD FCARTA
+ LABEL RECORD STANDARD
+ BLOCK CONTAINS 0 RECORDS
+ RECORDING MODE F|V //arreglado
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.MNN" message="MAN_COBOL.MNN: Instrucción DISPLAY con mensaje no normalizado" class="com.als.cobol.rules.nom.COBNOM_MNN" technology="COBOL" active="false">
+		<description><![CDATA[Con la instrucción DISPLAY deberán utilizarse únicamente códigos de mensajes normalizados, nunca mensajes literales.]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[La utilización de códigos de mensajes normalizados mejora la legibilidad y comprensión del código]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+DECLARATIVES.
+   DEBUG-SECTION SECTION.
+     USE FOR DEBUGGING ON ALL PROCEDURES.
+   DEBUG-0000.
+   IF  (WDEBUG-NAME(1:4) <> "FREE")
+     DISPLAY "(VERPCARD)" DEBUG-NAME     //VIOLATION
+   END-IF
+   EXIT.
+END DECLARATIVES.
+]]></example>
+		<repair><![CDATA[
+DECLARATIVES.
+   DEBUG-SECTION SECTION.
+     USE FOR DEBUGGING ON ALL PROCEDURES.
+   DEBUG-0000.
+   IF  (WDEBUG-NAME(1:4) <> "FREE")
+     DISPLAY DEBUG-NAME
+   END-IF
+   EXIT.
+END DECLARATIVES.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.DUP" message="OYR_COBOL.DUP: Evitar el uso de DISPLAY...UPON CONSOLE." class="com.als.cobol.rules.ng.COBNG_DUP" technology="COBOL" active="true">
+		<description><![CDATA[Esto solo se debe usar en el comienzo del programa batch.
+Use la propiedad 'batchProgramsPattern' (expresion regular) para permitir que ciertos programas batch puedan usar DISPLAY ... UPON CONSOLE.
+]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Es recomendable evitarlo porque requiere la respuesta del operador y manda información a consola.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+DISPLAY  VALOR UPON CONSOLE.
+]]></example>
+		<repair><![CDATA[
+Solo se recomienda en el comienzo de un programa batch.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="batchProgramsPattern" descname="batchProgramsPattern" value=""/>
+		</properties>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.PRCD" message="MAN_COBOL.PRCD: Elevada profundidad de código." class="com.als.cobol.rules.ng.COBNG_PRCD" technology="COBOL" active="false">
+		<description><![CDATA[Controla la elevada profundidad de las sentencias de control e impide que exceda del valor parametrizado. Se consideran sentencias de control: ifs, when evalúate, bucles y performs.
+ ]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Una alta profundidad en las sentencias de control conlleva un elevado coste de mantenimiento y dificulta la comprensión y legibilidad del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+EVALUATE menu-input // deepLevel = 2
+  WHEN "0"
+    CALL init-proc
+  WHEN "1" THRU "9"
+    CALL process-proc
+  WHEN "R"
+    CALL read-parms
+  WHEN "X"
+    CALL cleanup-proc
+  WHEN OTHER
+    IF ws-cancel = "Y" THEN
+      IF (menu-input >= "1") AND (menu-input <= "9") THEN
+        CALL process-proc-cancel
+      ELSE
+        IF (menu-input = "R") THEN    // VIOLACIÓN, nivel=3
+          CALL read-parms-cancel
+        ELSE
+          IF (menu-input = "X") THEN  // VIOLACIÓN, nivel=4
+            CALL cleanup-proc-cancel
+          ELSE
+            CALL error-proc-cancel
+          END-IF
+        END-IF
+      END-IF
+    END-IF
+END-EVALUATE.
+]]></example>
+		<repair><![CDATA[
+EVALUATE menu-input // deepLevel = 2
+  WHEN "0"
+    CALL init-proc
+  WHEN "1" THRU "9"
+    CALL process-proc
+  WHEN "R"
+    CALL read-parms
+  WHEN "X"
+    CALL cleanup-proc
+  WHEN OTHER
+    IF ws-cancel = "Y" THEN
+      EVALUATE menu-input // ARREGLADO
+        WHEN "1" THRU "9"
+          CALL process-proc-cancel
+        WHEN "R"
+          CALL read-parms-cancel
+        WHEN "X"
+          CALL cleanup-proc-cancel
+        WHEN OTHER
+          CALL error-proc-cancel
+      END-EVALUATE
+    END-IF
+END-EVALUATE.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="deepLevel" descname="Nivel de anidamiento IF máximo" value="2"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COD_COBOL.NR" message="COD_COBOL.NR: No use RETURN dentro de sentencias EXEC CICS" class="com.als.cobol.rules.ng.COBNG_NR" technology="COBOL" active="true">
+		<description><![CDATA[
+    Nunca debe utilizarse RETURN para salir de una rutina invocada desde CICS, siempre con GOBACK.
+    ]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[
+      El programa invocado debe regresar con una sentencia de retorno nativa del lenguaje como la declaración GOBACK.
+      El uso de RETURN en el subprograma invocado hace que termine el programa que realiza la llamada.
+    ]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+       EXEC CICS
+         RETURN //violacion
+       END-EXEC.
+    ]]></example>
+		<repair><![CDATA[
+       EXEC CICS
+         GOBACK //arreglado
+       END-EXEC.
+    ]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.IN01" message="MAN_COBOL.IN01: Se debe poner un comentario antes de cada registro de nivel 01 a modo de cabecera." class="com.als.cobol.rules.doc.COBDOC_IN01" technology="COBOL" active="false">
+		<description><![CDATA[Cuando se declare un registro de primer nivel (01), se debe anteponer un comentario que aclare la estructura y finalidad del registro.]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a la mantenibilidad del código y a la legibilidad del mismo. Permite hacerse una idea de la funciónalidad y finalidad del registro.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+   WORKING-STORAGE SECTION.
+          01 W000-AGRUPACION-NIVEL-1.        //VIOLACIÓN
+            03 W000-NIVEL-3.
+               05 W000-NIVEL-5 PIC X(08).
+               05 W000-OTRO-NIVEL-5 PIC X(08).
+          01 W000-PAIS        PIC X(09) VALUE 'ARGENTINA'.
+          01 A000-LEIDOS-E1   PIC 9(09) COMP-3.
+          01 A000-LEIDOS-E2   PIC 9(09) VALUE ZEROES.
+          01 A000-ESCRITOS    PIC 9(09) VALUE ZEROES.
+]]></example>
+		<repair><![CDATA[
+ WORKING-STORAGE SECTION.
+*    EJEMPLO DE VIOLACIÓNES
+          01 W000-AGRUPACION-NIVEL-1.
+            03 W000-NIVEL-3.
+               05 W000-NIVEL-5 PIC X(08).
+               05 W000-OTRO-NIVEL-5 PIC X(08).
+*    VARAIBLE PARA LOS PAISES
+          01 W000-PAIS        PIC X(09) VALUE 'ARGENTINA'.
+*         NUMERO DE PAISES LEIDOS DEL EMISFERIO NORTE
+          01 A000-LEIDOS-E1   PIC 9(09) COMP-3.
+*         NUMERO DE PAISES LEIDOS DEL EMISFERIO SUR
+          01 A000-LEIDOS-E2   PIC 9(09) VALUE ZEROES.
+*         NUMERO DE PAISES ESCRITOS QUE CUMPLEN NORMATIVA
+          01 A000-ESCRITOS    PIC 9(09) VALUE ZEROES.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.BTA" message="FIA_COBOL.BTA: Se prohíbe el uso de TEST AFTER dentro de un bucle." class="com.als.cobol.rules.pb.COBPB_BTA" technology="COBOL" active="true">
+		<description><![CDATA[TEST AFTER evalúa la condición después de la operacion, esto quiere decir que el cuerpo se ejecuta al menos una vez. En su lugar se debe codificar la opción TEST BEFORE, opción por defecto.
+Seguir la estrategia de 'controlar la conduicion antes de entrar en bucle' ha producido, estadísticamente, menores tasas de errores lógicos.
+]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+PERFORM PARA-A
+WITH TEST AFTER  // VIOLACIÓN
+VARYING X FROM 1 BY 1 UNTIL X > 5.
+    DISPLAY SEPARATOR-LINE.
+END-PERFORM.
+]]></example>
+		<repair><![CDATA[
+PERFORM PARA-A
+WITH TEST BEFORE // ARREGLADO
+VARYING X FROM 1 BY 1 UNTIL X > 5.
+  DISPLAY SEPARATOR-LINE.
+END-PERFORM.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.PDIM" message="OYR_COBOL.PDIM: Digitos impares para PACKED-DECIMAL o COMP-3." class="com.als.cobol.rules.oyr.COBOYR_PDIM" technology="COBOL" active="false">
+		<description><![CDATA[
+Con decimal empaquetado, los datos que excedan 15 digitos deben procesarse normalmente mediante librerias especiales, mucho más ineficaces. Para datos con signo, el número de digitos debe ser impar (una posición BCD para el signo),
+y par para datos sin signo, de modo que todos los digitios pueden empaquetarse eficientemente (en bytes completos).]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora el rendimiento y realiza un uso más eficiente.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+DATA DIVISION.
+
+01 WS PIC S9(4) COMP-3.            //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+DATA DIVISION.
+
+01 WS PIC S9(5) COMP-3.            //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[IBM Enterprise COBOL Version 3 Release 1 Performance Tuning]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.FCO" message="RG_COBOL.FCO: Falta COPY obligatoria para el acceso a IDMS desde CICS" class="com.als.cobol.rules.ng.COBNG_FCO" technology="COBOL" active="true">
+		<description><![CDATA[Las llamadas a los adaptadores de arquitectura para acceder de CISC a IDMS hay que utilizar un parámetro de comunicación de
+32k en el que las primeras 300 posiciones vienen de la copy de arquitectura (R000X00) y el resto parámetros de negocio.]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+01 DFHCOMMAREA. // Area de comunicaciones CICS/IDMS
+   COPY R010X003. // VIOLACIÓN: COPY no es estandar
+]]></example>
+		<repair><![CDATA[
+01 DFHCOMMAREA.
+   COPY R000X003. // ARREGLADO
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="copyPattern" descname="copyPattern" value="^R000X00"/>
+			<property name="varnamePattern" descname="varnamePattern" value="^DFHCOMMAREA$"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.FCT" message="RG_COBOL.FCT: Todo programa debe definir al menos tantos contadores como tablas y ficheros (incluyendo impresoras)" class="com.als.cobol.rules.ng.COBNG_FCT" technology="COBOL" active="false">
+		<description><![CDATA[En programas de cierto tipo (e.g. batch) existen al menos tantos contadores como tablas y ficheros haya (incluido impresoras) en el programa.
+La regla comprueba si tiene que analizar el programa (segun el patron de la propiedad 'programPattern'), y que variables de la WORKING-STORAGE se consideran contadores (segun el patron recogido en la propiedad 'counterPattern').
+]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+FILE-CONTROL.
+   SELECT CUSTF ASSIGN TO SYS010.
+   SELECT INP1  ASSIGN TO SYS001.
+   SELECT INP2  ASSIGN TO SYS002.
+.......
+
+WORKING-STORAGE SECTION.
+01 COUNTERS.
+   03 CT-PAGE   PIC 9(04) VALUE ZEROS.
+   03 CT-READ2  PIC 9(7)  VALUE ZEROS.
+   // VIOLACIÓN, faltan contadores
+]]></example>
+		<repair><![CDATA[
+FILE-CONTROL.
+   SELECT CUSTF ASSIGN TO SYS010.
+   SELECT INP1  ASSIGN TO SYS001.
+   SELECT INP2  ASSIGN TO SYS002.
+.......
+
+WORKING-STORAGE SECTION.
+01 COUNTERS.
+   03 CT-PAGE   PIC 9(04) VALUE ZEROS.
+   03 CT-READ1  PIC 9(7)  VALUE ZEROS. // ARREGLADO
+   03 CT-READ2  PIC 9(7)  VALUE ZEROS.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="counterPattern" descname="counterPattern" value="^CT\-"/>
+			<property name="programPattern" descname="programPattern" value=".+"/>
+		</properties>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.BIUS" message="OYR_COBOL.BIUS: Utilizar BINARY, COMP o COMP-4 con variables y constantes de menos de diez digitos." class="com.als.cobol.rules.oyr.COBOYR_BIUS" technology="COBOL" active="false">
+		<description><![CDATA[BINARY, COMP o COMP-4 se suele utilizar en índices y campos aritmeticos. Su representación más eficiente es para menos de diez digitos.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora el rendimiento por las transformaciones de tipos que realiza el compilador.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+DATA DIVISION.
+
+01 WS PIC S9(12) BINARY.          //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+DATA DIVISION.
+
+01 WS PIC S9(5) BINARY.            //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="threshold" descname="threshold" value="10"/>
+		</properties>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.AvoidInsertWithoutFieldsSpecification" message="SQL_COBOL.AvoidInsertWithoutFieldsSpecification: Evita sentencias INSERT en las que no se especifique los nombres de los campos de la tabla" class="com.als.cobol.rules.sql.AvoidInsertWithoutFieldsSpecification" technology="COBOL" active="true">
+		<description><![CDATA[Evitar sentencias INSERT en las que no se especifique los nombres de los campos de la tabla. Nota: Regla deprecada, use SQL_PB.AvoidInsertWithoutFieldsSpecification de SQL en su lugar.]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora la legibilidad y favorece la reduccion de errores]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+XXXXXX   EXEC SQL
+XXXXXX     INSERT INTO wrongTable VALUES (sampleValue1, sampleValue2)
+XXXXXX   END-EXEC
+]]></example>
+		<repair><![CDATA[
+XXXXXX   EXEC SQL
+XXXXXX     INSERT INTO rightTable (sampleColumn1, sampleColumn2)
+XXXXXX           VALUES (sampleValue1, sampleValue2)
+XXXXXX   END-EXEC
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.CERM" message="FIA_COBOL.CERM: Ajustar caracteristicas del emisor y el receptor del MOVE." class="com.als.cobol.rules.oyr.COBOYR_CERM" technology="COBOL" active="true">
+		<description><![CDATA[Se recomienda que tanto el emisor como el receptor de una sentencia MOVE sean iguales en naturaleza y longitud.La información relativa a la compatibilidad de tipo de datos se puede observar en:
+http://publib.boulder.ibm.com/infocenter/iadthelp/v7r0/index.jsp?topic=/com.ibm.etools.iseries.langref.doc/c0925395451.htm ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Con esto se evitará, en lo posible, la generación de código adicional para la conversión de los tipos.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+DATA DIVISION.
+
+01 PEL-STOCK-TOTAL        PIC 9(4).
+01 PEL-STOCK-DISPONIBLE   PIC 9(2).
+
+PROCEDURE DIVISION.
+
+MOVE PEL-STOCK-DISPONIBLE TO PEL-STOCK-TOTAL.   //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+DATA DIVISION.
+
+01 PEL-STOCK-TOTAL        PIC 9(4).
+01 PEL-STOCK-DISPONIBLE   PIC 9(4).    //REPARACIÓN
+
+PROCEDURE DIVISION.
+
+MOVE PEL-STOCK-DISPONIBLE TO PEL-STOCK-TOTAL.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.SIBY" message="OYR_COBOL.SIBY: Use SYNCHRONIZED con campos binarios (BINARY,COMP,COMP-4 o COMP-5)." class="com.als.cobol.rules.oyr.COBOYR_SIBY" technology="COBOL" active="true">
+		<description><![CDATA[Es obligaria la codificacion de la cláusula SYNCHRONIZED en campos binarios.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Esta cláusula alínea el dato con los bordes de la palabra de CPU, con lo que mejora el rendimiento.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+
+01 WS PIC S9(12) BINARY. //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+
+01 WS PIC S9(5) BINARY SYNC LEFT. //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[IBM Enterprise COBOL Version 3 Release 1 Performance Tuning]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.NLF" message="RG_COBOL.NLF: Evite programas con excesivo número de líneas." class="com.als.cobol.rules.ng.COBNG_NLF" technology="COBOL" active="false">
+		<description><![CDATA[Evitar que en el fichero haya un número de líneas (excluyendo líneas en blanco o comentarios) mayor del número parametrizado.
+ ]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a mantener la legibilidad del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+N/A
+]]></example>
+		<repair><![CDATA[
+N/A
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="numLines" descname="numLines" value="2000"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.OVWS" message="MAN_COBOL.OVWS: Las variables deben declararse con un orden en la WORKING STORAGE." class="com.als.cobol.rules.doc.COBDOC_OVWS" technology="COBOL" active="false">
+		<description><![CDATA[
+Las variables y constantes (en niveles 01, 77) de la WORKING STORAGE deben declararse en un orden determinado. Este orden esta especificado como parámetro.
+Actualmente se soportan los siguientes:
+* alphabeticalOrder: Las variables deben ordenarse alfabéticamente por el nombre de la variable.
+* sameTypeVar: Todas las variables con el mismo tipo (X, 9 o S9, A) deben aparecer agrupadas.
+]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a mantener estructurado el código, y por lo tanto a su comprensión y mantenimiento.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+
+Valores posibles para 'order': alphabeticalOrder | sameTypeVar
+Si selecciono sameTypeVar:
+
+WORKING-STORAGE SECTION.
+HPVLKG COPY HPCOPY2.
+               01 BN-I PIC S9(23) BINARY.
+               01 K PIC S9(6) DECIMAL.
+               01 BN-K PIC S9(6) DECIMAL
+               01 BN-I N PIC S9(23) BINARY. //Violación
+               01 T PIC S9(9) COMP.
+]]></example>
+		<repair><![CDATA[
+WORKING-STORAGE SECTION.
+HPVLKG COPY HPCOPY2.
+               01 BN-I PIC S9(23) BINARY.
+               01 BN-I N PIC S9(23) BINARY. //Arreglado
+               01 K PIC S9(6) DECIMAL.
+               01 BN-K PIC S9(6) DECIMAL
+               01 T PIC S9(9) COMP.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="order" descname="order" value="sameTypeVar"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.NTP" message="RG_COBOL.NTP: No THRU con perform" class="com.als.cobol.rules.ng.COBNG_NTP" technology="COBOL" active="false">
+		<description><![CDATA[No se utilizarán los PERFORM con THRU.]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+PRIMERA SECTION.
+INITIALIZE SWS.
+MOVE NV1-PNAME TO FORMA.
+PERFORM PROCESO-G THRU PROCESO. //Violación
+GOBACK.
+EXIT.
+]]></example>
+		<repair><![CDATA[
+PRIMERA SECTION.
+INITIALIZE SWS.
+MOVE NV1-PNAME TO FORMA.
+PERFORM PROCESO-G //Arreglado
+PERFORM ....
+PERFORM PROCESO.
+GOBACK.
+EXIT.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COD_COBOL.NDES" message="COD_COBOL.NDES: No dividir en sections" class="com.als.cobol.rules.ng.COBNG_NDES" technology="COBOL" active="false">
+		<description><![CDATA[La PROCEDURE DIVISION nunca debe dividirse en "Secciones" (SECTION)]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+PROCEDURE DIVISION.INICIO SECTION.            // VIOLACIÓN
+    MOVE 0 TO CCC.
+    CLOSE AGENDA.
+    OPEN INPUT AGENDA.
+]]></example>
+		<repair><![CDATA[
+PROCEDURE DIVISION.        // ARREGLADO    MOVE 0 TO CCC.
+    CLOSE AGENDA.
+    OPEN INPUT AGENDA.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.CBUC" message="FIA_COBOL.CBUC: No utilizar la condición de igualdad como condición en un bucle." class="com.als.cobol.rules.pb.COBPB_CBUC" technology="COBOL" active="true">
+		<description><![CDATA[Se debe evitar en lo posible utilizar como condición de terminacion de un bucle una condición de igualdad.La violación se marcará en la línea de incicio de la condición de igualdad.]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Con esto evitaremos que se puedan dar bucles infinitos.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+PERFORM PARA-A
+        WITH TEST AFTER
+        VARYING X FROM 1 BY 1 UNTIL X = 5.  //VIOLACIÓN
+DISPLAY SEPARATOR-LINE.
+]]></example>
+		<repair><![CDATA[
+PERFORM PARA-A
+        WITH TEST BEFORE
+        VARYING X FROM 1 BY 1 UNTIL X > 4.  //REPARACIÓN
+DISPLAY SEPARATOR-LINE.
+
+END-EVALUATE;
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.NCMA" message="MAN_COBOL.NCMA: No utilizar comas." class="com.als.cobol.rules.ng.COBNG_NCMA" technology="COBOL" active="true">
+		<description><![CDATA[Se prohíbe el uso del separador coma.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Puede llegar a confundirse con el DECIMAL POINT IS COMMA.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+DISPLAY "That number was ", myvar  //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+DISPLAY "That number was " myvar  //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.NAMINGPROGRAMID" message="MAN_COBOL.NAMINGPROGRAMID: El nombre del programa debe seguir un estandar." class="com.als.cobol.rules.nom.COBNOM_NamingProgramId" technology="COBOL" active="false">
+		<description><![CDATA[COBNOM.NPID: El nombre del programa debe seguir un estándar el cual se puede parametrizar.]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+IDENTIFICATION DIVISION. PROGRAM-ID. 39OC009. //VIOLACIÓN INSTALLATION. ORT I. DATE-WRITTEN. Marzo de 2001. DATE-COMPILED.
+]]></example>
+		<repair><![CDATA[
+IDENTIFICATION DIVISION. PROGRAM-ID. OHOC009. //ARREGLADO INSTALLATION. ORT I. DATE-WRITTEN. Marzo de 2001. DATE-COMPILED.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="programNamePattern" descname="programNamePattern" value="[A-Z][A-Z0-9]{0,7}"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.MNMX" message="MAN_COBOL.MNMX: Mayusculas para sentencias y minúsculas para comentarios." class="com.als.cobol.rules.nom.COBNOM_MNMX" technology="COBOL" active="false">
+		<description><![CDATA[Se deben codificar los programas haciendo uso de las letras mayúsculas para las sentencias y de minúsculas para los comentarios.
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a estructurar y localizar el código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+* EL SIGUIENTE FICHERO CONTIENE LOS REGISTROS DE CLIENTE  //VIOLACIÓN
+ FD  CLIENTES BLOCK CONTAINS 4 RECORDS
+       RECORD CONTAINS 128 CHARACTERS
+       LABEL RECORD STANDARD.
+]]></example>
+		<repair><![CDATA[
+  * El siguiente fichero contiene los registros de cliente        //REPARACIÓN
+ FD  CLIENTES BLOCK CONTAINS 4 RECORDS
+       RECORD CONTAINS 128 CHARACTERS
+       LABEL RECORD STANDARD.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.NLP" message="RG_COBOL.NLP: No usar literales en la PROCEDURE DIVISION." class="com.als.cobol.rules.ng.COBNG_NLP" technology="COBOL" active="true">
+		<description><![CDATA[En su lugar declararlos como constantes en la WORKING-STORAGE estando su nombre relacionado con el significado de la constante, no con su valor.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Permite tener agrupados todos los mensajes con lo que se ayuda a la legibilidad, estructura y facilidad de modificacion.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+display "Error en el módulo del programa".
+]]></example>
+		<repair><![CDATA[
+display ERROR-MOD.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.CWSV" message="RG_COBOL.CWSV: Campo del working sin value" class="com.als.cobol.rules.ng.COBNG_CWSV" technology="COBOL" active="false">
+		<description><![CDATA[Siempre se deben inicializar todos los campos de trabajo de la working]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+005900 01  FIC-RTEXTOS             PIC X(16).
+]]></example>
+		<repair><![CDATA[
+005900 01  FIC-RTEXTOS             PIC X(16)   VALUE "RTEXTOS;".
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.PCOM" message="MAN_COBOL.PCOM: Evitar programas con una baja proporcion de líneas de comentario por código." class="com.als.cobol.rules.doc.COBDOC_PCOM" technology="COBOL" active="false">
+		<description><![CDATA[Se divide el número total de líneas de un programa entre el número de líneas que son de comentario únicamente. Este valor no debe bajar de un valor umbral preestablecido. No se tendrán en cuenta para el computo las líneas de código vacías.
+
+ ]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Aumenta la  mantenibilidad y claridad del código. Ayuda a corregir posibles errores y a realizar modificaciones de forma más rapida.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+N/A
+]]></example>
+		<repair><![CDATA[
+N/A
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="threshold" descname="threshold" value="10"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.CDIN" message="OYR_COBOL.CDIN: Las llamadas (CALL) a módulos pasaran los parámetros BY REFERENCE." class="com.als.cobol.rules.oyr.COBOYR_CDIN" technology="COBOL" active="false">
+		<description><![CDATA[Todas las llamadas que ser realicen con CALL tienen que tener un paso de argumentos con BY REFERENCE.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Las llamadas por referencia se realizan pasando la referencia de memoria, con lo que se evita transformar el dato y mejoran el rendimiento.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+CALL PGM1 USING parm1.        //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+CALL PGM1 USING BY REFERENCE parm1.             //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COBBP.ToEndParagraph" message="COBBP.ToEndParagraph: Comprueba que para cada párrafo de nivel superior existe un párrafo de salida" class="com.als.cobol.rules.pb.COBPB_ToEndParagraph" technology="COBOL" active="true">
+		<description><![CDATA[Esta regla comprueba que los párrafos comienzan y terminan con la misma nomenclatura, añadiendo al párrafo final -EXIT ("nomenclatura"-EXIT).]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Evita posibles problemas y mejora la legibilidad del código]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+  *------
+  INICIO.
+  *------
+PERFORM INICIALIZAR.
+PERFORM VALIDAR.
+
+EXIT.
+]]></example>
+		<repair><![CDATA[
+  *------
+  INICIO.
+  *------
+PERFORM INICIALIZAR.
+PERFORM VALIDAR.
+INICIO-EXIT.
+EXIT.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="exitParagraphSuffix" descname="exitParagraphSuffix" value="-EXIT"/>
+			<property name="topLevelParagraphsPattern" descname="topLevelParagraphsPattern" value=".+"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.LFD" message="MAN_COBOL.LFD: Es obligatorio dejar una línea libre entre FD y FD." class="com.als.cobol.rules.doc.COBDOC_LFD" technology="COBOL" active="false">
+		<description><![CDATA[Es obligatorio codificar una línea en blanco entre declaración y declaración de la FD.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora la legitibilidad del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+   FILE SECTION.
+*-------------
+
+*> DECLARACIÓN ESTRUCTURA DE FICHERO DE ENTRADA
+ FD  ENTRAD2
+     BLOCK CONTAINS 0 RECORDS
+     RECORDING MODE IS F
+     LABEL RECORDS ARE STANDARD.
+ 01  REGFOU1 PIC X(56).               //VIOLACIÓN
+* DECLARACIÓN ESTRUCTURA DE FICHERO DE SALIDA
+ FD  SALIDA1
+     BLOCK CONTAINS 0 RECORDS
+     RECORDING MODE IS F
+     LABEL RECORDS ARE STANDARD.
+ 01  REGFOUT PIC X(56).
+]]></example>
+		<repair><![CDATA[
+FILE SECTION.
+*-------------
+
+*> DECLARACIÓN ESTRUCTURA DE FICHERO DE ENTRADA
+ FD  ENTRAD2
+     BLOCK CONTAINS 0 RECORDS
+     RECORDING MODE IS F
+     LABEL RECORDS ARE STANDARD.
+ 01  REGFOU1 PIC X(56).
+                    //REPARACIÓN
+* DECLARACIÓN ESTRUCTURA DE FICHERO DE SALIDA
+ FD  SALIDA1
+     BLOCK CONTAINS 0 RECORDS
+     RECORDING MODE IS F
+     LABEL RECORDS ARE STANDARD.
+ 01  REGFOUT PIC X(56).
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.PLIN" message="MAN_COBOL.PLIN: Las cláusulas PIC deben estar alíneadas." class="com.als.cobol.rules.doc.COBDOC_PLIN" technology="COBOL" active="false">
+		<description><![CDATA[Cuando se declaren múltiples variables o registros dentro del código, se deben alínear todas las cláusulas PIC en la misma columna.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora la legibilidad del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+   DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       77  myvar PIC 999 .      //VIOLACIÓN
+       77  a  PIC 99V999 VALUE 1.777 .
+       77  b  PIC 99V99  VALUE ZERO .
+       77  c  PIC 9V9    VALUE 5.5 .
+       77  d  PIC 9v9    VALUE 5.5 .
+]]></example>
+		<repair><![CDATA[
+DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       77  myvar PIC 999 .
+       77  a     PIC 99V999 VALUE 1.777 .
+       77  b     PIC 99V99  VALUE ZERO .
+       77  c     PIC 9V9    VALUE 5.5 .
+       77  d     PIC 9v9    VALUE 5.5 .
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.HICE" message="MAN_COBOL.HICE: Evitar rutinas con alta complejidad esencial." class="com.als.cobol.rules.pb.COBPB_HICE" technology="COBOL" active="true">
+		<description><![CDATA[Los caminos no estructurados son aquellos que en el grafo de control de flujo tiene una instrucción de interrupción de flujo (ej.: GOTO y BREAK). La complejidad esencial mide el número de caminos independientes no estructurados.
+
+ ]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[A mayor complejidad, más riesgo de fallos y dificultad de mantenimiento.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+
+PROGRAM-START.
+   GO TO START-ROUTINE.  // incrementa la complejidad esencial
+
+START-ROUTINE.
+   SORT ORDEN
+   ON DESCENDING ORDNOM
+   INPUT PROCEDURE CARGAR
+   ...
+]]></example>
+		<repair><![CDATA[
+
+PROGRAM-START.
+
+START-ROUTINE.
+   SORT ORDEN
+   ON DESCENDING ORDNOM
+   INPUT PROCEDURE CARGAR
+   ...
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="essentialComplexity" descname="essentialComplexity" value="4"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.ReferenceModifier" message="OYR_COBOL.ReferenceModifier:Optimiza eficiencia comprobando la posición y longitud de los campos cobol" class="com.als.cobol.rules.oyr.COBOYR_ReferenceModifier" technology="COBOL" active="true">
+		<description><![CDATA[Comprueba la posición y la longitud cuando lo referenciamos un campo cobol y comprobamos si el acceso es el más eficiente]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora el rendimiento]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+    05 WK-J                         PIC  9(07)   COMP-4.
+
+1100-INICIALIZAR.
+*-----------------*
+     MOVE 'OACX002 1100'           TO WK-PROCESO
+     INITIALIZE COACX002-SALIDA
+                WK-AUXILIARES
+     ACCEPT WK-FECHA-SISTEMA FROM DATE YYYYMMDD
+     MOVE '-'                      TO WK-FECHA-DIA (5:WK-J)
+]]></example>
+		<repair><![CDATA[
+        05 WK-J                         PIC  9(03)   COMP-4.
+
+1100-INICIALIZAR.
+*-----------------*
+     MOVE 'OACX002 1100'           TO WK-PROCESO
+     INITIALIZE COACX002-SALIDA
+                WK-AUXILIARES
+     ACCEPT WK-FECHA-SISTEMA FROM DATE YYYYMMDD
+     MOVE '-'                      TO WK-FECHA-DIA (5:WK-J)
+
+
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="binaryField" descname="binaryField" value="COMP-5,BINARY,COMP-4,COMP"/>
+		</properties>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.AvoidDuplicatedQueries" message="SQL_COBOL.AvoidDuplicatedQueries: Evita repetir consultas a lo largo del programa" class="com.als.cobol.rules.sql.AvoidDuplicatedQueries" technology="COBOL" active="true">
+		<description><![CDATA[Evitar consultas duplicadas]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Facilita la mantenibilidad]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[]]></example>
+		<repair><![CDATA[]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.AvoidArithmeticOperationsInIf" message="FIA_COBOL.AvoidArithmeticOperationsInIf: Comprueba que no haya operaciones aritméticas dentro de sentencias IF." class="com.als.cobol.rules.pb.COBPB_AvoidArithmeticOperationsInIf" technology="COBOL" active="true">
+		<description><![CDATA[Esta regla comprueba que en cada sentencia IF que nos encontremos dentro del código, no se realice ningún tipo de operación aritmética.]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora la claridad del código y ayuda a evitar posibles bugs]]></benefits>
+		<inconvenients><![CDATA[Ninguno]]></inconvenients>
+		<example><![CDATA[
+008700     IF (5 - 2 >= DESDE1 AND <= HASTA1)
+008800          MOVE 1 TO ENT-PERIODO
+]]></example>
+		<repair><![CDATA[
+008700     IF (VAR >= DESDE1 AND <= HASTA1)
+008800          MOVE 1 TO ENT-PERIODO
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COBBP.ISE" message="COBBP.ISE: If sin end" class="com.als.cobol.rules.ng.COBNG_ISE" technology="COBOL" active="true">
+		<description><![CDATA[Cada IF terminará siempre con un END-IF]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[El código resulta más fácil de entender.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+004320     IF REGISTRO = HIGH-VALUES
+004330         DISPLAY ' SE TERMINÓ DE LEER TODO EL ARCHIVO'
+
+
+004320     IF X > 10
+004330         IF Y > 10
+004340             MOVE 5 TO Z
+004350         ELSE
+004360             MOVE 3 TO Z
+004380     ELSE
+004390         MOVE 1 TO Z
+]]></example>
+		<repair><![CDATA[
+004320     IF REGISTRO = HIGH-VALUES
+004330         DISPLAY ' SE TERMINÓ DE LEER TODO EL ARCHIVO'
+004340     END-IF
+
+004320     IF X > 10
+004330         IF Y > 10
+004340             MOVE 5 TO Z
+004350         ELSE
+004360             MOVE 3 TO Z
+004370         END-IF
+004380     ELSE
+004390         MOVE 1 TO Z
+004400     END-IF.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.MS" message="MAN_COBOL.MS: Múltiples salidas" class="com.als.cobol.rules.ng.COBNG_MS" technology="COBOL" active="true">
+		<description><![CDATA[Solo existe un STOP RUN o GOBACK en el programa]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Siempre es conveniente tener una única salida del programa en lenguajes de programación estructurada.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[]]></example>
+		<repair><![CDATA[]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.NNIV" message="RG_COBOL.NNIV: En la DATA DIVISION, la numeracion de los niveles se hará en múltiplos de 5." class="com.als.cobol.rules.ng.COBNG_NNIV" technology="COBOL" active="false">
+		<description><![CDATA[La numeracion de los niveles comenzara por 01 y seguirá con múltiplos de 5. ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[
+      No consume ningún tipo de recurso y ayuda a una futura modificacion de la estructura sin necesidad de volver a
+      codificar toda la estructura otra vez.
+    ]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+      01 WS-TEXTO.
+          03 WS-LITERAL PIC X(20) VALUE 'Hola mundo'. //VIOLACIÓN
+          03 WS-VAR1 PIC 9(08) VALUE 0.               //VIOLACIÓN
+          03 WS-LIRERA1 PIC X(21) VALUE 'Hola mundo'  //VIOLACIÓN
+          03 WS-USUARIO PIC X(08) VALUE SPACES.       //VIOLACIÓN
+    ]]></example>
+		<repair><![CDATA[
+      01 WS-TEXTO.
+          05 WS-LITERAL PIC X(20) VALUE 'Hola mundo'. //REPARACIÓN
+          05 WS-VAR1 PIC 9(08) VALUE 0.               //REPARACIÓN
+          05 WS-LIRERA1 PIC X(21) VALUE 'Hola mundo'  //REPARACIÓN
+          20 WS-USUARIO PIC X(08) VALUE SPACES.       //REPARACIÓN
+    ]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.NUR" message="RG_COBOL.NUR: No usar REPORT" class="com.als.cobol.rules.ng.COBNG_NUR" technology="COBOL" active="false">
+		<description><![CDATA[Nunca se debe usar la cláusula REPORT en descriptores de fichero. Es una cláusula deprecada o inexistente en la mayor parte de los compiladores Cobol.]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+DATA DIVISION.
+FILE SECTION.
+FD SalesFile.
+01 SalesRecord.
+    88 EndOfFile VALUE HIGH-VALUES.
+    02 CityCode PIC 9.
+    02 SalesPersonNum PIC 9.
+    02 ValueOfSale PIC 9(4)V99.
+
+FD PrintFile
+    REPORT IS SalesReport.
+
+    : intervening entries :
+    : intervening entries :
+
+REPORT SECTION.
+RD SalesReport
+    CONTROLS ARE FINAL
+                 CityCode
+                 SalesPersonNum
+    PAGE LIMIT IS 66
+    HEADING 1
+    FIRST DETAIL 6
+    LAST DETAIL 42
+    FOOTING 52.
+]]></example>
+		<repair><![CDATA[
+DATA DIVISION.
+FILE SECTION.
+FD SalesFile.
+01 SalesRecord.
+    88 EndOfFile VALUE HIGH-VALUES.
+    02 CityCode PIC 9.
+    02 SalesPersonNum PIC 9.
+    02 ValueOfSale PIC 9(4)V99.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.SCOM" message="MAN_COBOL.SCOM: Evitar sections con una baja proporcion de líneas de comentario por código." class="com.als.cobol.rules.doc.COBDOC_SCOM" technology="COBOL" active="false">
+		<description><![CDATA[Cada SECTION debe estar correctamente documentada. El número de líneas del bloque de comentarios previo al inicio de la SECTION
+    debe ocupar un tanto por ciento minimo con respecto al número total de líneas de la SECTION. La regla calculara el porcentaje que ocupan los comentarios
+    con respecto al total de líneas, y si ese porcentaje es menor al establecido en el parámetro 'commentPercentage', se mostrara una violación.
+ ]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Aumenta la  mantenibilidad y claridad del código. Ayuda a corregir posibles errores y a realizar modificaciones de forma más rapida.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+N/A
+]]></example>
+		<repair><![CDATA[
+N/A
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="commentPercentage" descname="commentPercentage" value="10"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COBBP.SOC" message="COBBP.SOC: Hacer un OPEN al principio del programa y un CLOSE al final." class="com.als.cobol.rules.ng.COBNG_SOC" technology="COBOL" active="true">
+		<description><![CDATA[Se debe codificar un solo OPEN y CLOSE por archivo, estas instrucciones deben aparecer al principio y al final del programa de COBOL.
+    Definiendo la propiedad 'outputEqualsExtend' como 'true', la regla contará un OPEN OUTPUT y un OPEN EXTEND sobre el mismo fichero como un solo OPEN.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Se evita abrir y cerrar un archivo cada vez que se quiera operar sobre el. Con esto se sabe al inicio del programa los recursos disponibles del sistema y cuales no.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+OPEN INPUT AETP00E
+     INPUT AETP01E
+     OUTPUT AETP00I.
+
+CLOSE AETP01E.
+
+OPEN AETP01E. // VIOLACIÓN
+
+CLOSE AETP00E
+      AETP01E // VIOLACIÓN
+      AETP00I.
+]]></example>
+		<repair><![CDATA[
+OPEN INPUT AETP00E
+     INPUT AETP01E
+     OUTPUT AETP00I.
+
+// La lógica se modifica para usar
+// un único OPEN/CLOSE por fichero
+
+CLOSE AETP00E
+      AETP01E
+      AETP00I.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="outputEqualsExtend" descname="outputEqualsExtend" value="false"/>
+		</properties>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.PPAR" message="MAN_COBOL.PPAR: Los párrafos tendrán una línea final que contiene solo el punto." class="com.als.cobol.rules.doc.COBDOC_PPAR" technology="COBOL" active="false">
+		<description><![CDATA[Se debe codificar una línea final en cada párrafo.
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a clarificar el final de un párrafo.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+ACERCA-DE.
+           DISPLAY SPACE ERASE
+           CONTROL "BCOLOR = WHITE".
+           DISPLAY "   Ins. Prof. DuocUC   "         LINE 02 POSITION 55
+           CONTROL "BCOLOR = GREEN , FCOLOR = WHITE".
+           DISPLAY "    Sede Concepci¢n    "         LINE 03 POSITION 55
+           CONTROL "BCOLOR = BLUE , FCOLOR = WHITE".
+           DISPLAY " Escuela de Ingiener¡a "         LINE 04 POSITION 55
+           CONTROL "BCOLOR = BLACK , FCOLOR = WHITE".
+           DISPLAY " "                               LINE 05 POSITION 55
+           CONTROL "BCOLOR = WHITE , FCOLOR = WHITE".
+                                      //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+ACERCA-DE.
+           DISPLAY SPACE ERASE
+           CONTROL "BCOLOR = WHITE".
+           DISPLAY "   Ins. Prof. DuocUC   "         LINE 02 POSITION 55
+           CONTROL "BCOLOR = GREEN , FCOLOR = WHITE".
+           DISPLAY "    Sede Concepci¢n    "         LINE 03 POSITION 55
+           CONTROL "BCOLOR = BLUE , FCOLOR = WHITE".
+           DISPLAY " Escuela de Ingiener¡a "         LINE 04 POSITION 55
+           CONTROL "BCOLOR = BLACK , FCOLOR = WHITE".
+           DISPLAY " "                               LINE 05 POSITION 55
+           CONTROL "BCOLOR = WHITE , FCOLOR = WHITE"
+
+           .                  //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.PWE" message="MAN_COBOL.PWE: Usar PERFORM en lugar de WHEN EVALUATE para muchas líneas de código." class="com.als.cobol.rules.ng.COBNG_PWE" technology="COBOL" active="true">
+		<description><![CDATA[Si dentro de in WHEN EVALUATE existen muchas líneas de código se aconseja utilizar un PERFORM y desarrollarlas en un párrafo diferente.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a la mantenibilidad y claridad del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+EVALUATE menu-input
+  WHEN "0"
+    CALL init-proc
+  WHEN "1" THRU "9"
+    START PRESTAMO KEY NOT < PRE-RUT-CLIENTE          //VIOLACIÓN
+                 INVALID KEY
+                 PERFORM PAGINA-HISTORIAL THRU F-PAGINA-HISTORIAL
+                 DISPLAY "ERROR EN LA FUNCION START" LINE 12 POSITION 20
+                 DISPLAY "            O"             LINE 13 POSITION 20
+                 DISPLAY "  NO EXISTEN PELICULAS"    LINE 14 POSITION 20
+                 ACCEPT PAUSA                        LINE 25 POSITION 80
+                 GO TO F-LISTA-HISTORIAL
+      *           STOP RUN
+               END-START
+      MOVE 0 TO CONT
+  WHEN "R"
+    CALL read-parms
+  WHEN "X"
+    CALL cleanup-proc
+  WHEN OTHER
+    CALL error-proc
+END-EVALUATE;
+]]></example>
+		<repair><![CDATA[
+EVALUATE menu-input
+  WHEN "0"
+    CALL init-proc
+  WHEN "1" THRU "9"
+    PERFORM CASO-PRACTICO.        //REPARACIÓN
+  WHEN "R"
+    CALL read-parms
+  WHEN "X"
+    CALL cleanup-proc
+  WHEN OTHER
+    CALL error-proc
+END-EVALUATE;
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="statementLimit" descname="statementLimit" value="30"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.NDIS" message="OYR_COBOL.NDIS: No usar variables DISPLAY para operaciones aritméticas." class="com.als.cobol.rules.oyr.COBOYR_NDIS" technology="COBOL" active="false">
+		<description><![CDATA[El uso de variables DISPLAY debe limitarse solamente a mostrar datos.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora la eficiencia ya que si se usa para un cálculo, el compilador convierte la variable a empaquetado, realiza el cálculo y luego convierte el resultado a DISPLAY.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+77 CLIENTE1           PIC S9(2) DISPLAY.
+77 CLIENTE2           PIC S9(2).
+77 PELICULA1          PIC S9(2).
+77 PELICULA2          PIC S9(2).
+
+PROCEDURE DIVISION.
+
+ADD CLIENTE2 TO CLIENTE1.      //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+77 CLIENTE1           PIC S9(2).
+77 CLIENTE2           PIC S9(2).
+77 PELICULA1          PIC S9(2).
+77 PELICULA2          PIC S9(2).
+77 PANTALLA           PIC S9(2) DISPLAY.
+
+PROCEDURE DIVISION.
+
+ADD CLIENTE2 TO CLIENTE1.
+MOVE CLIENTE1 TO DISPLAY.      //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.NCFD" message="MAN_COBOL.NCFD: No usar COPYs para descriptores FD/SD." class="com.als.cobol.rules.ng.COBNG_NCFD" technology="COBOL" active="true">
+		<description><![CDATA[No use COPYs en la descripción de ficheros (FD/SD). Dichos descriptores deben estar completamente definidos en la entrada FD/SD.
+NOTA: Use la regla MAN_COBOL.CFD para comprobar que la estructura del registro se esta importando mediante COPY, para mantener la consistencia entre programas.
+]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Cada programa contiene las definiciones de ficheros que maneja.]]></benefits>
+		<inconvenients><![CDATA[Los cambios en la estructura de un fichero deben hacerse en todos los programas que lo manejan.]]></inconvenients>
+		<example><![CDATA[
+FILE SECTION.
+  FD  MY-OUT-FILE
+      COPY MYFILE. // VIOLATION
+  01  REGFOFP PIC X(80).
+]]></example>
+		<repair><![CDATA[
+FILE SECTION.
+  FD  MY-OUT-FILE
+      BLOCK CONTAINS 0 RECORDS
+      RECORDING MODE IS F
+      LABEL RECORDS ARE STANDARD.
+  01  REGFOFP PIC X(80).
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.IAID" message="MAN_COBOL.IAID: Incluir el campo author en Identification Division" class="com.als.cobol.rules.doc.COBDOC_IAID" technology="COBOL" active="false">
+		<description><![CDATA[Indicar el autor en el Identication Division]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora la documentación del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+IDENTIFICATION DIVISION.
+PROGRAM-ID. ALSEJEMPLO
+INSTALLATION. ORT I.                 //VIOLACIÓN
+DATE-WRITTEN. Marzo de 2001.
+DATE-COMPILED.
+]]></example>
+		<repair><![CDATA[
+IDENTIFICATION DIVISION.
+PROGRAM-ID. ALSEJEMPLO.
+AUTHOR. Sebas García.
+INSTALLATION. ORT I.
+DATE-WRITTEN. Marzo de 2001.
+DATE-COMPILED.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.NEP" message="RG_COBOL.NEP: No usar EXIT" class="com.als.cobol.rules.ng.COBNG_NEP" technology="COBOL" active="true">
+		<description><![CDATA[EXIT no hace nada, y se usa típicamente para marcar un punto en la lógica del programa, habitualmente como destino de infames GOTO.
+Adicionalmente, puede llevar a error cuando los programadores piensan en EXIT como en una 'sentencia de salida de subprograma' (GOBACK seria la sentencia correcta).
+Por estas razones, es preferible evitar esta sentencia.
+]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+F-PROCESO.
+ EXIT. //Violación
+]]></example>
+		<repair><![CDATA[
+F-PROCESO.
+  GOBACK. //Arreglado
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.LTER" message="MAN_COBOL.LTER: Usar letras mayúsculas para el código Cobol." class="com.als.cobol.rules.nom.COBNOM_LTER" technology="COBOL" active="true">
+		<description><![CDATA[
+El programa completo (sentencias, variables, registros: todo excepto comentarios y literales entre comillas) debe escribirse en mayúsculas.
+Algunos compiladores Cobol son sensibles a minúsculas, otros no. Cuando se porta código Cobol entre compiladores, esta diferencia puede producir errores (p.ej. declaraciones de variables declaradas en mayúsculas y referidas en minúsculas provocan error en un compilador sensible a minúsculas).
+Una forma tradicional de evitar tales problemas es usar MAYUSCULAS en el código fuente (exceptuando comentarios y literales entrecomillados).
+NOTA: Esta regla emite una única violación por programa Cobol que no pase la regla, para evitar demasiadas violaciones en el informe.
+]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Como algunos compiladores de COBOL son case sensitive y otros no, la manera de conectar los módulos con otros anteriores es programar en mayúsculas como se viene haciendo tradicionalmente. Se evitan problemas de no reconocer variables.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+
+FD clientes BLOCK CONTAINS 4 RECORDS //VIOLACIÓN
+   RECORD CONTAINS 128 CHARACTERS
+   LABEL RECORD STANDARD.
+]]></example>
+		<repair><![CDATA[
+
+FD CLIENTES BLOCK CONTAINS 4 RECORDS //REPARACIÓN
+   RECORD CONTAINS 128 CHARACTERS
+   LABEL RECORD STANDARD.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.INDB" message="OYR_COBOL.INDB: Las variables usadas como índices seran de tipo binario S9(2) COMP or S9(4) COMP." class="com.als.cobol.rules.oyr.COBOYR_INDB" technology="COBOL" active="false">
+		<description><![CDATA[Las variables numericas que sean utilizadas como índices se definiran en formato binario S9(2) COMP o S9(4) COMP respectivamente.
+
+La regla puede parametrizarse con la propiedad 'checkAnySubscript': Si true se comprueban el tipo de TODOS los subíndices de tablas. Con false se comprueban sólo los índices declarados de tablas (cláusula INDEXED BY).
+]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora el rendimiento puesto que COBOL para manejar los índices necesita convertirlos binario.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+01 WS PIC S9.            //VIOLACIÓN
+
+WORKING-STORAGE SECTION.
+* DECLARACIÓN DE UNA TABLA EN COBOL
+01 TRANSCRIPT.
+   02 COURSE OCCURS 200 TIMES INDEXED BY WS.
+      03 COURSE-ID     PIC X(5).
+      03 FINAL-GRADE   PIC X(1).
+]]></example>
+		<repair><![CDATA[
+WORKING-STORAGE SECTION.
+
+01 WS PIC S9(2) COMP.          //REPARACIÓN
+
+* DECLARACIÓN DE UNA TABLA EN COBOL
+01 TB-TRANSCRIPT.
+   02 COURSE-REG OCCURS 200 TIMES INDEXED BY WS.
+      03 COURSE-ID     PIC X(5).
+      03 FINAL-GRADE   PIC X(1).
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="checkAnySubscript" descname="Si true se comprueba el tipo de variable en cualquier índice de tabla; si false se comprueban sólo los índices declarados por INDEXED BY" value="false"/>
+		</properties>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.FNF" message="RG_COBOL.FNF: Falta nivel filler" class="com.als.cobol.rules.ng.COBNG_FNF" technology="COBOL" active="false">
+		<description><![CDATA[La working comienza siempre con un nivel 01 FILLER.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Facilita la legibilidad y comprensión del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+03 FILLER PIC X(16) VALUE 'INICIO DE WORKING'.        // VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+01 FILLER PIC X(16) VALUE 'INICIO DE WORKING'.        // ARREGLADO
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="prefixFiller" descname="prefixFiller" value="FILLER"/>
+			<property name="level" descname="level" value="01"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.IIE" message="MAN_COBOL.IIE: Indentación incorrecta de else" class="com.als.cobol.rules.doc.COBDOC_IIE" technology="COBOL" active="false">
+		<description><![CDATA[El else va en la misma columna que su IF]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+
+IF WS-SITUACION NOT = '30' AND '31' AND '20'
+                         AND '40'
+                          IF WS-SITUACION1 = '30' OR '31' OR '20'
+                             OR '40'
+                                  MOVE 'S' TO SW-DIFER-SITUACION
+                                  MOVE '**' TO WS-COASE
+                                  MOVE WS-DIFERENCIA-MOVI
+                                                     TO WS-IMPO-NOSIG
+                                  MOVE WS-DIFERENCIA
+                                                     TO WS-IMPO-NOSIG1
+                                  COMPUTE WS-DIFER-P-M = WS-IMPO-NOSIG1
+                                                       - WS-IMPO-NOSIG
+                                  ADD WS-DIFER-P-M TO WS-DIFER-SITUACION
+
+                          END-IF
+                          ELSE //VIOLACIÓN
+                            ADD WS-DIFER-P-M TO WS-DIFER-SITUACION
+                      END-IF
+]]></example>
+		<repair><![CDATA[
+        IF WS-SITUACION NOT = '30' AND '31' AND '20'
+                         AND '40'
+                          IF WS-SITUACION1 = '30' OR '31' OR '20'
+                             OR '40'
+                                  MOVE 'S' TO SW-DIFER-SITUACION
+                                  MOVE '**' TO WS-COASE
+                                  MOVE WS-DIFERENCIA-MOVI
+                                                     TO WS-IMPO-NOSIG
+                                  MOVE WS-DIFERENCIA
+                                                     TO WS-IMPO-NOSIG1
+                                  COMPUTE WS-DIFER-P-M = WS-IMPO-NOSIG1
+                                                       - WS-IMPO-NOSIG
+                                 ADD WS-DIFER-P-M TO WS-DIFER-SITUACION
+
+                          END-IF
+                       ELSE
+                            ADD WS-DIFER-P-M TO WS-DIFER-SITUACION
+                      END-IF
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.IDOP" message="MAN_COBOL.IDOP: Indentar los múltiples operandos de una instruccion." class="com.als.cobol.rules.doc.COBDOC_IDOP" technology="COBOL" active="false">
+		<description><![CDATA[Cuando una instrucción tenga más de dos operandos, los sucesivos tienen que ir en líneas sucesivas en la misma columna que el primer operando.
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a la legitibilidad y mantenimiento del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+MOVE SPACES TO NOMBRE-CAMPO-1 NOMBRE-CAMPO-2 //VIOLACIÓN
+OPEN OUTPUT FICHERO-1 FICHERO-2 FICHERO-3  //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+MOVE SPACES TO NOMBRE-CAMPO-1
+               NOMBRE-CAMPO-2 //REPARACIÓN
+OPEN OUTPUT FICHERO-1
+            FICHERO-2 //REPARACIÓN
+            FICHERO-3  //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.AvoidIncludedTablesAndNotAccessed" message="SQL_COBOL.AvoidIncludedTablesAndNotAccessed: Tablas incluidas pero no accedidas" class="com.als.cobol.rules.sql.AvoidIncludedTablesAndNotAccessed" technology="COBOL" active="true">
+		<description><![CDATA[Las tablas incluidas deben ser utilizadas en algún momento.]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Evita posibles bugs y ayuda a que el código sea más eficiente, ya que, no carga tablas innecesarias.
+Mejora también la claridad del código al no tener que leer el programador tablas que luego no se utilizan.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+  EXEC SQL INCLUDE ACPREAVI END-EXEC. // VIOLACIÓN
+  EXEC SQL INCLUDE ACGESTCA END-EXEC. // VIOLACIÓN
+  EXEC SQL INCLUDE VEPOLIZA END-EXEC.
+  EXEC SQL
+      SELECT  POLREF
+             ,NUMTOT_RENOV
+             ,NUMTOT_VAR
+             ,ST_RENOVA
+      INTO :VEPOLIZA.POLREF
+      FROM  VEPOLIZA
+      WHERE  POLREF = :VEPOLIZA.POLREF
+  END-EXEC.
+]]></example>
+		<repair><![CDATA[
+  EXEC SQL INCLUDE VEPOLIZA END-EXEC.
+  EXEC SQL
+      SELECT  POLREF
+             ,NUMTOT_RENOV
+             ,NUMTOT_VAR
+             ,ST_RENOVA
+      INTO :VEPOLIZA.POLREF
+      FROM  VEPOLIZA
+      WHERE  POLREF = :VEPOLIZA.POLREF
+  END-EXEC.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="ignoredIncludes" descname="ignoredIncludes" value="SQLCA"/>
+		</properties>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.III" message="MAN_COBOL.III: Indentación incorrecta de IF" class="com.als.cobol.rules.doc.COBDOC_III" technology="COBOL" active="false">
+		<description><![CDATA[Cada condición se ubicará en una sola línea. Cada IF anidado se indenta N posiciones, según la propiedad 'indentation' (=3 por defecto).]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora la legibilidad de las sentencias IF anidadas.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+IF a < b AND b > 10 // VIOLACIÓN: condiciones múltiples en misma línea
+IF y < a // VIOLACIÓN: IF no indentado
+  MOVE a TO b
+END-IF.
+END-IF.
+]]></example>
+		<repair><![CDATA[
+IF a < b
+AND b > 10 // CORREGIDO
+   IF y < a // CORREGIDO
+      MOVE a TO b
+   END-IF.
+END-IF.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="indentation" descname="indentación de cada IF anidado" value="3"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.NPNT" message="RG_COBOL.NPNT: No poner puntos a final de sentencia salvo donde sea necesario." class="com.als.cobol.rules.ng.COBNG_NPNT" technology="COBOL" active="false">
+		<description><![CDATA[Se recomienda no poner puntos al final de las sentencias salvo:
+1. Al final de los nombres de párrafo
+2. Al final de la ultima instrucción de cada párrafo
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a la legitibilidad y mantenimiento del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+****************
+CREAR-CABECERA.
+****************
+     MOVE 1 TO WS-X1.                      //VIOLACIÓN
+     MOVE WS-LINEA1  TO TAB-LINEA(WS-X1).  //VIOLACIÓN
+     ADD  1 TO WS-X1.                      //VIOLACIÓN
+     MOVE WS-LINEA2  TO TAB-LINEA(WS-X1).  //VIOLACIÓN
+     ADD  1 TO WS-X1.                      //VIOLACIÓN
+     MOVE WS-LINEA3  TO TAB-LINEA(WS-X1).  //VIOLACIÓN
+     ADD  1 TO WS-X1.                      //VIOLACIÓN
+     MOVE WS-LINEA2  TO TAB-LINEA(WS-X1).  //VIOLACIÓN
+     ADD  1 TO WS-X1.                      //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+****************
+CREAR-CABECERA.
+****************
+     MOVE 1 TO WS-X1                      //REPARACIÓN
+     MOVE WS-LINEA1  TO TAB-LINEA(WS-X1)
+     ADD  1 TO WS-X1
+     MOVE WS-LINEA2  TO TAB-LINEA(WS-X1)
+     ADD  1 TO WS-X1
+     MOVE WS-LINEA3  TO TAB-LINEA(WS-X1)
+     ADD  1 TO WS-X1
+     MOVE WS-LINEA2  TO TAB-LINEA(WS-X1)
+     ADD  1 TO WS-X1
+
+     .
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.NST" message="MAN_COBOL.NST: Elevado número de sentencias de un programa cobol." class="com.als.cobol.rules.ng.COBNG_NST" technology="COBOL" active="true">
+		<description><![CDATA[Evitar que el programa tenga un número de sentencias superior a lo parametrizado.]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a mantener la legibilidad del código, limitando programas con excesiva funciónalidad.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[]]></example>
+		<repair><![CDATA[]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="maxSentences" descname="maxSentences" value="2000"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.IIR" message="MAN_COBOL.IIR: Indentación incorrecta de read" class="com.als.cobol.rules.doc.COBDOC_IIR" technology="COBOL" active="false">
+		<description><![CDATA[Las instrucciones incluidas en la READ se declaran 5 columnas con respecto a éste.]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a la mantenibilidad del código y a la legibilidad del mismo.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+PERFORM TEST AFTER UNTIL
+   (FF = "SI")
+     READ CIERROR AT END MOVE "SI" TO FF
+      NOT AT END PERFORM CHEQUEO-ERROR    // VIOLATION
+      CONTINUE
+      END-READ
+CONTINUE
+END-PERFORM
+]]></example>
+		<repair><![CDATA[
+PERFORM TEST AFTER UNTIL
+   (FF = "SI")
+     READ CIERROR AT END MOVE "SI" TO FF
+          NOT AT END PERFORM CHEQUEO-ERROR
+          CONTINUE
+          END-READ
+CONTINUE
+END-PERFORM
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="columns" descname="columns" value="5"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COD_COBOL.NOMP" message="COD_COBOL.NOMP: Los nombres de los párrafos deben comenzar con un prefijo parametrizado." class="com.als.cobol.rules.nom.COBNOM_NOMP" technology="COBOL" active="false">
+		<description><![CDATA[Cada nombre de párrafo debe comenzar con un prefijo. El prefijo será el especificado por parámetro.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Seguir esta nomenclatura permite diferenciar fácilmente los párrafos dentro del código del programa y su estructura en general.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+03COMPRA     //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+03-COMPRA    //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="paragraphPrefix" descname="paragraphPrefix" value="1000"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.COPY" message="OYR_COBOL.COPY: Se deben incluir los COPY´s estandares definidos." class="com.als.cobol.rules.oyr.COBOYR_COPY" technology="COBOL" active="true">
+		<description><![CDATA[Cada programa COBOL debe incluir los COPYS de los ficheros definidos en el properties que son obligatorios para el proyecto.
+
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Asegura que todos los ficheros del proyecto siguen la forma estandar.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+PROPERTIES:
+nCopy=2
+copy0=HPDBSMOD
+copy1=HPPROGSTATUS
+
+
+        Identification Division.
+        Program-ID. "trigsql".
+
+        Data Division.
+        Working-Storage Section.
+
+            copy "sql.cbl".
+            copy HPDBSMOD. //Violación falta otro copy obligatorio
+            copy "sqlca.cbl".
+]]></example>
+		<repair><![CDATA[
+    Identification Division.
+        Program-ID. "trigsql".
+
+        Data Division.
+        Working-Storage Section.
+
+            copy "sql.cbl".
+            copy HPDBSMOD.
+            copy HPPROGSTATUS. //Arreglado
+            copy "sqlca.cbl".
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="programsPattern" descname="programsPattern" value="^.+$"/>
+			<property name="copies" descname="copies" value=""/>
+		</properties>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.IIT" message="MAN_COBOL.IIT: Nombrar tablas, registros e índices de tablas apropiadamente." class="com.als.cobol.rules.nom.COBNOM_IIT" technology="COBOL" active="false">
+		<description><![CDATA[En tablas internas de Cobol (tablas con OCCURS) debe seguirse un convenio para el nombre de la tabla, el nombre de cada registro (variable con OCCURS) y el nombre de cada índice (variable referida en INDEXED BY).
+
+La propiedad 'arrayPattern' es una expresión regular que el nombre de cada tabla debe observar (por defecto: prefijo TB-).
+La propiedad 'recordPattern' es una expresión regular que el nombre de cada registro de la tabla debe observar (por defecto: sufijo -REG).
+La propiedad 'indexPattern' es una expresión regular que el nombre de cada índice de la tabla debe observar (por defecto: sufijo -IND).
+
+Nota: La regla MAN_COBOL.IRT opera de forma similar, pero no fuerza ningún estándar con los nombres de índices.
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Facilita la comprensión del código mejorando la mantenibilidad de este.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+WORKING-STORAGE SECTION.
+* DECLARACIÓN DE UNA TABLA EN COBOL
+01 TRANSCRIPT. //VIOLACIÓN
+   02 COURSE OCCURS 200 TIMES INDEXED BY WS.    //VIOLACIÓN
+      03 COURSE-ID     PIC X(5).
+      03 FINAL-GRADE   PIC X(1).
+]]></example>
+		<repair><![CDATA[
+WORKING-STORAGE SECTION.
+* DECLARACIÓN DE UNA TABLA EN COBOL
+01 TB-TRANSCRIPT.            //REPARACIÓN
+   02 COURSE-REG OCCURS 200 TIMES INDEXED BY WS-IND.    //REPARACIÓN
+      03 COURSE-ID     PIC X(5).
+      03 FINAL-GRADE   PIC X(1).
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="indexPattern" descname="Patrón para el nombre de índices de tabla" value="-IND$"/>
+			<property name="arrayPattern" descname="Patrón para el nombre de la tabla" value="^TB-"/>
+			<property name="recordPattern" descname="Patrón para el nombre de registro" value="-REG$"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.LRS" message="RG_COBOL.LRS: Label record standard" class="com.als.cobol.rules.ng.COBNG_LRS" technology="COBOL" active="true">
+		<description><![CDATA[En la FD hay que incluir siempre LABEL RECORD STANDARD]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Indica que cada vez que se accede a un registro el compilador hará las comprobaciones estandares descritas por el propio compilador, lo que es más seguro que saltarse esas comprobaciones]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+ LABEL RECORD OMITTED.            // VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+LABEL RECORD STANDARD.          // ARREGLADO
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="stateOpenFile" descname="State Open files" value="true"/>
+		</properties>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COD_COBOL.NOMS" message="COD_COBOL.NOMS: Los nombres de las secciones deben empezar con un prefijo parametrizado." class="com.als.cobol.rules.nom.COBNOM_NOMS" technology="COBOL" active="false">
+		<description><![CDATA[Cada nombre de sección debe comenzar con un prefijo de al menos dos caracteres seguido de un guion y el nombre propio de la seccion. El prefijo será el especificado por parámetro.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Seguir esta nomenclatura permite diferenciar fácilmente las secciones dentro del código del programa y su estructura en general.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+00012COMPRA SECTION.  //VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+00012-COMPRA SECTION.  //REPARACIÓN
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.IIW" message="MAN_COBOL.IIW: Indentación incorrecta de write" class="com.als.cobol.rules.doc.COBDOC_IIW" technology="COBOL" active="false">
+		<description><![CDATA[Las instruciones incluidas en el WRITE se decalan 6 columnas con respecto a este.]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a la mantenibilidad del código y a la legibilidad del mismo.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+WRITE LINEA-DETALLE
+   AFTER ADVANCING PAGE.    //VIOLATION
+]]></example>
+		<repair><![CDATA[
+WRITE LINEA-DETALLE
+      AFTER ADVANCING PAGE.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="columns" descname="columns" value="6"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.UseFieldWS" message="FIA_COBOL.UseFieldWS: Comprueba si los campos declarados en la Working Storage son usados." class="com.als.cobol.rules.pb.COBPB_UseFieldWS" technology="COBOL" active="true">
+		<description><![CDATA[Esta regla comprueba si los campos declarados en la Working Storage son posteriormente usados en la Procedure Division.]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Previene posibles bugs y ayuda a mejorar la mantenibilidad del código]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+WORKING-STORAGE SECTION.
+
+  01 WS-REG-SALIDA1.
+  03 SAL-KPOLIZA       PIC X(20).
+...
+...
+]]></example>
+		<repair><![CDATA[
+WORKING-STORAGE SECTION.
+
+  01 WS-REG-SALIDA1.
+  03 SAL-KPOLIZA       PIC X(20).
+...
+...
+  WRITE REGFOUT FROM WS-REG-SALIDA1
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.OpenDeclaredFiles" message="FIA_COBOL.OpenDeclaredFiles: Comprueba si los ficheros declarados estan abiertos" class="com.als.cobol.rules.pb.COBPB_OpenDeclaredFiles" technology="COBOL" active="true">
+		<description><![CDATA[Esta regla se encarga de comprobar que todos los ficheros que son declarados , en algún momento del programa son abiertos]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Previene posibles errores]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+FILE-CONTROL.
+*
+* DECLARACIÓN FICHERO DE ENTRADA.
+*
+  SELECT ENTRAD1 ASSIGN TO SYS010
+  ORGANIZATION IS SEQUENTIAL
+  ACCESS MODE IS SEQUENTIAL
+  FILE STATUS IS WS-RET-FILEOUE.
+.....
+.....
+]]></example>
+		<repair><![CDATA[
+FILE-CONTROL.
+*
+* DECLARACIÓN FICHERO DE ENTRADA .
+*
+  SELECT ENTRAD1 ASSIGN TO SYS010
+  ORGANIZATION IS SEQUENTIAL
+  ACCESS MODE IS SEQUENTIAL
+  FILE STATUS IS WS-RET-FILEOUE.
+.....
+.....
+
+OPEN ENTRAD1
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.NCPY" message="OYR_COBOL.NCPY: No utilizar COPYs a excepción de los permitidos." class="com.als.cobol.rules.oyr.COBOYR_NCPY" technology="COBOL" active="false">
+		<description><![CDATA[No utilizar COPYs a excepción de los definidos como permitidos en la propiedad 'copies'.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Se estandarizan los COPYs que pueden usarse en el sistema.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+Identification Division.
+       Program-ID. "trigsql".
+
+           Data Division.
+           Working-Storage Section.
+
+            copy "sql.cbl".
+            copy HPDBSMOD. //Violacion, COPY no incluida en parámetro "copies"
+            copy "sqlca.cbl".
+             .......
+]]></example>
+		<repair><![CDATA[
+  Identification Division.
+        Program-ID. "trigsql".
+
+        Data Division.
+        Working-Storage Section.
+
+         copy "sql.cbl". //Arreglado
+         copy "sqlca.cbl".
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="copies" descname="lista separada por comas de las COPYs aceptadas" value=""/>
+		</properties>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.CFD" message="MAN_COBOL.CFD: Use COPYs para importar las definiciones de registros FD/SD." class="com.als.cobol.rules.ng.COBNG_CFD" technology="COBOL" active="false">
+		<description><![CDATA[Use COPYs para importar las definiciones de registros FD/SD, para mayor consistencia entre programas que usan el mismo fichero.
+NOTA: Para imponer el estilo opuesto (nunca usar COPYs para definir ficheros), use la regla MAN_COBOL.NCFD.
+]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mayor consistencia. Muchos cambios en la estructura de ficheros podrán hacerse en un único punto.]]></benefits>
+		<inconvenients><![CDATA[La definición de ficheros debe obtenerse del código COPY.]]></inconvenients>
+		<example><![CDATA[
+FILE SECTION.
+  FD  MY-OUT-FILE
+      BLOCK CONTAINS 0 RECORDS
+      RECORDING MODE IS F
+      LABEL RECORDS ARE STANDARD.
+  01  REGFOFP. // VIOLATION, record definitions should be imported using COPY
+     02 FIELD-1 ....
+]]></example>
+		<repair><![CDATA[
+FILE SECTION.
+  FD  MY-OUT-FILE
+      BLOCK CONTAINS 0 RECORDS
+      RECORDING MODE IS F
+      LABEL RECORDS ARE STANDARD.
+      COPY MYFILE.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.CursorForUpdateWhereCurrent" message="SQL_COBOL.CursorForUpdateWhereCurrent: Los cursores usados en la cláusula WHERE CURRENT en sentencias DELETE y UPDATE deben declararse como FOR UPDATE" class="com.als.cobol.rules.sql.CursorForUpdateWhereCurrent" technology="COBOL" active="false">
+		<description><![CDATA[
+    Los cursores usados en la cláusula WHERE CURRENT en sentencias DELETE y UPDATE deben declararse como FOR UPDATE.
+    Nota: Regla deprecada, use SQL_PERFORMANCE.CursorForUpdateWhereCurrent de SQL en su lugar.
+    ]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Facilita la concurrencia de usuarios modificando la BD]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+EXEC SQL
+  DECLARE CUR-DGS CURSOR FOR
+    SELECT DGS
+    FROM SIDGS // Violacion
+END-EXEC
+...
+EXEC SQL
+  UPDATE SIDGS
+  SET DGS = :SIDGS.DGS
+  WHERE CURRENT OF CUR-DGS
+END-EXEC
+    ]]></example>
+		<repair><![CDATA[
+EXEC SQL
+  DECLARE CUR-DGS CURSOR FOR
+    SELECT DGS
+    FROM SIDGS
+    FOR UPDATE OF DGS // Corregido
+END-EXEC
+...
+EXEC SQL
+  UPDATE SIDGS
+  SET DGS = :SIDGS.DGS
+  WHERE CURRENT OF CUR-DGS
+END-EXEC
+]]></repair>
+		<reference><![CDATA[http://www.fast-track.cc/t_easyoracle_pl_sql_cursor_for_update.htm]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.HIFI" message="OYR_COBOL.HIFI: Evitar rutinas con un alto Fan-In.  Una rutina se dice que tiene un alto Fan-In cuando tiene 5 o más variables como parámetros de la rutina." class="com.als.cobol.rules.oyr.COBOYR_HIFI" technology="COBOL" active="false">
+		<description><![CDATA[El "Fan-In" es el número de llamadas que referencian a una rutina desde otras. Se cuenta el número total de referencias, aunque desde una subrutina salgan varias a un mismo sitio.
+
+ ]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a minimizar el mantenimiento de la rutina.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+properties=2
+
+SEGUROS.
+...
+
+PERFORM SEGUROS.
+PERFORM SEGUROS.
+PERFORM SEGUROS.//Violacion
+]]></example>
+		<repair><![CDATA[
+properties=2
+
+SEGUROS.
+...
+
+PERFORM SEGUROS.
+PERFORM SEGUROS.
+//Arreglado
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="threshold" descname="threshold" value="5"/>
+		</properties>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.CNP" message="MAN_COBOL.CNP: Comente los párrafos y secciones procedurales" class="com.als.cobol.rules.doc.COBDOC_CNP" technology="COBOL" active="false">
+		<description><![CDATA[Inmediatamente antes de cada nombre de párrafo o sección procedural se deben incluir líneas de comentario.
+    Las propiedades 'numOfUpLines' y 'numOfComments' definen el número de líneas anteriores al inicio del párrafo/sección y el número de líneas de comentario que deben existir, respectivamente.]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Comentar el código implementado es una práctica recomendable para documentar su comportamiento.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+     PROGRAM-ID Nombre_del_programa      // VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+*    Aquí empieza el programa
+    PROGRAM-ID Nombre_del_programa      // ARREGLADO
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="numOfComments" descname="numOfComments" value="1"/>
+			<property name="numOfUpLines" descname="numOfUpLines" value="0"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COBBP.CallParagraph" message="COBBP.CallParagraph: Comprueba si los párrafos son llamados" class="com.als.cobol.rules.pb.COBPB_CallParagraph" technology="COBOL" active="true">
+		<description><![CDATA[Todos los párrafos que contienen el programa deben tener su correspondiente llamada y deben ser utilizados.
+    NOTA: Los párrafos y secciones "triviales" (que sólo contengan un EXIT) se ignoran, pues son meros marcadores y no corresponderían a código "muerto".]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Evita posible código no utilizado]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+  *------
+  INICIO.
+  *------
+PERFORM INICIALIZAR.
+PERFORM VALIDAR.
+INICIO-EXIT.
+EXIT.
+]]></example>
+		<repair><![CDATA[
+  *------
+  INICIO.
+  *------
+PERFORM INICIALIZAR.
+PERFORM VALIDAR.
+INICIO-EXIT.
+EXIT.
+.....
+PERFORM INICIO.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.COD_COBOL.CIN" message="COD_COBOL.CIN: Call incumple nomenclatura" class="com.als.cobol.rules.nom.COBNOM_CIN" technology="COBOL" active="false">
+		<description><![CDATA[El programa invocado mediante CALL debe cumplir las normas de nomenclatura de programas.]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mantener normas de nomenclatura del programa facilita la legibilidad y comprensión del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+ABRIR SECTION.
+   CALL 'FH3000' USING ...     //VIOLATION
+   OPEN INPUT FICHERO-S.
+   EXIT.
+]]></example>
+		<repair><![CDATA[
+ABRIR SECTION.
+   CALL B480M USING ...
+   OPEN INPUT FICHERO-S.
+   EXIT.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="programPattern" descname="programPattern" value="^B480[MJKVN]"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.VLIN" message="MAN_COBOL.VLIN: Las cláusulas VALUE deben estar alíneadas." class="com.als.cobol.rules.doc.COBDOC_VLIN" technology="COBOL" active="false">
+		<description><![CDATA[Cuando se declaren múltiples variables o registros dentro del código, se deben alínear todas las cláusulas VALUE para cada nivel en la misma columna.
+    ****************************************************
+     Todos los 01 en la misma columna
+     Todos los 02 en la misma columna
+     Todos los 05 en la misma columna
+     Todos los 88 en la misma columna
+    ****************************************************
+ ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a localizar valores iniciales y constantes.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[]]></example>
+		<repair><![CDATA[]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.OYR_COBOL.HIFO" message="OYR_COBOL.HIFO: Evitar rutinas con un alto Fan-Out." class="com.als.cobol.rules.oyr.COBOYR_HIFO" technology="COBOL" active="true">
+		<description><![CDATA[El "Fan-Out" es el número de referencias que se hacen desde una misma rutina. Se cuentan los múltiples accesos a una misma rutina.
+
+ ]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda al mantenimiento de la rutina.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+PROPERTIES=2
+
+Inicio.
+perform proceso1.
+perform proceso2.
+perform proceso3.//VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+PROPERTIES=2
+
+Inicio.
+perform proceso1.
+perform proceso2..
+
+//ARREGLADO
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="threshold" descname="threshold" value="5"/>
+		</properties>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.EIFA" message="MAN_COBOL.EIFA: Evitar if anidados de cierta profundidad." class="com.als.cobol.rules.pb.COBPB_EIFA" technology="COBOL" active="true">
+		<description><![CDATA[Evitar if anidados con un nivel de profundidad mayor que la definida en la propiedad.]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Mejora la claridad y legibilidad del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+      IF WS-NAME = 'END'
+        GO TO 000100-EXIT.
+        MOVE WS-NAME TO NAW-NAME-WORK.
+        PERFORM 006000-NAME-EDIT THRU 006000-EXIT
+        IF (WS-NAME-ERROR-FLAG = 1)
+          DISPLAY 'NAME INVALID'
+          IF (WS-NAME = 'END')
+            DISPLAY 'END'
+            IF (NAW-NAME_WORK = 'WORK') //VIOLACIÓN, anidamiento excesivo
+              DISPLAY 'WORK'
+            END-IF
+         END-IF
+       END-IF
+      END-IF
+    ]]></example>
+		<repair><![CDATA[
+      Rediseñar el código para hacerlo más claro.
+    ]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="maxDepth" descname="Máximo nivel de anidamiento para sentencias IF" value="3"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.IRT" message="MAN_COBOL.IRT: Indicar registro de la tabla." class="com.als.cobol.rules.nom.COBNOM_IRT" technology="COBOL" active="false">
+		<description><![CDATA[En tablas internas de Cobol ( tablas con OCCURS ) indicar el prefijo indicado por 'arrayPattern' ante el nombre de la tabla e indicar el sufijo indicado por 'recordPattern', para identificar el registro de la tabla.]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Facilita la comprensión del código mejorando la mantenibilidad de este.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+WORKING-STORAGE SECTION.
+* DECLARACIÓN DE UNA TABLA EN COBOL
+01 TRANSCRIPT.        //VIOLACIÓN
+   02 COURSE OCCURS 200 TIMES.    //VIOLACIÓN
+      03 COURSE-ID     PIC X(5).
+      03 FINAL-GRADE   PIC X(1).
+]]></example>
+		<repair><![CDATA[
+WORKING-STORAGE SECTION.
+* DECLARACIÓN DE UNA TABLA EN COBOL
+01 TB-TRANSCRIPT.        //REPARACIÓN
+   02 COURSE-REG OCCURS 200 TIMES.    //REPARACIÓN
+      03 COURSE-ID     PIC X(5).
+      03 FINAL-GRADE   PIC X(1).
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="arrayPattern" descname="arrayPattern" value="^TB-"/>
+			<property name="recordPattern" descname="recordPattern" value="-REG$"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.IIRW" message="MAN_COBOL.IIRW: Indentación incorrecta de rewrite" class="com.als.cobol.rules.doc.COBDOC_IIRW" technology="COBOL" active="false">
+		<description><![CDATA[Las instrucciones incluidas en el REWRITE se decalan 8 columnas con respecto a este.]]></description>
+		<priority>4</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a la mantenibilidad del código y a la legibilidad del mismo.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+REWRITE ASD1 FROM ASDASD1  INVALID KEY
+       MOVE 4 TO ASD1
+        MOVE 4 TO ASD1       //VIOLATION
+END-REWRITE
+]]></example>
+		<repair><![CDATA[
+REWRITE ASD1 FROM ASDASD1  INVALID KEY
+       MOVE 4 TO ASD1
+       MOVE 4 TO ASD1
+END-REWRITE
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="columns" descname="columns" value="8"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.FIA_COBOL.WOEV" message="FIA_COBOL.WOEV: Incluir WHEN OTHER cuando se este usando EVALUATE." class="com.als.cobol.rules.pb.COBPB_WOEV" technology="COBOL" active="true">
+		<description><![CDATA[Es obligatorio incluir la cláusula WHEN OTHER cuando se este codificando la cláusula EVALUATE.
+
+ ]]></description>
+		<priority>2</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Si no si incluye esta cláusula se puede dar el caso de que no se este teniendo en cuenta algún valor.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+EVALUATE menu-input
+  WHEN "0"
+    CALL init-proc
+  WHEN "1" THRU "9"
+    CALL process-proc
+  WHEN "R"
+    CALL read-parms
+  WHEN "X"
+    CALL cleanup-proc    //VIOLACIÓN
+END-EVALUATE;
+]]></example>
+		<repair><![CDATA[
+EVALUATE menu-input
+  WHEN "0"
+    CALL init-proc
+  WHEN "1" THRU "9"
+    CALL process-proc
+  WHEN "R"
+    CALL read-parms
+  WHEN "X"
+    CALL cleanup-proc
+  WHEN OTHER
+    CALL error-proc    //REPARACIÓN
+END-EVALUATE;
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.SQL_COBOL.AvoidOpenedUnclosedCursors" message="SQL_COBOL.AvoidOpenedUnclosedCursors: Evita cursores abiertos y no cerrados" class="com.als.cobol.rules.sql.AvoidOpenedUnclosedCursors" technology="COBOL" active="false">
+		<description><![CDATA[Evitar cursores abiertos y no cerrados. Nota: Regla deprecada, use SQL_PERFORMANCE.AvoidOpenedUnclosedCursors de SQL en su lugar.]]></description>
+		<priority>3</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ahorro de recursos y descriptores]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[]]></example>
+		<repair><![CDATA[]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Eficiencia</idcat>
+		<descat>Eficiencia</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.MAN_COBOL.NREG" message="MAN_COBOL.NREG: Nomenclatura de los registros en FD." class="com.als.cobol.rules.nom.COBNOM_NREG" technology="COBOL" active="false">
+		<description><![CDATA[
+      Los registros de ficheros deben nombrarse con la forma PREFIJONOMBREFICHERO.
+      Los registros de ficheros de nivel 01 definidos con FD deben tener la forma PREFIJONOMBREFICHERO, donde
+      el valor de PREFIJO se da en el parámetro 'fileRecordPrefix', y NOMBREFICHERO es el nombre del fichero
+      (sin comillas) de la entrada FD.
+    ]]></description>
+		<priority>5</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[Ayuda a la mantenibilidad y legibilidad del código.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+       FILE SECTION.
+       FD  FTOTAL
+           LABEL RECORD STANDARD
+           RECORDING MODE IS F
+           BLOCK CONTAINS 0 RECORDS.
+
+       01  REG-TOTAL.          //VIOLACIÓN
+           03 TOT-N        PIC X(09).
+           03 TOT-K        PIC X(10).
+    ]]></example>
+		<repair><![CDATA[
+        FILE SECTION.
+         FD  FTOTAL
+             LABEL RECORD STANDARD
+             RECORDING MODE IS F
+             BLOCK CONTAINS 0 RECORDS.
+
+         01  REG-FTOTAL.        //REPARACIÓN
+             03 TOT-N       PIC X(09).
+             03 TOT-K       PIC X(10).
+    ]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties>
+			<property name="fileRecordPrefix" descname="fileRecordPrefix" value="REG-"/>
+		</properties>
+		<idcat>Mantenibilidad</idcat>
+		<descat>Mantenibilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<rule name="OPT.COBOL.RG_COBOL.N77" message="RG_COBOL.N77: Niveles 77" class="com.als.cobol.rules.ng.COBNG_N77" technology="COBOL" active="true">
+		<description><![CDATA[No está permitido el uso de niveles 77]]></description>
+		<priority>1</priority>
+		<impl>1</impl>
+		<benefits><![CDATA[El nivel 77, identifica a una variable que no se va a subdividir y que no forma parte de ningún registro.]]></benefits>
+		<inconvenients><![CDATA[]]></inconvenients>
+		<example><![CDATA[
+ DATA DIVISION.
+WORKING-STORAGE SECTION.
+77 myvar PIC 999 .               // VIOLACIÓN
+77 a PIC 99V999 VALUE 1.777 .     // VIOLACIÓN
+77 b PIC 99V99 VALUE ZERO .       // VIOLACIÓN
+77 c PIC 9V9 VALUE 5.5 .         // VIOLACIÓN
+77 d PIC 9v9 VALUE 5.5 .         // VIOLACIÓN
+]]></example>
+		<repair><![CDATA[
+Todas las variables se declararán como registros.
+]]></repair>
+		<reference><![CDATA[Optimyth (http://www.optimyth.com)]]></reference>
+		<properties/>
+		<idcat>Fiabilidad</idcat>
+		<descat>Fiabilidad</descat>
+		<padrecat>COBOL</padrecat>
+	</rule>
+	<categories>
+		<category name="COBOL" technology="COBOL" active="true" weight="2.0">
+			<description><![CDATA[COBOL Rules]]></description>
+			<children>
+				<category name="Eficiencia" technology="COBOL" active="true" weight="1.0">
+					<description><![CDATA[Eficiencia]]></description>
+				</category>
+				<category name="Fiabilidad" technology="COBOL" active="true" weight="2.0">
+					<description><![CDATA[Fiabilidad]]></description>
+				</category>
+				<category name="Mantenibilidad" technology="COBOL" active="true" weight="1.0">
+					<description><![CDATA[Mantenibilidad]]></description>
+				</category>
+			</children>
+		</category>
+	</categories>
+</ruleset>

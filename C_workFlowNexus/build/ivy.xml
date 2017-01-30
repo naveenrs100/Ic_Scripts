@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
+  <info organisation="" module="C_workFlowNexus" revision="moonshine2_checkout_statics_1.0.13" status="integration" publication="20160725231754">
+    <description/>
+  </info>
+  <configurations>
+    <conf name="archives" visibility="public" description="Configuration for archive artifacts."/>
+    <conf name="cartifact" visibility="public"/>
+    <conf name="default" visibility="public" description="Configuration for default artifacts."/>
+  </configurations>
+  <publications>
+    <artifact name="88888_Prueba_GATES" type="zip" ext="zip" conf="archives,cartifact"/>
+  </publications>
+</ivy-module>

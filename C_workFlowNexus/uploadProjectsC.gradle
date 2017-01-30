@@ -1,0 +1,79 @@
+/**
+ * Parametros a pasar con -P
+ * 
+ * nexusPlubicC -> url de descarga de artefactos
+ * nexusUploadC -> url de subida de artefactos
+ * 
+ * artifactPath -> ruta del artefacto a subir
+ * artifactType -> tipo o extension
+ * 
+ * Parametros GAV
+ * 
+ * groupId
+ * version
+ * artifactId
+ * 
+ */
+
+apply plugin: 'maven'
+
+configurations { cartifact }
+/*
+repositories{
+	maven{ url "${nexusPlubicC}" }
+}
+*/
+println artifactPath
+println artifactId
+println artifactType
+println groupId
+println version
+
+
+artifacts{
+	cartifact file: file(artifactPath), name: artifactId, type: artifactType
+}
+
+configurations.archives.artifacts.each{ artifact ->
+	println artifact.toString()
+}
+
+uploadCartifact.repositories.mavenDeployer {
+	name = 'cProjectsNexusUpload' // optional
+	uniqueVersion = false
+	def mavenCredentialsUser = null
+	try {
+		println user
+		if (user != null) {
+			mavenCredentialsUser = user
+		}
+		else {
+			mavenCredentialsUser = System.getProperty('DEPLOYMENT_USER')
+		}	
+	}
+	catch (Throwable t) {
+		mavenCredentialsUser = System.getProperty('DEPLOYMENT_USER')
+	}
+	def mavenCredentialsPassword = null
+	try {
+		println password
+		if (password != null) {
+			mavenCredentialsPassword = password
+		}
+		else {
+			mavenCredentialsPassword = System.getProperty('DEPLOYMENT_PWD')
+		}
+	}
+	catch (Throwable t) {
+		mavenCredentialsPassword = System.getProperty('DEPLOYMENT_PWD')
+	}
+	repository(id: "eci",url: "${nexusUploadC}"){
+		authentication(userName: mavenCredentialsUser, password: mavenCredentialsPassword)
+	}
+
+	pom.project {
+		groupId "${groupId}"
+		artifactId "${artifactId}"
+		version "${version}"
+	}
+}
