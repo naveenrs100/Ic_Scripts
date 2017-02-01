@@ -34,6 +34,8 @@ class GetJobsUtils extends Loggable {
 	String todos_o_ninguno;
 	String getOrdered;
 	String componentesRelease;
+	String streamCargaInicial;
+	String arrastrarDependencias;
 
 
 	public GetJobsUtils(build, String projectNature, String action,
@@ -44,7 +46,8 @@ class GetJobsUtils extends Loggable {
 	String privateGitLabToken, String technology, String urlGitlab,
 	String urlNexus, String lastUserIC, String gitCommand,
 	String mavenHome, String stream, String todos_o_ninguno,
-	String getOrdered, String componentesRelease, String gitGroup, String branch) {
+	String getOrdered, String componentesRelease, String gitGroup, String branch,
+	String streamCargaInicial, String arrastrarDependencias) {
 		super();
 		this.projectNature = projectNature;
 		this.action = action;
@@ -74,12 +77,14 @@ class GetJobsUtils extends Loggable {
 		this.componentesRelease = componentesRelease;
 		this.gitGroup = gitGroup;
 		this.branch = branch;
+		this.streamCargaInicial = streamCargaInicial;
+		this.arrastrarDependencias = arrastrarDependencias;
 	}
 
 	/**
 	 * En el caso, bastante común, de necesitar una release parcial, se aplica este parámetro
 	 * Contiene los componentes que entran en la construcción, separados por comas
-	 * @return
+	 * @return List<String> listaComponentesRelease
 	 */
 	def getComponentsReleaseList() {
 		log("Calculamos componentes introducidos a mano...")
@@ -92,8 +97,9 @@ class GetJobsUtils extends Loggable {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Devuelve la lista de componentes que cuelgan de un grupo scm según el
+	 * scm del que se trate (stream para RTC o gitGroup para Git)
+	 * @return List<String> scmComponentsList
 	 */
 	public List<String> getScmComponentsList() {
 		log("projectNature = ${projectNature}")
@@ -110,9 +116,10 @@ class GetJobsUtils extends Loggable {
 	}
 
 	/**
-	 * 
+	 * Devuelve la lista de componentes filtrada por el parámetro onlyChanges y el
+	 * todos_o_ninguno si estos aplicasen.
 	 * @param scmComponentsList
-	 * @return
+	 * @return finalComponentsList
 	 */
 	public List<String> getFinalComponentList(List<String> scmComponentsList, List<String> listaComponentesRelease) {
 		List<String> finalComponentsList;
@@ -128,9 +135,10 @@ class GetJobsUtils extends Loggable {
 	}
 
 	/**
-	 * 
+	 * Devuelve una lista de listas de jobs que han de lanzarse en paralelo según el
+	 * tipo de scm donde estén los componentes.
 	 * @param finalComponentsList
-	 * @return
+	 * @return sortedMavenCompoGroups
 	 */
 	public List<List<MavenComponent>> getOrderedList(List<String> finalComponentsList, List<String> scmComponentsList) {
 		List<List<MavenComponent>> sortedMavenCompoGroups;
@@ -157,7 +165,11 @@ class GetJobsUtils extends Loggable {
 	public List<List<String>> getJobsList(List<String> finalComponentsList, List<List<MavenComponent>> sortedMavenCompoGroups) {
 		def scmGroup;
 		if(projectNature.equals("rtc")) {
-			scmGroup = stream;
+			if(streamCargaInicial != null && !streamCargaInicial.trim().equals("")) {
+				scmGroup = streamCargaInicial;
+			} else {
+				scmGroup = stream;
+			}
 		} else if(projectNature.equals("git")) {
 			scmGroup = gitGroup;
 		}
@@ -340,7 +352,7 @@ class GetJobsUtils extends Loggable {
 					finalComponentsList = listaComponentesRelease;
 				} else {
 					finalComponentsList = streamComponentsList;
-				}				
+				}
 			}
 
 		} catch(Exception e) {
@@ -445,7 +457,9 @@ class GetJobsUtils extends Loggable {
 
 	/**
 	 * Obtiene los ids de los commits almacenados en el workspace para cada componente.
-	 * @return commitsId
+	 * @param componentsArray
+	 * @param parentWorkspace
+	 * @return String commitsId
 	 */
 	private String getStoredCommitsId(componentsArray, parentWorkspace) {
 		def commitsId ="";
@@ -461,10 +475,11 @@ class GetJobsUtils extends Loggable {
 	/**
 	 * Comprueba qué componentes están actualizados.
 	 * @param jenkinsComponents
+	 * @return componentsToRemove
 	 */
 	private List<String> checkUpdatedComponents(List<String> componentsArray, String parentWorkspace,
 			String branch, String gitHost, String gitGroup, String commitsId, String action) {
-		log("Se comprueban qué componentes están actualizados ya");
+		
 		def componentsToRemove = [];
 
 		// En caso de action = build se comprueba el commitId guardado.
@@ -474,45 +489,31 @@ class GetJobsUtils extends Loggable {
 				def lastCommitId = getLastCommitId(component, branch, gitHost, gitGroup);
 				if (lastCommitId != null) {
 					def componentIdPair = commitsIdArray.find { it.startsWith(component) };
-					String storedCommitId = (componentIdPair != null)? componentIdPair.split(":")[1] : "";
-
-					log("Comparamos el último commit de ${component}:");
-					log("${storedCommitId} <-> ${lastCommitId}")
+					String storedCommitId = (componentIdPair != null)? componentIdPair.split(":")[1] : "";					
 					if(storedCommitId.trim().equals(lastCommitId)) {
-						log("Eliminamos el componente ${component} de la lista de componentes a contruir.");
 						componentsToRemove.add(component);
 					}
 				}
-
-			}
-			log("Componentes actualizados a eliminar de la lista:")
-			componentsToRemove.each {
-				log it
-			}
+			}			
 		}
 		// si action != build se comprueba el último usuario que ha modificado cada componente en el branch.
 		else {
 			componentsArray.each { String component ->
-				def lastUser = getLastUser(component, branch, gitHost, gitGroup);
-				if (lastUser != null) {
-					log("Comparamos el usuario ${lastUserIC} con ${lastUser}");
+				def lastUser = getLastUser(component, branch, gitHost, gitGroup);				
+				if (lastUser != null) {			
 					if(lastUser.equals(lastUserIC)) {
 						componentsToRemove.add(component);
 					}
 				}
 			}
-		}
-		log("Componentes que no se van a construir por estar al día:")
-		componentsToRemove.each {
-			log(it)
-		}
+		}		
 		return componentsToRemove;
 	}
 
 	/**
 	 * Devuelve el último commitId de un componente en Git
 	 * @param (String) component
-	 * @return
+	 * @return String lastCommitId
 	 */
 	private String getLastCommitId(String component, String branch, String gitHost, String gitGroup) {
 		String lastCommitId = null;
@@ -555,13 +556,21 @@ class GetJobsUtils extends Loggable {
 		}
 		return lastCommitId;
 	}
-
+	
+	/**
+	 * Devuelve una lista de listas de componentes que han de
+	 * lanzarse en paralelo por parte del Triggers
+	 * @param finalComponentsList
+	 * @param scmComponentsList
+	 * @param componentesRelease
+	 * @return List<List<MavenComponent>> sortedMavenCompoGroups
+	 */
 	private List<List<String>> getGitOrderedList(List<String> finalComponentsList, List<String> scmComponentsList, String componentesRelease) {
 		List<List<MavenComponent>> sortedMavenCompoGroups = [];
 		// Ordenamos los componentes si así se indica.
 		if(getOrdered == "true") {
-			//TmpDir.tmp { File tmpDir ->
-			log("Se ordenan los componentes:")
+			log("Ordenando los componentes. Este proceso puede llevar unos minutos...")
+			//TmpDir.tmp { File tmpDir ->			
 			GitBuildFileHelper gitBuildFileHelper = new GitBuildFileHelper(action, new File(parentWorkspace));
 			gitBuildFileHelper.initLogger(this);
 
@@ -572,11 +581,7 @@ class GetJobsUtils extends Loggable {
 
 			List <MavenComponent> reactor = gitBuildFileHelper.createStreamReactor(new File(parentWorkspace), scmComponentsList);
 			def ls = System.getProperty("line.separator");
-			log("Reactor calculado:")
-			reactor.each {
-				log(it.getName() + ls)
-			}
-
+			
 			// En este punto debemos añadir los componentes arrastrados por dependencias.
 			// Si un componente no ha cambiado pero su dependencia sí, ha de construirse también.
 			def componentsMavenArray = [];
@@ -586,8 +591,11 @@ class GetJobsUtils extends Loggable {
 					componentsMavenArray.add(tmp);
 				}
 			}
-
-			if(componentesRelease == null || componentesRelease.trim().equals("")) {
+			
+			// Añadimos los componentes arrastrados por dependencias. Es decir, si uno de
+			// los componentes que no se van a construir depende de uno de los que sí se van
+			// a construir ha de construirse también.
+			if(arrastrarDependencias.equals("true")) {
 				log("Se calculan los componentes arrastrados por dependencias...");
 				def componentesArrastrados = [];
 				reactor.each { MavenComponent mavenComponent ->
@@ -611,7 +619,14 @@ class GetJobsUtils extends Loggable {
 					orderedComponents.add(tmp);
 				}
 			}
-
+			
+			log("finalMavenComponentListOrdered ->")
+			int ind = 0;
+			orderedComponents.each {
+				ind++;
+				log(ind + ": " + it.getName());
+			}
+			
 			// Obtenemos una lista de listas de MavenComponents con los MavenComponents
 			// agrupados según los que se puedan construir en paralelo.
 			sortedMavenCompoGroups = new SortGroupsStrategy().sortGroups(orderedComponents);
@@ -632,6 +647,7 @@ class GetJobsUtils extends Loggable {
 		List<List<String>> sortedMavenCompoGroups;
 		RTCBuildFileHelper helper = new RTCBuildFileHelper(action, new File(build.workspace.toString()));
 		if(getOrdered.equals("true") && finalComponentsList.size() > 0) {
+			log("Ordenando los componentes. Esto puede llevar unos minutos...")
 			// Contruimos el createStreamReactor para saber qué componentes dependen de los que han
 			// cambiado para incluirlos también en la lista de cambios.
 			TmpDir.tmp { File tmp ->
@@ -648,11 +664,6 @@ class GetJobsUtils extends Loggable {
 						urlRTC,
 						componentesRelease);
 
-				log("reactor -> ")
-				reactor.each {
-					log(it.getName() + "\n")
-				}
-
 				def finalMavenComponentList = []; // La "finalComponentsList" pero con MavenComponents en lugar de con Strings.
 				finalComponentsList.each { compo ->
 					MavenComponent temp = reactor.find { mavenCompo -> mavenCompo.getName().equals(compo) }
@@ -661,9 +672,11 @@ class GetJobsUtils extends Loggable {
 					}
 				}
 
-				// Si hay señalados componentesReleases directamente
-				// no añadimos los componentes arrastrados por dependencias.
-				if(componentesRelease == null || componentesRelease.trim().equals("")) {
+				// Añadimos los componentes arrastrados por dependencias. Es decir, si uno de
+				// los componentes que no se van a construir depende de uno de los que sí se van
+				// a construir ha de construirse también.
+				if(arrastrarDependencias.equals("true")) {
+					log("Se calculan los componentes arrastrados por dependencias...")
 					def componentesArrastrados = [];
 					reactor.each { MavenComponent mavenComponent ->
 						finalComponentsList.each { String component ->
@@ -689,8 +702,10 @@ class GetJobsUtils extends Loggable {
 				}
 
 				log("finalMavenComponentListOrdered ->")
-				finalMavenComponentListOrdered.each {
-					log(it.getName() + "\n");
+				int ind = 0;
+				finalMavenComponentListOrdered.each {		
+					ind ++;
+					log(ind + ": " + it.getName());
 				}
 				// Obtenemos una lista de listas de MavenComponents con los MavenComponents
 				// agrupados según los que se puedan construir en paralelo.
@@ -702,9 +717,10 @@ class GetJobsUtils extends Loggable {
 	}
 
 	/**
-	 * 
+	 * Quita espacios en blanco alrededor de una cadena
+	 * y sustituye "/" por "-".
 	 * @param cadena
-	 * @return
+	 * @return cadena
 	 */
 	private String clean(cadena){
 		cadena = cadena.replaceAll("/","-")
@@ -754,7 +770,7 @@ class GetJobsUtils extends Loggable {
 	 * Devuelve los parámetros de un job formado como "${gitGroup} -COMP- ${component}";
 	 * @param gitGroup
 	 * @param component
-	 * @return
+	 * @return jobParameters
 	 */
 	def getJobParameters(jobName) {
 		def job = hudson.model.Hudson.instance.getJob(jobName);
@@ -792,7 +808,7 @@ class GetJobsUtils extends Loggable {
 	}
 
 	/**
-	 * 
+	 * Añade un nuevo set de parámetros a la build de Jenkins
 	 * @param build
 	 * @param params
 	 */
@@ -800,7 +816,7 @@ class GetJobsUtils extends Loggable {
 		def paramsIn = build?.actions.find{ it instanceof ParametersAction }?.parameters
 		def index = build?.actions.findIndexOf{ it instanceof ParametersAction }
 		def paramsTmp = []
-		if (paramsIn!=null){
+		if (paramsIn!=null) {
 			//No se borra nada para compatibilidad hacia atrás.
 			paramsTmp.addAll(paramsIn)
 			//Borra de la lista los paramaterAction
@@ -810,5 +826,71 @@ class GetJobsUtils extends Loggable {
 
 		build?.actions.add(new ParametersAction(paramsTmp))
 	}
-
+	
+	/**
+	 * Devuelve el último usuario que ha hecho commit en un componente
+	 * @param component
+	 * @param branch
+	 * @param gitHost
+	 * @param gitGroup
+	 * @return String lastUser
+	 */
+	private String getLastUser(String component, String branch, String gitHost, String gitGroup) {
+		String lastUser = null;
+		TmpDir.tmp { File dir ->
+			GitCloneCommand cc = new GitCloneCommand();
+			try {
+				cc.setParentWorkspace(new File(dir.getAbsolutePath()));
+				cc.setGitBranch(branch);
+				cc.setGitHost(gitHost);
+				cc.setGitPath("${gitGroup}/${component}.git");
+				cc.setGitUser("git");
+				cc.setEmpty("true");
+				cc.setLocalFolderName(component);
+				cc.setGitCommand(this.gitCommand);
+				cc.execute();
+	
+				GitLogCommand lg = new GitLogCommand();
+				lg.setResultsNumber("1");
+				lg.setParentWorkspace("${dir.getAbsolutePath()}/${component}");
+				lg.setGitCommand(this.gitCommand);
+				String commitLog = lg.execute();
+	
+				commitLog.eachLine { String line ->
+					if(line.trim().startsWith("Author")) {
+						lastUser = line.split(" ")[1]
+					}
+				}
+			}
+			catch (Exception e) {
+				if (cc.getLastReturnCode() == 128) {
+					// Repositorio no inicializado
+					log ("WARNING: repositorio $component no inicializado")
+				}
+				else {
+					throw e;
+				}
+			}
+		}
+		return lastUser;
+	}
+	
+	/**
+	 * Obtiene una lista de sublistas con un job por
+	 * cada sublista para forzar un lanzamiento secuencial
+	 * por parte del Trigger en Jenkins.
+	 * @param jobs
+	 * @return List<List<String>> jobs
+	 */
+	public getSequentialJobs(List<List<String>> jobs) {
+		List<List<String>> ret = [];		
+		jobs.each { List<String> sublista -> 
+			sublista.each { String job ->
+				List<String> tempList = [];
+				tempList.add(job);
+				ret.add(tempList);
+			}
+		}
+		return ret;
+	}
 }

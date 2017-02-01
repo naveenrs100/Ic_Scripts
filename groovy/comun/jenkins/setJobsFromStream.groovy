@@ -11,33 +11,26 @@ import es.eci.utils.pom.SortGroupsStrategy;
 import es.eci.utils.ParamsHelper;
 import es.eci.utils.jenkins.GetJobsUtils;
 
-tecnologias = ["maven":"pom\\.xml","gradle":"build\\.gradle"]
+def build = Thread.currentThread().executable;
+def resolver = build.buildVariableResolver;
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
+// Por defecto se arrastran dependencias.
+def arrastrarDepParam = resolver.resolve("arrastrarDependencias");
+def arrastrarDependencias = (arrastrarDepParam == null || arrastrarDepParam.trim().equals("")) ? "true" : arrastrarDepParam;
 
 // Se determina si es un proyecto Git o RTC
-def stream = resolver.resolve("stream")
-def streamTarget = resolver.resolve("streamTarget")
-def gitGroup = resolver.resolve("gitGroup")
-def streamCargaInicial = resolver.resolve("streamCargaInicial")
-if (streamCargaInicial != null && streamCargaInicial.trim() != '') {
-	stream = streamCargaInicial
-}
-def action = resolver.resolve("action")
-def onlyChanges = resolver.resolve("onlyChanges")
-def todos_o_ninguno = resolver.resolve("todos_o_ninguno")
-def makeSnapshot = resolver.resolve("makeSnapshot")
-def getOrdered = resolver.resolve("getOrdered")
-def workspaceRTC = resolver.resolve("workspaceRTC")
-def jenkinsHome	= build.getEnvironment(null).get("JENKINS_HOME")
+def stream = resolver.resolve("stream");
+def streamTarget = resolver.resolve("streamTarget");
+def gitGroup = resolver.resolve("gitGroup");
+def streamCargaInicial = resolver.resolve("streamCargaInicial");
+def action = resolver.resolve("action");
+def onlyChanges = resolver.resolve("onlyChanges");
+def todos_o_ninguno = resolver.resolve("todos_o_ninguno");
+def getOrdered = resolver.resolve("getOrdered");
+def workspaceRTC = resolver.resolve("workspaceRTC");
+def jenkinsHome	= build.getEnvironment(null).get("JENKINS_HOME");
 def scmToolsHome = build.getEnvironment(null).get("SCMTOOLS_HOME");
 def daemonsConfigDir = build.getEnvironment(null).get("DAEMONS_HOME");
-def light = true;
-def typeOrigin = "workspace"
-def typeTarget = "stream"
-def nameOrigin = "${workspaceRTC}";
-def nameTarget = "${stream}";
 def userRTC = build.getEnvironment(null).get("userRTC");
 def pwdRTC = resolver.resolve("pwdRTC");
 def urlRTC = build.getEnvironment(null).get("urlRTC");
@@ -57,6 +50,10 @@ def lastUserIC = build.getEnvironment(null).get("lastUserIC");
 def gitCommand = build.getEnvironment(null).get("GIT_SH_COMMAND");
 def mavenHome = build.getEnvironment(null).get("MAVEN_HOME");
 
+// True si se desea que los jobs se lancen secuencialmente. "jobs" ha de ser entonces
+// una lista de sublistas con un solo job por sublista.
+def forzarSecuencial = resolver.resolve("forzarSecuencial");
+
 // Naturaleza del SCM del proyecto
 def projectNature;
 if(gitGroup != null && !gitGroup.trim().equals("")) {
@@ -72,7 +69,8 @@ GetJobsUtils gju = new GetJobsUtils(build, projectNature, action, onlyChanges,
 									privateGitLabToken, technology, urlGitlab,
 									urlNexus, lastUserIC, gitCommand, mavenHome,
 									stream, todos_o_ninguno, getOrdered,
-									componentesRelease, gitGroup, branch);
+									componentesRelease, gitGroup, branch, streamCargaInicial,
+									arrastrarDependencias);
 
 gju.initLogger { println it };
 
@@ -95,6 +93,12 @@ println("sortedMavenCompoGroups -> ${sortedMavenCompoGroups}")
 /** CÁLCULO DE LA LISTA DE LISTAS DE JOBS SEGÚN EL REQUERIMIENTO DE ORDENACIÓN **/
 List<List<String>> jobs = gju.getJobsList(finalComponentsList, sortedMavenCompoGroups);
 println("jobs -> ${jobs}")
+
+/** CÁLCULO DE LA LISTA DE JOBS SI SE DESEA FORZAR UN LANZAMIENTO SECUENCIAL **/
+if(forzarSecuencial != null && forzarSecuencial.trim().equals("true")) {
+	jobs = gju.getSequentialJobs(jobs);
+	println("Jobs calculados de forma secuencial -> ${jobs}")
+}
 
 if (jobs!=null) {
 	def params = []

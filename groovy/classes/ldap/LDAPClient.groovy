@@ -18,7 +18,8 @@ class LDAPClient extends Loggable {
 	
 	// Base de la búsqueda LDAP
 	private static final String LDAP_BASE_QUERY = 
-		"OU=Servicios Centrales,OU=El Corte Ingles,DC=grupoeci,DC=elcorteingles,DC=corp";
+		//"OU=Servicios Centrales,OU=El Corte Ingles,DC=grupoeci,DC=elcorteingles,DC=corp";
+		"DC=grupoeci,DC=elcorteingles,DC=corp";
 	
 	
 	//---------------------------------------------

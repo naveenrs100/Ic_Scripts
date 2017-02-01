@@ -1,13 +1,16 @@
-List<String> array = ["A","B","C","D"];
+def fs = System.getProperty("file.separator")
 
-def f = new File("myFile.txt")
-def ls = System.getProperty("line.separator");
-
-for(int i = 0; i < array.size(); i++) {
-	if(i != (array.size() -1)) {
-		f.append(array[i] + ls)
-	} else {
-		f.append(array[i])
+new File("${rootDir}").eachFileRecurse { File file ->
+	if(file.isDirectory()) {
+		boolean hasIt = false;
+		file.eachFileRecurse {
+			if(it.getName == "build.gradle") {
+				hasIt = true;
+			}
+		}
+		if(hasIt) {
+			println("Including -> ${file.getName()}")
+			include "${file.getName()}"
+		} 		
 	}
 }
-

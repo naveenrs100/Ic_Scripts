@@ -63,6 +63,14 @@ class UrbanCodeComponentInfoService extends Loggable {
 				}
 			}
 		}
+		// Recorrer las propiedades de templateSourceProperties, en ocasiones viene informado aquí el packaging
+		componentInfo.templateSourceProperties.each { def property ->
+			if (property.name.equals("extension")) { 
+				String extension = property.value;
+				extension = extension.replaceAll("\\.", "");
+				packaging = extension;
+			}
+		}
 		// Componer el objeto con las coordenadas
 		MavenCoordinates coords = new MavenCoordinates(groupId, artifactId, version);
 		coords.setPackaging(packaging);

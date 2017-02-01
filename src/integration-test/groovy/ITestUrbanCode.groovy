@@ -39,4 +39,21 @@ class ITestUrbanCode {
 		Assert.assertEquals("App1-EAR", coords.getArtifactId());
 		Assert.assertEquals("ear", coords.packaging);
 	}
+	
+	@Test
+	public void testMavenCoordinatesTemplate() {
+		
+		UrbanCodeExecutor exec = new UrbanCodeExecutor(urbanCodeCommand, urbanCodeURL, user, password);
+		exec.initLogger { println it }
+		UrbanCodeComponentInfoService service =
+			new UrbanCodeComponentInfoService(exec);
+		service.initLogger { println it }
+		
+		MavenCoordinates coords = service.getCoordinates("QSP-Integraciones-CFG");
+		// Grupo, artefacto y packaging
+		Assert.assertNotNull(coords);
+		Assert.assertEquals("es.elcorteingles.ad.food.integraciones", coords.getGroupId());
+		Assert.assertEquals("integraciones-cfg", coords.getArtifactId());
+		Assert.assertEquals("zip", coords.packaging);
+	}
 }
