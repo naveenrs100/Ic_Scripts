@@ -14,6 +14,7 @@ import git.commands.GitLogCommand
 import groovy.json.JsonSlurper
 import hudson.model.*;
 import es.eci.utils.TmpDir;
+import rtc.commands.RTCCreateRepositoryWorkspace;
 
 class GetJobsUtils extends Loggable {
 
@@ -106,6 +107,18 @@ class GetJobsUtils extends Loggable {
 		List<String> scmComponentsList;
 
 		if(projectNature == "rtc") {
+			// Antes de empezar a operar con RTC se crea el WORKSPACE
+			// en caso de ser necesario.
+			RTCCreateRepositoryWorkspace wksCommand = new RTCCreateRepositoryWorkspace()
+			wksCommand.initLogger { println it }			
+			wksCommand.setUrlRTC(urlRTC);
+			wksCommand.setUserRTC(userRTC);
+			wksCommand.setPwdRTC(pwdRTC);
+			wksCommand.setScmToolsHome(scmToolsHome);
+			wksCommand.setWorkspaceRTC(workspaceRTC);
+			wksCommand.setStream(stream);			
+			wksCommand.execute();			
+			
 			scmComponentsList = getComponentsRtc(stream);
 
 		} else if(projectNature == "git") {
@@ -268,6 +281,22 @@ class GetJobsUtils extends Loggable {
 		return gitGrouopComponentsList;
 	}
 
+	// Analiza un json de conjuntos de cambios para determinar si hay o
+	//	no cambios relevantes
+	private boolean areThereChangesInRTC(def changesets) {
+		boolean ret = false;
+		if (changesets != null) {
+			changesets.each { def changeset ->
+				// Para cada cambio, comprobar si el autor es distinto
+				//	del usuario de RTC de referencia (JENKINS_RTC)
+				if (!changeset.author.userName.equals(userRTC)) {
+					ret = true;
+				}
+			}
+		}
+		return ret;
+	}
+	
 	/**
 	 * Cálculo de la lista de componentes que han cambiado en función
 	 * del parámetro "onlyChanges" para proyectos RTC.
@@ -293,7 +322,7 @@ class GetJobsUtils extends Loggable {
 				else {
 					def retJson = new JsonSlurper().parseText(ret);
 					retJson.direction[0].components.each { component ->
-						if(component.changesets != null || component.added == "true") {
+						if(areThereChangesInRTC(component.changesets) || component.added == "true") {
 							finalComponentsList.add(component.name);
 						}
 					}
@@ -323,7 +352,7 @@ class GetJobsUtils extends Loggable {
 					def retJson = new JsonSlurper().parseText(ret);
 					def chagesFlag = false;
 					retJson.direction[0].components.each { component ->
-						if(component.changesets != null || component.added == "true") {
+						if(areThereChangesInRTC(component.changesets) || component.added == "true") {
 							chagesFlag = true;
 						}
 					}

@@ -53,7 +53,7 @@ def isNull = { String s ->
 	return s == null || s.trim().length() == 0;
 }
 
-if (!isNull(urbanCodeApp) && !isNull(urbanCodeEnv)) {
+if (!isNull(urbanCodeApp)) {
 	// Árbol de construcción
 	BuildTreeHelper helper = new BuildTreeHelper(200);
 	helper.initLogger { println it };
@@ -117,5 +117,4 @@ if (!isNull(urbanCodeApp) && !isNull(urbanCodeEnv)) {
 else {
 	println "No se intenta desplegar la nightly al faltar datos:"
 	println " urbanCodeApp <- $urbanCodeApp"
-	println " urbanCodeEnv <- $urbanCodeEnv"
 }

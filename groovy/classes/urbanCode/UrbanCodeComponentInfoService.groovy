@@ -43,6 +43,7 @@ class UrbanCodeComponentInfoService extends Loggable {
 		String version = "";
 		String packaging = "jar";
 		String classifier = "";
+		String repository = "public";
 		// Recorrer las propiedades del objeto json
 		componentInfo.properties.each { def property ->
 			if (property.name.equals("MavenComponentProperties/artifactId")) {
@@ -62,6 +63,10 @@ class UrbanCodeComponentInfoService extends Loggable {
 					classifier = classifier.replaceFirst('-', '');
 				}
 			}
+			else if (property.name.equals("MavenComponentProperties/repoUrl")) {
+				if (property.value.contains("private"))
+					repository = "private";
+			}
 		}
 		// Recorrer las propiedades de templateSourceProperties, en ocasiones viene informado aquí el packaging
 		componentInfo.templateSourceProperties.each { def property ->
@@ -75,6 +80,7 @@ class UrbanCodeComponentInfoService extends Loggable {
 		MavenCoordinates coords = new MavenCoordinates(groupId, artifactId, version);
 		coords.setPackaging(packaging);
 		coords.setClassifier(classifier);
+		coords.setRepository(repository);
 		
 		return coords; 
 	}

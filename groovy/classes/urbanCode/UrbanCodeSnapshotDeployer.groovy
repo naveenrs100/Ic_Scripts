@@ -62,7 +62,7 @@ class UrbanCodeSnapshotDeployer extends Loggable {
 					coords.setVersion(builtVersion);
 					NexusHelper nexusHelper = new NexusHelper(urlNexus);
 					nexusHelper.initLogger(this);
-					String snapshotVersion = nexusHelper.resolveSnapshot(coords);
+					String snapshotVersion = nexusHelper.resolveSnapshot(coords, coords.getRepository());
 					println "---> Resuelta versión SNAPSHOT: $componentUrbanCode <-- $snapshotVersion";
 					compVersion.put(componentUrbanCode, snapshotVersion);
 				}
@@ -111,6 +111,7 @@ class UrbanCodeSnapshotDeployer extends Loggable {
 					nightlyName,
 					isThereOpenVersion?["ETIQUETA":"-SNAPSHOT"]:[:]);
 			exec.requestApplicationProcess(process)
-		}
+		} else
+			log "### Aviso, no se lanza deploy automatico al no estar informado el entorno en el job de corriente"
 	}
 }

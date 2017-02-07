@@ -22,7 +22,10 @@ jobsJson.each { thisJobList ->
 	def jobsFailed = false;
 	// Poblar una cola
 	java.util.concurrent.ConcurrentLinkedQueue queue = new java.util.concurrent.ConcurrentLinkedQueue();
-	thisJobList.each { queue.add(it) }
+	thisJobList.each {
+		println("Añadiendo a la cola el job \"${it}\"")
+		queue.add(it)
+	}
 	def builds = [:];
 	// Deseamos instanciar maxParallelJobs
 	def consumer = {

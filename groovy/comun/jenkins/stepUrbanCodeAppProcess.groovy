@@ -43,6 +43,11 @@ if ( !isNull(urbanCodeApp) && !isNull(urbanCodeEnv) && !isNull(version) ) {
 	
 	exec.initLogger { println it }
 	
+	// Si la versión es igual a DESARROLLO, búscaremos la última snapshot en urban de desarrollo
+	if ( version == "DESARROLLO") {
+		version = "nightly"
+	}
+	
 	UrbanCodeApplicationProcess process = new UrbanCodeApplicationProcess(
 		urbanCodeApp,
 		Constants.DEPLOY_PROCESS,

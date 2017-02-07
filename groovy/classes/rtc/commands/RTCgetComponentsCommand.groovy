@@ -4,7 +4,6 @@ import es.eci.utils.ParameterValidator
 import es.eci.utils.ScmCommand
 import es.eci.utils.Stopwatch
 import es.eci.utils.TmpDir
-import groovy.json.JsonSlurper
 
 /**
  * Esta clase modela un comando de obtención de componentes tras comparar un
@@ -31,7 +30,7 @@ class RTCgetComponentsCommand extends AbstractRTCCommand {
 
 	//---------------------------------------------------------------
 	// Propiedades de la clase
-
+	
 	// Obligatorios
 	private Boolean onlyChanges = true;
 	private File fileOut;
@@ -39,12 +38,12 @@ class RTCgetComponentsCommand extends AbstractRTCCommand {
 	private String typeOrigin;
 	private String nameOrigin;
 	private String typeTarget;
-
+	
 	//---------------------------------------------------------------
 	// Métodos de la clase
-
+	
 	// Método principal
-	public void execute() {
+	public void execute() { 
 		TmpDir.tmp { File daemonsConfigDir ->
 			// Validación de obligatorios
 			ParameterValidator.builder()
@@ -57,16 +56,16 @@ class RTCgetComponentsCommand extends AbstractRTCCommand {
 					.add("onlyChanges", onlyChanges)
 					.add("fileOut", fileOut)
 					.add("light", light)
-					.build().validate();
-
+						.build().validate();
+			
 			if (onlyChanges == true){
 				// Validar el resto de parámetros, requeridos cuando
 				//	onlyChanges == true
 				ParameterValidator.builder()
-						.add("typeOrigin", typeOrigin)
-						.add("nameOrigin", typeOrigin).build().validate();
+					.add("typeOrigin", typeOrigin)
+					.add("nameOrigin", typeOrigin).build().validate();
 			}
-
+			
 			long millis = Stopwatch.watch {
 				ScmCommand command = null;
 				try {
@@ -74,31 +73,20 @@ class RTCgetComponentsCommand extends AbstractRTCCommand {
 					command.initLogger(this);
 					Boolean error = false;
 					String ret = "";
-					if (onlyChanges == true) {
-						log "Comparando cambios de ${typeOrigin} \"${nameOrigin}\" contra ${typeTarget} \"${nameTarget}\""
-						ret = command.ejecutarComando("compare ${typeOrigin} \"${nameOrigin}\" ${typeTarget} \"${nameTarget}\" -f i -I dcbsw -C \"|{name}|{email}|\" -D \"|yyyy-MM-dd-HH:mm:ss|\" -j ", userRTC, pwdRTC, urlRTC, parentWorkspace)
-
+					if (onlyChanges == true){	
+						log "Comparando cambios de ${typeOrigin} \"${nameOrigin}\" frente a ${typeTarget} \"${nameTarget}\""
+						ret = command.ejecutarComando("compare ${typeOrigin} \"${nameOrigin}\" ${typeTarget} \"${nameTarget}\" -f i -I dcbsw -C \"|{name}|{email}|\" -D \"|yyyy-MM-dd-HH:mm:ss|\" ", userRTC, pwdRTC, urlRTC, parentWorkspace)
 						if (command.getLastErrorOutput().size() > 0){
 							error = true;
 							log "No se puede realizar la comparación contra el WSR: \"${nameOrigin}\". Se procede a listar todos los componentes"
-							ret = this.getComponents(command, nameTarget, true);
+							ret = this.getComponents(command, nameTarget);
 						}
-					} else {
-						ret = this.getComponents(command, nameTarget, true);
+					}else {
+						ret = this.getComponents(command, nameTarget);
 					}
-
-					def retJson = new JsonSlurper().parseText(ret);
-					if(retJson.direction != null) {
-						retJson.direction[0].components.each { component ->
-							if(component.changesets != null || component.added == "true") {
-								fileOut.append(component.name + "\n")
-							}
-						}
-					} else if(retJson.workspaces != null) {
-						retJson.workspaces[0].components.each { component ->
-							fileOut.append(component.name + "\n")
-						}
-					}
+	
+					fileOut.write(this.parseComponents(ret, onlyChanges, error));
+					
 				}
 				catch(Exception e) {
 					e.printStackTrace();
@@ -113,7 +101,7 @@ class RTCgetComponentsCommand extends AbstractRTCCommand {
 			log "getComponents: ${millis} mseg."
 		}
 	}
-
+	
 	private String parseComponents (String comps, Boolean onlyChanges, Boolean error){
 		String[] componentes = comps.tokenize("\r\r\n");
 		String ret = "";
@@ -136,18 +124,13 @@ class RTCgetComponentsCommand extends AbstractRTCCommand {
 		}
 		return ret;
 	}
-
-	private String getComponents (ScmCommand command, String nameTarget, boolean jsonOutput = false){
+	
+	private String getComponents (ScmCommand command, String nameTarget){
 		log "Obteniendo componentes de " + nameTarget
-		def listCommand;
-		if(jsonOutput) {
-			listCommand = "list components \"${nameTarget}\" -j";
-		} else {
-			listCommand = "list components \"${nameTarget}\" ";
-		}
-		return command.ejecutarComando(listCommand, userRTC, pwdRTC, urlRTC, parentWorkspace);
+		return command.ejecutarComando("list components \"${nameTarget}\" ", 
+			userRTC, pwdRTC, urlRTC, parentWorkspace);
 	}
-
+	
 
 	/**
 	 * Informa si se invoca en modo de 'solo cambios'.
@@ -197,5 +180,5 @@ class RTCgetComponentsCommand extends AbstractRTCCommand {
 	public void setNameOrigin(String nameOrigin) {
 		this.nameOrigin = nameOrigin;
 	}
-
+	
 }

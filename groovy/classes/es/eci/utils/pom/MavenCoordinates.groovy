@@ -18,6 +18,7 @@ class MavenCoordinates {
 	// Opcionales
 	private String packaging;
 	private String classifier;
+	private String repository;
 	
 	//-----------------------------------------------
 	// Métodos de la clase
@@ -102,6 +103,20 @@ class MavenCoordinates {
 	public void setClassifier(String classifier) {
 		this.classifier = classifier;
 	}
+	
+	/**
+	 * @return the repository
+	 */
+	public String getRepository() {
+		return repository;
+	}
+
+	/**
+	 * @param repository the repository to set
+	 */
+	public void setRepository(String repository) {
+		this.repository = repository;
+	}
 
 	/**
 	 * @return the groupId
@@ -156,6 +171,7 @@ class MavenCoordinates {
 	}
 	
 	@Override
+	// Aquí no se tiene en cuenta el parámetro repository.
 	public boolean equals(Object o) {
 		if (o.getClass().getName().equals(this.getClass().getName())) {
 			MavenCoordinates o2 = (MavenCoordinates) o;

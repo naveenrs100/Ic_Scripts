@@ -1,15 +1,8 @@
-import java.util.List;
-import components.MavenComponent;
-import es.eci.utils.RTCBuildFileHelper;
-import es.eci.utils.ScmCommand;
-import es.eci.utils.Stopwatch;
-import es.eci.utils.TmpDir;
-import groovy.io.*;
-import groovy.json.*;
-import hudson.model.*;
-import es.eci.utils.pom.SortGroupsStrategy;
-import es.eci.utils.ParamsHelper;
-import es.eci.utils.jenkins.GetJobsUtils;
+import es.eci.utils.jenkins.GetJobsUtils
+import es.eci.utils.jenkins.RTCWorkspaceHelper
+import groovy.io.*
+import groovy.json.*
+import hudson.model.*
 
 def build = Thread.currentThread().executable;
 def resolver = build.buildVariableResolver;
@@ -27,7 +20,7 @@ def action = resolver.resolve("action");
 def onlyChanges = resolver.resolve("onlyChanges");
 def todos_o_ninguno = resolver.resolve("todos_o_ninguno");
 def getOrdered = resolver.resolve("getOrdered");
-def workspaceRTC = resolver.resolve("workspaceRTC");
+def workspaceRTC = RTCWorkspaceHelper.getWorkspaceRTC(action, stream);
 def jenkinsHome	= build.getEnvironment(null).get("JENKINS_HOME");
 def scmToolsHome = build.getEnvironment(null).get("SCMTOOLS_HOME");
 def daemonsConfigDir = build.getEnvironment(null).get("DAEMONS_HOME");
@@ -46,7 +39,7 @@ def privateGitLabToken = build.getEnvironment(null).get("GITLAB_PRIVATE_TOKEN");
 def technology = resolver.resolve("technology");
 def urlGitlab = build.getEnvironment(null).get("GIT_URL");
 def urlNexus = build.getEnvironment(null).get("MAVEN_REPOSITORY");
-def lastUserIC = build.getEnvironment(null).get("lastUserIC");
+def lastUserIC = build.getEnvironment(null).get("userGit");
 def gitCommand = build.getEnvironment(null).get("GIT_SH_COMMAND");
 def mavenHome = build.getEnvironment(null).get("MAVEN_HOME");
 
@@ -76,30 +69,29 @@ gju.initLogger { println it };
 
 /** CÁLCULO DE COMPONENTES INTRODUCIDOS A MANO **/
 List<String> listaComponentesRelease = gju.getComponentsReleaseList();
-println("listaComponentesRelease -> ${listaComponentesRelease}")
+println("\nlistaComponentesRelease -> ${listaComponentesRelease}\n")
 
 /** CÁLCULO DE COMPONENTES TOTALES QUE CUELGAN DEL GRUPO ADECUADO EN EL SCM (stream ó gitGroup) **/
 List<String> scmComponentsList = gju.getScmComponentsList();
-println("scmComponentsList -> ${scmComponentsList}")
+println("\nscmComponentsList -> ${scmComponentsList}\n")
 
 /** CÁLCULO DE COMPONENTES SI HAY CAMBIOS **/
 List<String> finalComponentsList = gju.getFinalComponentList(scmComponentsList,listaComponentesRelease);
-println("finalComponentsList -> ${finalComponentsList}")
+println("\nfinalComponentsList -> ${finalComponentsList}\n")
 
 /** CÁLCULO DEL ORDEN DE LOS COMPONENTES (SI ES NECESARIO) Y DE SUS COMPONENTES ARRASTRADOS POR DEPENDENCIAS **/
 List<List<String>> sortedMavenCompoGroups = gju.getOrderedList(finalComponentsList, scmComponentsList);
-println("sortedMavenCompoGroups -> ${sortedMavenCompoGroups}")
+println("\nsortedMavenCompoGroups -> ${sortedMavenCompoGroups}\n")
 
 /** CÁLCULO DE LA LISTA DE LISTAS DE JOBS SEGÚN EL REQUERIMIENTO DE ORDENACIÓN **/
 List<List<String>> jobs = gju.getJobsList(finalComponentsList, sortedMavenCompoGroups);
-println("jobs -> ${jobs}")
 
 /** CÁLCULO DE LA LISTA DE JOBS SI SE DESEA FORZAR UN LANZAMIENTO SECUENCIAL **/
 if(forzarSecuencial != null && forzarSecuencial.trim().equals("true")) {
-	jobs = gju.getSequentialJobs(jobs);
-	println("Jobs calculados de forma secuencial -> ${jobs}")
+	jobs = gju.getSequentialJobs(jobs);	
 }
 
+println("\njobs -> ${jobs}\n")
 if (jobs!=null) {
 	def params = []
 	

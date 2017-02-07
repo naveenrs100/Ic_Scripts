@@ -21,8 +21,8 @@ import groovy.json.JsonSlurper
  * <b>urlRTC</b> URL de repositorio RTC<br/>
  * <b>workspaceRTC</b> Nombre del workspace de repositorio que se quiere crear<br/>
  * <b>stream</b> Corriente a la que se asocia el workspace de repositorio<br/>
- * <b>component</b> Componente que se debe añadir al wsr.
  * --- OPCIONALES<br/>
+ * <b>component</b> Componente que se debe añadir al wsr.
  * <b>light</b> Indica si se debe usar o no la versión ligera del comando scm.  VALOR POR DEFECTO: true<br/>
  */
 class RTCCreateRepositoryWorkspace extends AbstractRTCCommand {
@@ -84,7 +84,6 @@ class RTCCreateRepositoryWorkspace extends AbstractRTCCommand {
 					.add("urlRTC", urlRTC)
 					.add("workspaceRTC", workspaceRTC)
 					.add("stream", stream)
-					.add("component", component)
 					.add("light", light).build().validate();
 			
 			long millis = Stopwatch.watch {
@@ -111,27 +110,31 @@ class RTCCreateRepositoryWorkspace extends AbstractRTCCommand {
 							RTCUtils.exitOnError(command.getLastResult(), "Creating workspace");
 						}
 						
-						// Ver si tiene el componente
-						boolean existComp = false;
-						// ¿El componente deseado forma parte del WSR?		
-						String jsonComponents = executeScmCommand(command, "list components \"${workspaceRTC}\" -j", dir);
-						RTCUtils.exitOnError(command.getLastResult(), "Listing components");
-						def objComponents = new JsonSlurper().parseText(jsonComponents);
-						objComponents.workspaces[0].components.each { tmp ->
-							if (tmp.name == component) {
-								existComp = true;
+						if (component != null) {
+							
+							// Ver si tiene el componente
+							boolean existComp = false;
+							// ¿El componente deseado forma parte del WSR?		
+							String jsonComponents = executeScmCommand(command, "list components \"${workspaceRTC}\" -j", dir);
+							RTCUtils.exitOnError(command.getLastResult(), "Listing components");
+							def objComponents = new JsonSlurper().parseText(jsonComponents);
+							objComponents.workspaces[0].components.each { tmp ->
+								if (tmp.name == component) {
+									existComp = true;
+								}
+							}		
+							
+							if (!existComp) {
+								// Añadir el componente
+								executeScmCommand(command, "workspace add-components \"${workspaceRTC}\" -s \"$stream\" \"$component\" ", dir);
+								RTCUtils.exitOnError(command.getLastResult(), "Adding component");
 							}
-						}		
+							
+							// Actualizarlo con la corriente
+							executeScmCommand(command, "accept -C \"$component\" --flow-components -o -v --target \"$workspaceRTC\" -s \"${stream}\"", dir);
+							RTCUtils.exitOnError(command.getLastResult(), "accepting changes");
 						
-						if (!existComp) {
-							// Añadir el componente
-							executeScmCommand(command, "workspace add-components \"${workspaceRTC}\" -s \"$stream\" \"$component\" ", dir);
-							RTCUtils.exitOnError(command.getLastResult(), "Adding component");
 						}
-						
-						// Actualizarlo con la corriente
-						executeScmCommand(command, "accept -C \"$component\" --flow-components -o -v --target \"$workspaceRTC\" -s \"${stream}\"", dir);
-						RTCUtils.exitOnError(command.getLastResult(), "accepting changes");
 					}
 					catch(Exception e) {
 						e.printStackTrace();

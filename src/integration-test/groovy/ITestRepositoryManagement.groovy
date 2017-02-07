@@ -92,4 +92,55 @@ class ITestRepositoryManagement extends BaseTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testCreateWSRWithoutComponents() {
+		TmpDir.tmp { File tempDir ->
+			RTCCreateRepositoryWorkspace command = new RTCCreateRepositoryWorkspace();
+			init(command);
+			
+			long timestamp = new Date().getTime();
+			String workspaceName = "TMP - UNITTESTS - testCreateCleanWSR - $timestamp";
+			command.setWorkspaceRTC(workspaceName);
+			
+			// Añadir un componente
+			command.setStream("TESTSTREAM");
+			
+			command.execute();
+			List<String> initialComponents = null;
+				ComponentVersionHelper helper = new ComponentVersionHelper(
+					scmToolsHome);
+			TmpDir.tmp { File helperDir ->
+				initialComponents = helper.
+						getComponents(tempDir, workspaceName, user, password, url);
+			}
+			
+			Assert.assertEquals(0, initialComponents.size());
+			
+			// Ahora se le añade un componente
+			command.setComponent("SimpleComponent2");
+			command.execute();
+			
+			List<String> components = null;
+			TmpDir.tmp { File helperDir ->
+				components = helper.
+						getComponents(tempDir, workspaceName, user, password, url);
+			}
+			
+			try {
+				Assert.assertEquals(1, components.size());
+				Assert.assertTrue(components.contains("SimpleComponent2"));
+			}
+			catch (Exception e) {
+				throw e;
+			}
+			finally {
+				RTCDeleteRepositoryWorkspace delete = new RTCDeleteRepositoryWorkspace();
+				init(delete);
+				delete.setWorkspaceRTC(workspaceName);
+				
+				delete.execute();
+			}
+		}
+	}
 }
