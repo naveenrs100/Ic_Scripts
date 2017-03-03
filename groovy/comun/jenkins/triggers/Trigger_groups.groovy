@@ -18,12 +18,12 @@ def jobsJson = js.parseText(jobs);
 // "job" es un json que define los grupos de jobs que podrán lanzarse en paralelo.
 // En caso de getOrdered = false jobs sólo contendrá una lista con todos los jobs a lanzar en paralelo.
 // En caso de getOrdered = true jobs podrá contener varias listas con los grupos de jobs a lanzar en paralelo.
-jobsJson.each { thisJobList ->
-	def jobsFailed = false;
+def jobsFailed = false;
+jobsJson.each { thisJobList ->	
 	// Poblar una cola
 	java.util.concurrent.ConcurrentLinkedQueue queue = new java.util.concurrent.ConcurrentLinkedQueue();
 	thisJobList.each {
-		println("Añadiendo a la cola el job \"${it}\"")
+		println("Añadiendo a la cola el job \"${it}\".")
 		queue.add(it)
 	}
 	def builds = [:];
@@ -70,12 +70,19 @@ jobsJson.each { thisJobList ->
 		}
 	}
 
-	if(jobsFailed) {
-		build.getState().setResult(FAILURE)
+	if(jobsFailed) {		
 		if(getOrdered == "true") {
-			throw new Exception("Ha habido fallos en jobs.");
+			if(fallar_inmediatamente == null || fallar_inmediatamente == "true") {
+				throw new Exception("Ha habido fallos en jobs.");
+            } else {
+              	build.getState().setResult(SUCCESS)
+            }
 		}
 	}
+}
+
+if(jobsFailed) {
+	build.getState().setResult(FAILURE)		
 }
 
 

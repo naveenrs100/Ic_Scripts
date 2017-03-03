@@ -17,6 +17,10 @@ class UrbanCodeSnapshotDeployer extends Loggable {
 	// URL de Nexus
 	private String urlNexus = null;
 	
+	// Opcionales para conectar a un repositorio privado
+	private String nexus_user = null;
+	private String nexus_pass = null;
+	
 	//---------------------------------------------------------------
 	// Métodos de la clase
 	
@@ -62,6 +66,11 @@ class UrbanCodeSnapshotDeployer extends Loggable {
 					coords.setVersion(builtVersion);
 					NexusHelper nexusHelper = new NexusHelper(urlNexus);
 					nexusHelper.initLogger(this);
+					// Si el repo es privado
+					if ( coords.getRepository() != "public") {
+						nexusHelper.setNexus_user(nexus_user)
+						nexusHelper.setNexus_pass(nexus_pass)
+					}					
 					String snapshotVersion = nexusHelper.resolveSnapshot(coords, coords.getRepository());
 					println "---> Resuelta versión SNAPSHOT: $componentUrbanCode <-- $snapshotVersion";
 					compVersion.put(componentUrbanCode, snapshotVersion);
@@ -113,5 +122,33 @@ class UrbanCodeSnapshotDeployer extends Loggable {
 			exec.requestApplicationProcess(process)
 		} else
 			log "### Aviso, no se lanza deploy automatico al no estar informado el entorno en el job de corriente"
+	}
+			
+	/**
+	 * @return the nexus_user
+	 */
+	public String getNexus_user() {
+		return nexus_user;
+	}
+		
+	/**
+	 * @param nexus_user the nexus_user to set
+	 */
+	public void setNexus_user(String nexus_user) {
+		this.nexus_user = nexus_user;
+	}
+		
+	/**
+	 * @return the nexus_pass
+	 */
+	public String getNexus_pass() {
+		return nexus_pass;
+	}
+	
+	/**
+	 * @param nexus_pass the nexus_pass to set
+	 */
+	public void setNexus_pass(String nexus_pass) {
+		this.nexus_pass = nexus_pass;
 	}
 }

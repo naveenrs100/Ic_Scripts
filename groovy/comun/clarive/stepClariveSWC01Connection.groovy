@@ -1,6 +1,7 @@
 import es.eci.utils.GlobalVars;
 import hudson.model.*;
 import es.eci.utils.clarive.ClariveConnection;
+import es.eci.utils.clarive.ClariveParamsHelper;
 
 // VARS
 
@@ -16,17 +17,9 @@ def ECI_PROXY_URL = build.getEnvironment(null).get("ECI_PROXY_URL");
 def ECI_PROXY_PORT = build.getEnvironment(null).get("ECI_PROXY_PORT");
 def nakedUrl = build.getEnvironment(null).get("CLARIVE_URL");
 def api_key_clarive = resolver.resolve("CLARIVE_API_KEY");
-
-def nombre_producto = resolver.resolve("projectArea");
-def nombre_subproducto = resolver.resolve("subproducto");
-def tipo_corriente = resolver.resolve("tipo_corriente");
 def nombre_componente = resolver.resolve("componentName");
 def componenteUrbanCode = resolver.resolve("componenteUrbanCode");
 def paso = resolver.resolve("tipo_paso");
-def resultado = resolver.resolve("resultado");
-def metrica_PU = resolver.resolve("metrica_PU");
-def metrica_PC = resolver.resolve("metrica_PC");
-def version_maven = resolver.resolve("version_maven");
 def prov_cod_release = resolver.resolve("codigo_release");
 def version = resolver.resolve("builtVersion");
 if(version == null || version.trim().equals("")) {
@@ -42,6 +35,13 @@ def proceso = resolver.resolve("tipo_proceso").toUpperCase();
 if(proceso.equals("ADDHOTFIX")) {
 	proceso = "HOTFIX";
 }
+
+ClariveParamsHelper clHelper = new ClariveParamsHelper(build);
+def nombre_producto = clHelper.getProjectArea();
+def nombre_subproducto = clHelper.getSubproducto();
+def tipo_corriente = clHelper.getTipoCorriente();
+def resultado = clHelper.getResultado();
+def version_maven = clHelper.getVersionMaven(version);
 
 /**
  * Ejecución del servicio SWC01 de Clarive el cual 
@@ -64,7 +64,8 @@ ret = clConn.swc01(
 		proceso,
 		prov_id_proceso,
 		paso,
-		resultado
+		resultado,
+		componenteUrbanCode
 		);
 
 def id_proceso = ret.get("id_proceso");

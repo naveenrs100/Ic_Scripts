@@ -2,6 +2,7 @@ package git.commands
 
 import es.eci.utils.base.Loggable
 import es.eci.utils.commandline.CommandLineHelper
+import es.eci.utils.Retries;
 
 class GitLogCommand extends Loggable{
 
@@ -34,12 +35,21 @@ class GitLogCommand extends Loggable{
 			command = command + " -n ${resultsNumber}";
 		}
 		
-		println "Se lanza el comando:\n ${command}\n sobre el directorio:\n ${this.parentWorkspace}";		
-		CommandLineHelper buildCommandLineHelper = new CommandLineHelper(command);	
+		CommandLineHelper buildCommandLineHelper = new CommandLineHelper(command);
 		buildCommandLineHelper.initLogger(this);
-		buildCommandLineHelper.execute(new File(this.parentWorkspace));
-		def salida = buildCommandLineHelper.getStandardOutput();
-		println salida;
+		
+		def salida;
+		Retries.retry(5,1000,{int i ->
+			log "Intento ${i}."
+			log "Se lanza el comando:\n ${command}\n sobre el directorio:\n ${this.parentWorkspace}";
+			def returnCode = buildCommandLineHelper.execute(new File(this.parentWorkspace));
+			salida = buildCommandLineHelper.getStandardOutput();
+			log salida;
+			if(returnCode != 0) {
+				throw new Exception("Error al ejecutar el comando ${command}. Código -> ${returnCode}");
+			}
+		});
+		
 		return salida;
 	}
 	

@@ -65,7 +65,7 @@ class UrbanCodeComponentInfoService extends Loggable {
 			}
 			else if (property.name.equals("MavenComponentProperties/repoUrl")) {
 				if (property.value.contains("private"))
-					repository = "private";
+					repository = "private-all";
 			}
 		}
 		// Recorrer las propiedades de templateSourceProperties, en ocasiones viene informado aquí el packaging

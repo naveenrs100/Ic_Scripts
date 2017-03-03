@@ -1,22 +1,18 @@
 import java.io.File;
 
 import hudson.model.*;
-
 import urbanCode.*;
-import urbanCode.UrbanCodeSnapshot;
+import es.eci.utils.StringUtil;
 import es.eci.utils.TmpDir;
 import es.eci.utils.ScmCommand;
 import es.eci.utils.CheckSnapshots;
 import es.eci.utils.NexusHelper;
 import es.eci.utils.ZipHelper;
 import es.eci.utils.GlobalVars;
-
 import groovy.json.*;
 import groovy.lang.Closure;
 
 import java.io.File;
-
-
 
 /**
  * Este script se invoca DESDE EL JOB DE LA CORRIENTE para crear la instantánea
@@ -146,7 +142,7 @@ private createCompleteDescriptor(
 							// añadimos al descriptor completo.
 							if (it.getParameterDefinition("componenteUrbanCode") != null) {
 								compoUrbanValue = it.getParameterDefinition("componenteUrbanCode").getDefaultParameterValue().getValue();
-								println("componenteUrbancode del job ${jobName} -> \"${compoUrbanValue}\"");
+								//println("componenteUrbancode del job ${jobName} -> \"${compoUrbanValue}\"");
 								
 								//Comprobamos que existe el parámetro "documentacion".
 								if ((it.getParameterDefinition("documentacion") != null)) {
@@ -157,8 +153,8 @@ private createCompleteDescriptor(
 									println("[WARNING]: El parámetero \"documentacion\" del job ${jobName} es null, por lo " +
 											"que no se genera ficha de despliegue para su documentacion")
 								}																
-							}														
-							println("JobParameters: ${jobParameters}");							
+							}												
+							// println("JobParameters: ${jobParameters}");							
 						}
 					}
 				} else {
@@ -166,8 +162,11 @@ private createCompleteDescriptor(
 				}
 
 				if(jobParameters.contains("componenteUrbanCode")) {
-					println("El componente \"${it.name}\" está dado de alta en UrbanCode con nombre ${compoUrbanValue}. Se añade al json descriptor completo...");
-					components.add(["${compoUrbanValue}": "${it.baselines.name}".replace(']','').replace('[','')])
+					if ( !StringUtil.isNull(compoUrbanValue) ) {
+						println("[INFO]: Se añada a la ficha el componente UrbanCode: ${compoUrbanValue}");
+						components.add(["${compoUrbanValue}": "${it.baselines.name}".replace(']','').replace('[','')])
+					} else
+						println("[WARNING]: El componente \"${it.name}\" tiene el parámetro UrbanCode a vacío o no existe, no irá a la ficha")
 				}
 				
 				if(documentValue != null) {
@@ -198,8 +197,10 @@ private createCompleteDescriptor(
 
 			def jsonComplete = JsonOutput.toJson(["name": "${instantanea}", "application": "${application}" ,
 				"description": "Snapshot Urban Code", "versions" : components])
-
+			
+			println ""
 			println(jsonComplete) // Json de UrbanCode completo
+			println ""
 
 			// Se sube el nuevo descriptor al Nexus.
 			File jsonFile = new File("descriptor.json");

@@ -30,6 +30,7 @@ Map<String, String> params = propertyBuilder.getSystemParameters();
 
 // Cache para presentación posterior del informe
 Map<String, LDAPRecord> ldapCache = [:]
+Map<String, GitlabUser> gitlabCache = [:]
 
 // Conexión a gitlab
 GitlabHelper gitlabHelper = new GitlabHelper(
@@ -63,6 +64,7 @@ long millis = Stopwatch.watch {
 
 	// Comparar las listas
 	gitlabHelper.getAllUsers().each { GitlabUser user ->
+		gitlabCache[user.getUserName()] = user;
 		allUsers << user
 		LDAPRecord record = ldapClient.getByUserName(user.getUserName().toUpperCase());
 		if (record != null) {
@@ -126,7 +128,12 @@ if (noMail.size() > 0) {
 	println "${noMail.size()} usuario(s) de LDAP sin correo"
 	println "======================================================================"
 	noMail.each {
-		println it.getUserId() + " - " + it.getDisplayName();
+		String line = it.getUserId() + " - " + it.getDisplayName();
+		// Correo del usuario en gitlab
+		if (gitlabCache.containsKey(it.getUserId())) {
+			line += (" - " + gitlabCache[it.getUserId()].getEmail())
+		}
+		println line;
 	}
 }
 else {

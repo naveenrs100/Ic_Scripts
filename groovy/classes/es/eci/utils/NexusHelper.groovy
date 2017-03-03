@@ -21,6 +21,10 @@ class NexusHelper extends Loggable {
 	// URL del servidor Nexus
 	private String nexusURL;
 	
+	// Opcionales para conectar a repositorios privados
+	private String nexus_user;
+	private String nexus_pass;
+	
 	//---------------------------------------------------------------------------------
 	// Métodos de la clase
 
@@ -247,6 +251,8 @@ class NexusHelper extends Loggable {
 	 * Resuelve el timestamp exacto de un artefacto Snapshot contra Nexus
 	 * @param coordinates GAV + packaging del artefacto
 	 * @param repo Nombre del repositorio de Nexus
+	 * @param nexus_user Usuario de nexus (se usa normalmente en repositorios privados)
+	 * @param nexus_pass Password de nexus (se usa normalmente en repositorios privados)
 	 * @return Si la versión acaba en -SNAPSHOT, devuelve el timestamp del último
 	 * snapshot de ese grupo y artefacto.  En caso contrario, devuelve la versión.
 	 */
@@ -274,10 +280,23 @@ class NexusHelper extends Loggable {
 			if (classifier != null && classifier.trim().length() > 0) {
 				nexusURL += "&c=${classifier}"
 			}
+			
 			URL resolverService = new URL(nexusURL);
+			URLConnection uc = resolverService.openConnection();
+			
+			// Estamos en repo privado
+			if (repository != "public") {
+				if ( isNull(nexus_user) || isNull(nexus_pass) ) {
+					log "### Aviso, no se están informando las credenciales para conectar a un repositorio privado" 
+				} else {
+					String userPassword = nexus_user + ":" + nexus_pass
+					String encoding = new sun.misc.BASE64Encoder().encode (userPassword.getBytes());
+					uc.setRequestProperty ("Authorization", "Basic " + encoding);
+				}
+			}
+			
 			log "Resolviendo el timestamp contra $resolverService";
-			ReadableByteChannel lectorEci =
-				Channels.newChannel(resolverService.openConnection().getInputStream());
+			ReadableByteChannel lectorEci = Channels.newChannel(uc.getInputStream());
 			ByteBuffer bb = ByteBuffer.allocate(1024);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			boolean keepOn = true;
@@ -339,4 +358,33 @@ class NexusHelper extends Loggable {
 			coordinates.getArtifactId() + fixExtension
 		return target
 	}
+	
+	/**
+	 * @return the nexus_user
+	 */
+	public String getNexus_user() {
+		return nexus_user;
+	}
+
+	/**
+	 * @param nexus_user the nexus_user to set
+	 */
+	public void setNexus_user(String nexus_user) {
+		this.nexus_user = nexus_user;
+	}
+
+	/**
+	 * @return the nexus_pass
+	 */
+	public String getNexus_pass() {
+		return nexus_pass;
+	}
+
+	/**
+	 * @param nexus_pass the nexus_pass to set
+	 */
+	public void setNexus_pass(String nexus_pass) {
+		this.nexus_pass = nexus_pass;
+	}
+
 }

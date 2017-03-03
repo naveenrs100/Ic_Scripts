@@ -23,6 +23,7 @@ def build = Thread.currentThread().executable
 def resolver = build.buildVariableResolver
 
 def version = resolver.resolve("version");
+def builtVersion = resolver.resolve("builtVersion");
 
 if (version == null || version.trim().length() == 0) {
 
@@ -40,7 +41,17 @@ if (version == null || version.trim().length() == 0) {
 	
 	version = utils.getRepositoryLastTag(gitGroup, gitRepository, branch);
 	
-	ParamsHelper.addParams(build, ["version": version]);
+	
+	String[] myArray = new String[1];
+	ParamsHelper.deleteParams(build, ["version"].toArray(myArray));
+	
+	Map<String,String> params = [:];
+	params.put("version", version);
+	if(builtVersion == null || builtVersion.trim().equals("")) {
+		params.put("builtVersion", version);
+	}
+	
+	ParamsHelper.addParams(build, params);
 
 }
 else {

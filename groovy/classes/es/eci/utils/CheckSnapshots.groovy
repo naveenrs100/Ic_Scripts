@@ -141,7 +141,7 @@ public class CheckSnapshots extends Loggable {
 		// Comprobamos si los componentes a generar están dados de alta en UrbanCode.
 		if (componentsUrban != null) {
 			log("componentsUrban = ${componentsUrban}");
-			def urbanSnapshot = urbExe.executeCommand("getComponents --application \"${application}\"");
+			def urbanSnapshot = urbExe.executeCommand("getComponentsInApplication --application \"${application}\"");
 
 			def listaComposUrban = [];
 			urbanSnapshot.each {

@@ -18,7 +18,7 @@ public class RTCUsersReader extends Loggable {
 	 * @return Lista resultante de actualizar los grupos existentes en Sonar con la 
 	 * 	información de RTC.
 	 */
-	public List<SonarGroup> getGroups(File rtcFile, SonarInstancePermissionsInfo sonarInfo) {
+	public List<SonarGroup> getGroups(File rtcFile, SonarPermissionsService sonarInfo) {
 		SonarGroupsMerger merger = new SonarGroupsMerger(sonarInfo);
 		merger.initLogger(this);
 		List<SonarGroup> ret = [];

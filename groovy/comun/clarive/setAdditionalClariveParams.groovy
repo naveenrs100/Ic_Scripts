@@ -58,13 +58,9 @@ if(gitGroup == null || gitGroup.trim().equals("")) {
 		params.put("projectArea","${projectArea}");
 	}
 } else {
-	params.put("subproducto","${gitGroup.trim()}");
-	def gitGroupParts = gitGroup.split("_");
-	if(gitGroupParts.size() <= 2) {
-		params.put("projectArea","${gitGroupParts[0]}");
-	} else {
-		params.put("projectArea", "${gitGroupParts[0]}_${gitGroupParts[1]}");
-	}
+	params.put("subproducto","${gitGroup.trim()}");	
+	params.put("projectArea","${gitGroup.trim()}");
+	
 }
 
 // Calculamos el parámetro "subproducto" a partir del nombre de la "stream".

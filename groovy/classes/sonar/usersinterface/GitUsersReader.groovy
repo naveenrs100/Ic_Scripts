@@ -16,7 +16,7 @@ class GitUsersReader extends Loggable {
 	 * @return Lista resultante de actualizar los grupos existentes en Sonar con la
 	 * 	información de gitlab.
 	 */
-	public List<SonarGroup> getGroups(GitlabClient client, SonarInstancePermissionsInfo sonarInfo) {
+	public List<SonarGroup> mergeGroups(GitlabClient client, SonarPermissionsService sonarInfo) {
 		SonarGroupsMerger merger = new SonarGroupsMerger(sonarInfo);
 		merger.initLogger(this);
 		// Recuperar de git la información de grupos y usuarios
@@ -30,7 +30,11 @@ class GitUsersReader extends Loggable {
 			List<String> users = []
 			usersObject.each { def user -> users << user.username }
 			// Con el nombre de grupo y la lista, mezclarlo sobre sonar
-			ret << merger.merge(group.name, users);
+			// El nombre será el id de grupo en gitlab, y el sufijo ' - gitlab'
+			// De esta forma, el grupo 123 de gitlab se corresponderá con el grupo
+			// de sonar '123 - gitlab - users'
+			ret << merger.merge(group.id.toString() + " - gitlab", 
+				users, "Creado originalmente sobre ${group.name}");
 		}
 		return ret;
 	}

@@ -246,24 +246,30 @@ class GitBuildFileHelper extends Loggable {
 	 */
 	def writeJsonArtifactsMaven(artifactsComp, File home){
 		def file = new File("${home.canonicalPath}/artifacts.json")
+		
 		file.delete()
-		def cont = 0
+		
 		file << "["
+		
+		StringBuilder buffer_components = new StringBuilder()
+		
 		artifactsComp.each { artsComp ->
-			def cont2 = 0
-			def comp = artsComp.key
+			
+			def component = artsComp.key
 			def artifacts = artsComp.value
-			artifacts.each{ artifact ->
-				if (cont > 0 || cont2 > 0 ) {
-					file << ","
+			
+			StringBuilder buffer_artifacts = new StringBuilder()
+			
+			if (artifacts.size() > 0) {
+				artifacts.each{ artifact ->
+					buffer_artifacts.append("{\"version\":\"${artifact.version}\",\"component\":\"${component}\",\"groupId\":\"${artifact.groupId}\",\"artifactId\":\"${artifact.artifactId}\"},")
 				}
-				cont2 = cont2 +1
-				file << "{\"version\":\"${artifact.version}\",\"component\":\"${comp}\",\"groupId\":\"${artifact.groupId}\",\"artifactId\":\"${artifact.artifactId}\"}"
-				/*if (cont < artifactsComp.size() || cont2 != artifacts.size() )
-					file << ","*/
+				buffer_components.append(buffer_artifacts.substring(0, buffer_artifacts.length() - 1))
+				buffer_components.append(",")
 			}
-			cont = cont + 1
 		}
+		
+		file << buffer_components.substring(0, buffer_components.length() - 1)
 		file << "]"
 	}
 
@@ -423,6 +429,7 @@ class GitBuildFileHelper extends Loggable {
 		// Creación del artifacts.json
 		Map<String, List<File>> poms = new HashMap<String, List<File>>();
 		components.each { component->
+			println ("Incluyendo componente: " + component)
 			poms.put(component, getPoms(new File(baseDirectory, component)))
 		}
 		processSnapshotMaven(action, poms, parentWorkspace, baseDirectory)

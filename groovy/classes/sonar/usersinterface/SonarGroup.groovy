@@ -17,6 +17,8 @@ class SonarGroup {
 	private boolean existsInSonar = false;
 	// ¿Modificado?
 	private boolean modified = false;
+	// Descripción del grupo
+	private String description = null;
 	
 	
 	//----------------------------------------------
@@ -105,4 +107,20 @@ class SonarGroup {
 		sb.append("]\n");
 		return sb.toString();
 	}
+
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * @param description the description to set
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	
 }

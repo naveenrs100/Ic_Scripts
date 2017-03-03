@@ -33,6 +33,9 @@ def isNull = { String s ->
 
 // --- Lógica ---
 
+// Para comprobar si es una snapshot o no.
+boolean isThereOpenVersion = false;
+
 if ( !isNull(urbanCodeApp) && !isNull(urbanCodeEnv) && !isNull(version) ) {
 	
 	UrbanCodeExecutor exec = new UrbanCodeExecutor(
@@ -46,6 +49,7 @@ if ( !isNull(urbanCodeApp) && !isNull(urbanCodeEnv) && !isNull(version) ) {
 	// Si la versión es igual a DESARROLLO, búscaremos la última snapshot en urban de desarrollo
 	if ( version == "DESARROLLO") {
 		version = "nightly"
+		isThereOpenVersion = true;
 	}
 	
 	UrbanCodeApplicationProcess process = new UrbanCodeApplicationProcess(
@@ -53,7 +57,8 @@ if ( !isNull(urbanCodeApp) && !isNull(urbanCodeEnv) && !isNull(version) ) {
 		Constants.DEPLOY_PROCESS,
 		urbanCodeEnv,
 		true,
-		version)
+		version,
+		isThereOpenVersion?["ETIQUETA":"-SNAPSHOT"]:[:]);
 	
 	// Lanzar el despliegue
 	try {

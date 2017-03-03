@@ -27,4 +27,8 @@ class StringUtil {
 		}
 		return cadena
 	}
+	
+	def static boolean isNull(String cadena){
+		return cadena == null || cadena.trim().length() == 0;
+	}
 }

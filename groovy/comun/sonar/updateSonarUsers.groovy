@@ -9,7 +9,7 @@ import sonar.SonarCredentials
 import sonar.usersinterface.GitUsersReader
 import sonar.usersinterface.RTCUsersReader
 import sonar.usersinterface.SonarGroup
-import sonar.usersinterface.SonarInstancePermissionsInfo
+import sonar.usersinterface.SonarPermissionsService
 import sonar.usersinterface.SonarPermissionTemplate
 import es.eci.utils.ParameterValidator
 import es.eci.utils.Stopwatch
@@ -50,9 +50,18 @@ import git.GitlabClient
  * Crea plantillas de permisos con los patrones y grupos asociados oportunos.
  * 
  * El rtc.json da la relación en RTC de usuarios con AP/áreas de equipo.
+ * El git.xml contiene una tabla indexada por ID de grupo que relaciona grupos gitlab
+ * y áreas de proyecto.
  * El script debe extraer de gitlab la relación de usuarios con grupos. 
  * 
+ * Los grupos y plantillas finales creados en gitlab tendrán nombres 'poco amigables' en tanto
+ * que estarán definidos con el UUID del AP y el groupId del grupo.  Esto se hace
+ * así para hacerlos inmunes al cambio de nombres de grupos y AP.  La gestión de
+ * estos grupos se automatiza, de forma que los administradores no deben editarlos 
+ * a mano.
  */
+println "================================================="
+println "Inicio de updateSonarUsers..."
 
 // Verificar que tiene el fichero rtc.json y el git.xml
 assert new File("rtc.json").exists()
@@ -97,7 +106,7 @@ try {
 		SonarCredentials creds = new SonarCredentials(sonarUser, sonarPwd);
 		SonarClient client = new SonarClient(creds, sonarURL, sonarKeystore, nexusURL);
 		client.initLogger { println it }
-		SonarInstancePermissionsInfo info = new SonarInstancePermissionsInfo(client);
+		SonarPermissionsService info = new SonarPermissionsService(client);
 		info.initLogger { println it }
 		
 		// Recuperar la información actual de grupos y plantillas en la instancia 
@@ -133,19 +142,19 @@ finally {
 
 // Este método toma la información de usuarios y grupos de gitlab y la actualiza
 //	sobre sonar.
-private void updateGitlabInfo(GitlabClient client, SonarInstancePermissionsInfo info) {
+private void updateGitlabInfo(GitlabClient client, SonarPermissionsService info) {
 	// Recuperar la información tomada de jenkins en el script gitProjectAreaUuidReader.groovy.
 	//	Este script ha dejado en un fichero git.xml la relación entre
 	//	los UUID de áreas de proyecto y los jobs de grupo de git en Jenkins.
 	XMLDecoder d = new XMLDecoder(
 		new BufferedInputStream(
 			new FileInputStream("git.xml")));	
-	Map<String, String> gitGroupsPA = (Map<String, String>) d.readObject();
+	Map<Integer, String> gitGroupsPA = (Map<String, String>) d.readObject();
 	d.close();
 	// Lectura de git
 	GitUsersReader reader = new GitUsersReader();
 	reader.initLogger { println it }
-	List<SonarGroup> mergedGitGroups = reader.getGroups(client, info);
+	List<SonarGroup> mergedGitGroups = reader.mergeGroups(client, info);
 	// Crea los grupos mezclados en Sonar
 	mergedGitGroups.each {  info.saveGroup(it) }
 	// Actualizar las permissionTemplates, para aquellas de las que se dispone de
@@ -157,7 +166,7 @@ private void updateGitlabInfo(GitlabClient client, SonarInstancePermissionsInfo 
 // Este método toma la información del fichero rtc.json para actualizar la
 //	información de grupos, usuarios y plantillas de permisos en Sonar
 private void updateRTCInfo(
-		SonarInstancePermissionsInfo info,
+		SonarPermissionsService info,
 		String rtcUser, 
 		String rtcPwd,
 		String rtcURL) {
@@ -189,7 +198,7 @@ private void updateRTCInfo(
 private savePermissionTemplates(
 		List<SonarGroup> mergedGroups, 
 		Map<String, String> projectAreas, 
-		SonarInstancePermissionsInfo info) {
+		SonarPermissionsService info) {
 	mergedGroups.each { SonarGroup group ->
 		String scmName = group.getName().replaceAll(" - users", "");
 		SonarPermissionTemplate template =
@@ -204,8 +213,11 @@ private savePermissionTemplates(
 						uuid.
 						replaceAll('([|\\\\{}\\(\\)\\[\\]^$+*?.])', "\\\\\$1")
 						+ "\\..*");
-				SonarInstancePermissionsInfo.PERMISSIONS.each { String permissionName ->
-					template.addPermissionGroup(permissionName, group);
+				SonarPermissionsService.PERMISSIONS.keySet().each { String permissionName ->
+					if (SonarPermissionsService.PERMISSIONS[permissionName]) {
+						// Algunos permisos no estarán disponibles para usuarios normales
+						template.addPermissionGroup(permissionName, group);
+					}
 					// Por defecto, sonar-administrators debe tener siempre permisos
 					template.addPermissionGroup(permissionName, 
 						info.group("sonar-administrators"));
@@ -218,3 +230,6 @@ private savePermissionTemplates(
 		}
 	}
 }
+
+println "Fin de updateSonarUsers"
+println "================================================="

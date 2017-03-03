@@ -27,7 +27,7 @@ class ParamsHelper {
 	/**
 	 * Añade un parámetro por su clave a los parámetros actuales del build.
 	 * @param build Objeto build de jenkins
-	 * @param params Lista de parámetros definidos por clave / valor
+	 * @param theParams Tabla de parámetros definidos por clave / valor
 	 */
 	public static void addParams(build, Map<String, String> theParams) {
 		def paramsIn = build?.actions.find{ it instanceof ParametersAction }?.parameters

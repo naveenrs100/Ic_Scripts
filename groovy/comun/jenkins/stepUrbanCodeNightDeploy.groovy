@@ -47,6 +47,9 @@ String pwdUrbanCode = 		resolver.resolve("UDCLIENT_PASS");
 // Aplicación y entorno para Urban Code
 String urbanCodeApp =		build.getEnvironment(null).get("aplicacionUrbanCode");
 String urbanCodeEnv =		build.getEnvironment(null).get("entornoUrbanCode");
+// Credenciales Nexus
+String nexusUser =			resolver.resolve("NEXUS_ADMIN_USER");
+String nexusPass =			resolver.resolve("NEXUS_ADMIN_PASS");
 ///////////////////////////////////////////////////////////////////////////////
 
 def isNull = { String s ->
@@ -100,11 +103,16 @@ if (!isNull(urbanCodeApp)) {
 		exec.initLogger { println it };
 		// Lanzar el despliegue
 		UrbanCodeSnapshotDeployer deploy = new UrbanCodeSnapshotDeployer(exec, urlNexus);
+		
+		// Informamos las credenciales de Nexus por si fueran necesarias para acceder a un repo privado.
+		deploy.setNexus_user(nexusUser);
+		deploy.setNexus_pass(nexusPass);
+		
 		deploy.initLogger { println it };
 		deploy.deploySnapshotVersions(
 			componentsVersions, 
 			urbanCodeApp, 
-			urbanCodeEnv); 
+			urbanCodeEnv);
 		
 	}
 	catch (Exception e) {

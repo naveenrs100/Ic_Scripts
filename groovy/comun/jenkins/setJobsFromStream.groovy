@@ -19,7 +19,6 @@ def streamCargaInicial = resolver.resolve("streamCargaInicial");
 def action = resolver.resolve("action");
 def onlyChanges = resolver.resolve("onlyChanges");
 def todos_o_ninguno = resolver.resolve("todos_o_ninguno");
-def getOrdered = resolver.resolve("getOrdered");
 def workspaceRTC = RTCWorkspaceHelper.getWorkspaceRTC(action, stream);
 def jenkinsHome	= build.getEnvironment(null).get("JENKINS_HOME");
 def scmToolsHome = build.getEnvironment(null).get("SCMTOOLS_HOME");
@@ -29,6 +28,7 @@ def pwdRTC = resolver.resolve("pwdRTC");
 def urlRTC = build.getEnvironment(null).get("urlRTC");
 def parentWorkspace = build.workspace.toString();
 String componentesRelease = resolver.resolve("componentesRelease");
+def getOrdered = (resolver.resolve("getOrdered") != null) && (!resolver.resolve("getOrdered").trim().equals("")) ? resolver.resolve("getOrdered") : "false";
 
 // Parámetros que viene de Git. Ir limp
 def branch = resolver.resolve("originBranch");
@@ -123,6 +123,8 @@ if (jobs!=null) {
 	}
 	def componentsUrban = gju.getComponentsUrban(jobsString);
 	params.add(new StringParameterValue("componentsUrban","${componentsUrban}"));
+	
+	params.add(new StringParameterValue("finalComponentsList", "${finalComponentsList}".substring(1, "${finalComponentsList}".length()-1)));
 
 	gju.setParams(build,params)
 	

@@ -29,7 +29,7 @@ public class ClariveConnection extends Loggable {
 	 */
 	public Map<String,String> swc01(nakedUrl, api_key_clarive, eci_proxy_url, eci_proxy_port, nombre_producto,
 			nombre_subproducto, tipo_corriente, nombre_componente, num_version, version_maven,
-			proceso, id_proceso, paso, resultado) {
+			proceso, id_proceso, paso, resultado, componenteUrbanCode) {
 
 		def url = "${nakedUrl}/rule/json/SWC01?" +
 				"api_key=${api_key_clarive}&" +
@@ -42,6 +42,7 @@ public class ClariveConnection extends Loggable {
 				"proceso=${proceso}&"+
 				"id_proceso=${id_proceso}&"+
 				"paso=${paso}&"+
+				"NombreUrban=${componenteUrbanCode}&"+
 				"resultado_paso=${resultado}";
 
 		def proxy = "${eci_proxy_url}";
@@ -71,12 +72,13 @@ public class ClariveConnection extends Loggable {
 	 * @param nombre_corriente
 	 */
 	public Map<String,String> swc02(nakedUrl, api_key_clarive, eci_proxy_url, eci_proxy_port,
-			proceso, codigo_release, nombre_producto, nombre_subproducto, tipo_corriente) {
+			proceso, codigo_release, codigo_version, nombre_producto, nombre_subproducto, tipo_corriente) {
 
 		def url = "${nakedUrl}/rule/json/SWC02?" +
 				"api_key=${api_key_clarive}&" +
 				"proceso=${proceso}&"+
 				"codigo_release=${codigo_release}&"+
+				"codigo_version=${codigo_version}&"+
 				"producto=${nombre_producto}&"+
 				"subproducto=${nombre_subproducto}&"+
 				"corriente=${tipo_corriente}";

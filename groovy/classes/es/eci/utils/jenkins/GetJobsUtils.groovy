@@ -89,9 +89,11 @@ class GetJobsUtils extends Loggable {
 	 */
 	def getComponentsReleaseList() {
 		log("Calculamos componentes introducidos a mano...")
-		List<String> listaComponentesRelease = null;
+		List<String> listaComponentesRelease = [];
 		if (componentesRelease != null && componentesRelease.trim().length() > 0) {
-			listaComponentesRelease = componentesRelease.split(",");
+			componentesRelease.split(",").each { String compo ->
+				listaComponentesRelease.add(compo.trim());
+			}			
 			log("Componentes introducidos a mano -> ${listaComponentesRelease}")
 		}
 		return listaComponentesRelease;
@@ -191,10 +193,11 @@ class GetJobsUtils extends Loggable {
 			List<String> thisJobList = [];
 			finalComponentsList.each {
 				def nombreJob = "${clean(scmGroup)} -COMP- ${clean(it)}";
-				if (Hudson.instance.getJob(nombreJob) != null) {
+				def job = Hudson.instance.getJob(nombreJob);
+				if (job != null && !job.disabled) {					
 					thisJobList.add(nombreJob);
 				} else {
-					log("WARNING: El job \"${nombreJob}\" no está dado de alta en Jenkins.");
+					log("WARNING: El job \"${nombreJob}\" no está dado de alta en Jenkins o está desactivado.");
 				}
 			}
 			jobs.add(thisJobList);
@@ -203,10 +206,11 @@ class GetJobsUtils extends Loggable {
 				def thisJobList = [];
 				groupList.each { MavenComponent thisMavenComponent ->
 					def nombreJob = "${clean(scmGroup)} -COMP- ${clean(thisMavenComponent.getName())}";
-					if (Hudson.instance.getJob(nombreJob) != null) {
+					def job = Hudson.instance.getJob(nombreJob);
+					if (job != null && !job.disabled) {
 						thisJobList.add(nombreJob);
 					} else {
-						log("WARNING: El job \"${nombreJob}\" no está dado de alta en Jenkins.");
+						log("WARNING: El job \"${nombreJob}\" no está dado de alta en Jenkins o está desactivado.");
 					}
 				}
 				jobs.add(thisJobList);
@@ -322,7 +326,7 @@ class GetJobsUtils extends Loggable {
 				else {
 					def retJson = new JsonSlurper().parseText(ret);
 					retJson.direction[0].components.each { component ->
-						if(areThereChangesInRTC(component.changesets) || component.added == "true") {
+						if(areThereChangesInRTC(component.changesets) || component.added == true) {
 							finalComponentsList.add(component.name);
 						}
 					}
@@ -352,7 +356,7 @@ class GetJobsUtils extends Loggable {
 					def retJson = new JsonSlurper().parseText(ret);
 					def chagesFlag = false;
 					retJson.direction[0].components.each { component ->
-						if(areThereChangesInRTC(component.changesets) || component.added == "true") {
+						if(areThereChangesInRTC(component.changesets) || component.added == true) {
 							chagesFlag = true;
 						}
 					}
@@ -511,8 +515,8 @@ class GetJobsUtils extends Loggable {
 		
 		def componentsToRemove = [];
 
-		// En caso de action = build se comprueba el commitId guardado.
-		if(action.equals("build")) {
+		// En caso de action = build or deploy se comprueba el commitId guardado.
+		if(action.equals("build") || action.equals("deploy")) {
 			def commitsIdArray = commitsId.split(",");
 			componentsArray.each { String component ->
 				def lastCommitId = getLastCommitId(component, branch, gitHost, gitGroup);
@@ -522,10 +526,14 @@ class GetJobsUtils extends Loggable {
 					if(storedCommitId.trim().equals(lastCommitId)) {
 						componentsToRemove.add(component);
 					}
+				} else {
+					// si el lastCommitId es nulo, hubo un problema al consultar el repo
+					// posiblemente no está inicializado.
+					componentsToRemove.add(component);
 				}
 			}			
 		}
-		// si action != build se comprueba el último usuario que ha modificado cada componente en el branch.
+		// si action != build/deploy se comprueba el último usuario que ha modificado cada componente en el branch.
 		else {
 			componentsArray.each { String component ->
 				def lastUser = getLastUser(component, branch, gitHost, gitGroup);				
@@ -533,9 +541,14 @@ class GetJobsUtils extends Loggable {
 					if(lastUser.equals(lastUserIC)) {
 						componentsToRemove.add(component);
 					}
+				} else {
+					// si el lastUser es nulo, hubo un problema al consultar el repo
+					// posiblemente no está inicializado.
+					componentsToRemove.add(component);
 				}
 			}
-		}		
+		}
+		
 		return componentsToRemove;
 	}
 
@@ -629,8 +642,8 @@ class GetJobsUtils extends Loggable {
 				def componentesArrastrados = [];
 				reactor.each { MavenComponent mavenComponent ->
 					finalComponentsList.each { String component ->
-						MavenComponent thisMavenComponent = reactor.find { it.getName().equals(component) };
-						if(MavenComponent.dependsOn(mavenComponent, thisMavenComponent)) {
+						MavenComponent thisMavenComponent = reactor.find { it.getName().equals(component) };						
+						if(MavenComponent.dependsOn(mavenComponent, thisMavenComponent)) {							
 							if(!finalComponentsList.contains(mavenComponent.getName())) {
 								componentesArrastrados.add(mavenComponent);
 							}
@@ -679,19 +692,25 @@ class GetJobsUtils extends Loggable {
 			log("Ordenando los componentes. Esto puede llevar unos minutos...")
 			// Contruimos el createStreamReactor para saber qué componentes dependen de los que han
 			// cambiado para incluirlos también en la lista de cambios.
-			TmpDir.tmp { File tmp ->
+			//TmpDir.tmp { File tmp ->
 				RTCBuildFileHelper helperReactor = new RTCBuildFileHelper(action, new File(build.workspace.toString()));
 				helperReactor.initLogger { println it }
 				// Crea el reactor y el artifacts.json al vuelo. El reactor será una lista de todos los MavenComponents
 				// ya ordenados del proyecto.
 				List <MavenComponent> reactor = helperReactor.createStreamReactor(
-						tmp,
+						new File(parentWorkspace),
 						stream,
 						"maven",
 						userRTC,
 						pwdRTC,
-						urlRTC,
-						componentesRelease);
+						urlRTC
+						);
+					
+				log("#### REACTOR ####")
+				reactor.each {
+					log it.getName()
+				}
+				log("#################")
 
 				def finalMavenComponentList = []; // La "finalComponentsList" pero con MavenComponents en lugar de con Strings.
 				finalComponentsList.each { compo ->
@@ -709,8 +728,8 @@ class GetJobsUtils extends Loggable {
 					def componentesArrastrados = [];
 					reactor.each { MavenComponent mavenComponent ->
 						finalComponentsList.each { String component ->
-							MavenComponent thisMavenComponent = reactor.find { it.getName().equals(component) };
-							if(MavenComponent.dependsOn(mavenComponent, thisMavenComponent)) {
+							MavenComponent thisMavenComponent = reactor.find { it.getName().equals(component) };							
+							if(MavenComponent.dependsOn(mavenComponent, thisMavenComponent)) {								
 								if(!finalComponentsList.contains(mavenComponent.getName())) {
 									componentesArrastrados.add(mavenComponent);
 								}
@@ -739,7 +758,7 @@ class GetJobsUtils extends Loggable {
 				// Obtenemos una lista de listas de MavenComponents con los MavenComponents
 				// agrupados según los que se puedan construir en paralelo.
 				sortedMavenCompoGroups = new SortGroupsStrategy().sortGroups(finalMavenComponentListOrdered);
-			}
+			//}
 		}
 
 		return sortedMavenCompoGroups;
@@ -811,7 +830,7 @@ class GetJobsUtils extends Loggable {
 				}
 			}
 		} else {
-			println("[WARNING] El job ${jobName} no existe en Jenkins");
+			log("[WARNING] El job ${jobName} no existe en Jenkins");
 		}
 
 		return jobParameters;

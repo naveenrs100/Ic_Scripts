@@ -9,16 +9,13 @@ import hudson.model.ParametersAction;
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
 
-/**
- * Este controller ya recibe un "identificador" el cual se utiliza
- * para saber sobre qué esclavo Jenkins y contenedor Docker se va a
- * ejecutar cada job del jobList. 
- */
 String handle = params["identificador"];;
-def slaveJavaHome = build.getEnvironment(null).get("SLAVE_JAVA_HOME")
-println "slaveJavaHome: $slaveJavaHome"
+//def slaveJavaHome = build.getEnvironment().get("SLAVE_JAVA_HOME")
+//println "slaveJavaHome: $slaveJavaHome"
 
-def swarmNode = getNode(handle);
+def swarmNode = getNode(handle,
+	Long.valueOf(build.getEnvironment().get("DOCKER_SLAVE_DETECTION_MSEC")),
+	Integer.valueOf(build.getEnvironment().get("DOCKER_SLAVE_DETECTION_TRIES")));
 if (swarmNode == null) throw new Exception("El esclavo no ha arrancado");
 println "Nodo levantado en contenedor Docker: $swarmNode";
 
@@ -52,20 +49,22 @@ ignore(ABORTED) {
 						def param = it.split("=")[0];
 						def value = it.split("=")[1];
 						println "Asignando param ${param} a value ${value} para el job ${jobx}"
-						jobParams[param] = value.length() > 1 ? injectParam(value) : "";
+						jobParams[param] = value.length() > 0 ? injectParam(value) : "";
 					}
 				}
 			}
-			jobParams.put("JAVA_HOME", slaveJavaHome);
+			//jobParams.put("JAVA_HOME", slaveJavaHome);
 			jobParams.put("WHERE", swarmNode.getNodeName());
+		  
+			  //println("Se esta asignando el JAVA_HOME = [${slaveJavaHome}]");
 
 			println("El estado del flow por ahora es: ok=${ok}");
 			if (ok) {
 				println "********** EJECUTANDO job: \"${jobx}\"";
-				println("Lanzado con valores:");
-				jobParams.keySet().each { key->
-					println("${key} -> " + jobParams.getAt(key));
-				}
+				//println("Lanzado con valores:");
+				//jobParams.keySet().each { key->
+				//	println("${key} -> " + jobParams.getAt(key));
+				//}
 				println "INICIO: ${new Date()} ---";
 				// Si el job no es bloqueante tendrá el parámetro "block" a "false".
 				//En todo caso el resultado será "SUCCESS".
@@ -109,10 +108,9 @@ if(!ok) {
 }
 
 // Función que nos permite referirnos al nodo levantado en el contenedor Docker
-def getNode(String handle) {
+def getNode(String handle, long msecWait, int triesLeft) {
+		long startGetNode = new java.util.Date().getTime();
 	// Se puede sacar a una configuración externa
-	long msecWait = 500;
-	int triesLeft = 10;
 	def lookForNode = { String pattern ->
 		def ret = null;
 		for (slave in hudson.model.Hudson.instance.slaves) {
@@ -133,6 +131,8 @@ def getNode(String handle) {
 			Thread.sleep(msecWait);
 		}
 	}
+		long endGetNode = new java.util.Date().getTime();
+		println "Tiempo empleado en buscar el nodo: " + (endGetNode  - startGetNode ) + " mseg"
 	return ret;
 }
 

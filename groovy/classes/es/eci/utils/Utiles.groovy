@@ -164,6 +164,7 @@ class Utiles {
 		new File(dirDestino).mkdirs()
 		def rutaDestino = dirDestino + System.getProperty("file.separator") + fichero.getName()
 		File destino = new File(rutaDestino)
+		destino.getParentFile().mkdirs()
 		destino.createNewFile()
 		destino.bytes = fichero.bytes
 	}
