@@ -127,8 +127,9 @@ class NpmMavenUploadCommand extends VersionCommand {
 			
 		println "filepath  : ${filepath}"
 
-		NexusHelper nh = new NexusHelper()
-		def returnCode = nh.uploadToNexus(maven, groupId, artifactId, version, filepath, nexusPath, type, this.logger?.logger);
+		def returnCode = NexusHelper.uploadToNexus(
+			maven, groupId, artifactId, version, 
+			filepath, nexusPath, type, this.logger?.logger);
 		
 		if( returnCode != 0) {
 			throw new Exception("Error al ejecutar uploadToNexus . Código -> ${returnCode}");

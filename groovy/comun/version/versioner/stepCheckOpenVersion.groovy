@@ -11,4 +11,4 @@ def parentWorkspace = params["parentWorkspace"];
 
 def componentDir = new File("${parentWorkspace}");
 
-PomXmlOperations.checkOpenVersion(componentDir);
+PomXmlOperations.checkOpenVersion(componentDir, params["nexusUrl"]);

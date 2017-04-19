@@ -198,7 +198,7 @@ class GitBuildFileHelper extends Loggable {
 	 * @param baseDirectory Directorio base del conjunto de poms
 	 */
 	public boolean processSnapshotMaven(String action, 
-			Map<String, List<File>> ficheros, File home, File baseDirectory){
+			Map<String, List<File>> ficheros, File home, File baseDirectory, List<String> finalComponentsList = null){
 		def result = false
 		def err = new StringBuffer()
 		def artifactsComp = getArtifactsMaven(ficheros, baseDirectory)
@@ -234,7 +234,9 @@ class GitBuildFileHelper extends Loggable {
 			}
 		}
 		// escribe artifacts para ser usado por stepFileVersioner.groovy para quitar los snapshots
-		writeJsonArtifactsMaven(artifactsComp,home)
+		VersionUtils vUtils = new VersionUtils();
+		vUtils.writeJsonArtifactsMaven(artifactsComp, home, "artifacts.json", finalComponentsList);
+		vUtils.writeJsonArtifactsMaven(artifactsComp, home, "artifactsAll.json", null);		
 		return result
 	}
 
@@ -299,10 +301,11 @@ class GitBuildFileHelper extends Loggable {
 	 */
 	public List<MavenComponent> createStreamReactor(
 			File baseDirectory,
-			List components) {
+			List components,
+			List<String> finalComponentsList = null) {
 						
 		// Construcción del reactor padre
-		return buildArtifactsFile(components, baseDirectory)
+		return buildArtifactsFile(components, baseDirectory, finalComponentsList)
 	}
 
 	/**
@@ -423,7 +426,7 @@ class GitBuildFileHelper extends Loggable {
 	 * @param components Listado de componentes leído de RTC
 	 * @param baseDirectory Directorio base
 	 */
-	public List<MavenComponent> buildArtifactsFile(List components, File baseDirectory) {
+	public List<MavenComponent> buildArtifactsFile(List components, File baseDirectory, List<String> finalComponentsList = null) {
 		List<MavenComponent> ret = null;
 		createParentReactor(components, baseDirectory)
 		// Creación del artifacts.json
@@ -432,7 +435,7 @@ class GitBuildFileHelper extends Loggable {
 			println ("Incluyendo componente: " + component)
 			poms.put(component, getPoms(new File(baseDirectory, component)))
 		}
-		processSnapshotMaven(action, poms, parentWorkspace, baseDirectory)
+		processSnapshotMaven(action, poms, parentWorkspace, baseDirectory, finalComponentsList)
 		// Redistribuir las dependencias en los pom.xml a partir del fichero artifacts.json
 		// Para ello es necesario convertir las dependencias de cada pom.xml en dependencias
 		//	al artefacto de cabecera de cada componente.
@@ -470,7 +473,7 @@ class GitBuildFileHelper extends Loggable {
 		}
 		log "headerArtifacts <- $headerArtifacts"
 		Map<String, MavenComponent> artifacts = [:]
-		new JsonSlurper().parseText(new File(parentWorkspace, "artifacts.json").text).each { def artifact ->
+		new JsonSlurper().parseText(new File(parentWorkspace, "artifactsAll.json").text).each { def artifact ->
 			MavenComponent comp = null;
 			if (!artifacts.containsKey(artifact.component)) {
 				comp = new MavenComponent(artifact.component);

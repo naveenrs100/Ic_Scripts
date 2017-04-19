@@ -121,7 +121,7 @@ if (jobs!=null) {
 		params.add(new StringParameterValue("artifactsFile", artifacts));
 		params.add(new StringParameterValue("artifactsJson", artifacts));
 	}
-	def componentsUrban = gju.getComponentsUrban(jobsString);
+	def componentsUrban = gju.getComponentsUrban(scmComponentsList);
 	params.add(new StringParameterValue("componentsUrban","${componentsUrban}"));
 	
 	params.add(new StringParameterValue("finalComponentsList", "${finalComponentsList}".substring(1, "${finalComponentsList}".length()-1)));

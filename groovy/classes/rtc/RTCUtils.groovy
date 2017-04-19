@@ -8,7 +8,7 @@ import es.eci.utils.TmpDir
 import es.eci.utils.Utiles
 import es.eci.utils.base.Loggable
 import groovy.json.JsonSlurper
-
+import es.eci.utils.Retries;
 
 /**
  * Esta clase agrupa funciones de utilidad para los scripts de pasos RTC.
@@ -197,8 +197,13 @@ class RTCUtils extends Loggable {
 			String rtcUser, 
 			String rtcPass, 
 			String rtcUrl) {
-		def attributesObject = getProjectAreaImpl(stream, rtcUser, rtcPass, rtcUrl);			
-		return attributesObject.workspaces[0].properties.visibility.info.uuid;
+		def attributesObject;		
+		def ret;	
+		Retries.retry(5,5000,{
+			attributesObject = getProjectAreaImpl(stream, rtcUser, rtcPass, rtcUrl);
+			ret = attributesObject.workspaces[0].properties.visibility.info.uuid;
+		});
+		return ret;
 	}
 
 	// Llamada a get attributes de RTC

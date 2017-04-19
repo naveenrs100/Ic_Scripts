@@ -1,20 +1,20 @@
+import static org.junit.Assert.*;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+
 import org.junit.Test;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
-import javax.xml.xpath.XPathConstants;
+import org.w3c.dom.NodeList;
+
 import es.eci.utils.TmpDir;
+import es.eci.utils.encoding.EncodingUtils;
 import es.eci.utils.pom.ArtifactObject;
 import es.eci.utils.pom.NodeProps
 import es.eci.utils.versioner.XmlUtils;
-import groovy.xml.XmlUtil;
-import static org.junit.Assert.*;
-
-import org.apache.commons.jexl.junit.Asserter;
-
-import es.eci.utils.encoding.EncodingUtils;
+import es.eci.utils.versioner.XmlWriter
 
 class TestXmlUtils {
 
@@ -29,7 +29,7 @@ class TestXmlUtils {
 			def originalEncoding = EncodingUtils.getEncodingName(pomFile);
 
 			Document doc = XmlUtils.parseXml(pomFile);
-			XmlUtils.transformXml(doc, pomFile);
+			XmlWriter.transformXml(doc, pomFile);
 			def finalEncoding = EncodingUtils.getEncodingName(pomFile);
 
 			assertEquals(originalEncoding,finalEncoding);
@@ -166,7 +166,7 @@ class TestXmlUtils {
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath())
 			Document doc = XmlUtils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-EAR/pom.xml"));
 			XmlUtils.setProperty(doc, "plugin_was_version", "CAMBIADA");
-			XmlUtils.transformXml(doc, new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-EAR/pom.xml"));
+			XmlWriter.transformXml(doc, new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-EAR/pom.xml"));
 			
 			doc = XmlUtils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-EAR/pom.xml"));
 			def newProNode = XmlUtils.xpathNode(doc, "/project/properties/plugin_was_version");
@@ -262,7 +262,7 @@ class TestXmlUtils {
 			assertEquals("2.0.0-SNAPSHOT",result.getNode().getTextContent())
 						
 			result.getNode().setTextContent("CAMBIADO");
-			XmlUtils.transformXml(result.getDoc(), result.getPomFile());
+			XmlWriter.transformXml(result.getDoc(), result.getPomFile());
 			println result.getPomFile().getText()
 			Document newDoc = XmlUtils.parseXml(result.getPomFile());
 			Node finalNode = XmlUtils.xpathNode(newDoc, "/project/properties/mas-version-no-entra")

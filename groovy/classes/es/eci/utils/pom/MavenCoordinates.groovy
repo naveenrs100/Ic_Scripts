@@ -18,7 +18,7 @@ class MavenCoordinates {
 	// Opcionales
 	private String packaging;
 	private String classifier;
-	private String repository;
+	private String repository = "public";
 	
 	//-----------------------------------------------
 	// Métodos de la clase

@@ -6,6 +6,8 @@ import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.charset.Charset
 
+import javax.xml.bind.DatatypeConverter
+
 import es.eci.utils.base.Loggable
 import es.eci.utils.commandline.CommandLineHelper
 import es.eci.utils.pom.MavenCoordinates
@@ -16,10 +18,20 @@ import es.eci.utils.pom.MavenCoordinates
 class NexusHelper extends Loggable {
 	
 	//---------------------------------------------------------------------------------
+	// Constantes de la clase
+		
+	// Raíz de la URL en la vista de grupos de Nexus 
+	private static final String CONTENT_GROUPS = "/content/groups"
+	// Raíz de la URL en el servicio de repositorios de Nexus
+	private static final String SERVICE_LOCAL_REPOSITORIES = "/service/local/repositories"
+	// Raíz de la URL en el servicio de repositorios de Nexus
+	private static final String CONTENT_REPOSITORIES = "/content/repositories"
+	
+	//---------------------------------------------------------------------------------
 	// Propiedades de la clase
 	
-	// URL del servidor Nexus
-	private String nexusURL;
+	// URL base del servidor nexus (sin grupos, repo, etc.)
+	private String nexusBaseURL;
 	
 	// Opcionales para conectar a repositorios privados
 	private String nexus_user;
@@ -36,8 +48,8 @@ class NexusHelper extends Loggable {
 	 * @param pathDescargaLibrerias Directorio de descarga
 	 * @param extension Extensión del fichero a descargar
 	 * @param pathNexus URL del repositorio nexus
-	 * @deprecated Usar el método no estático NexusHelper.download
 	 */
+	@Deprecated
 	public static File downloadLibraries(String groupId, String artifactId, String version, String pathDescargaLibrerias, String extension, String pathNexus) {
 		def fixExtension =  (extension.startsWith(".")?extension:("."+extension));
 		def pathNexusFinal = "";
@@ -87,25 +99,7 @@ class NexusHelper extends Loggable {
 			"-Durl=${pathNexus}",
 			"-DrepositoryId=${repo}"
 		]
-//		TmpDir.tmp { tmpDir ->
-//			def deploy = comando.execute(null, tmpDir);
-//			StreamGobbler cout = new StreamGobbler(deploy.getInputStream(), true)
-//			StreamGobbler cerr = new StreamGobbler(deploy.getErrorStream(), true)
-//			cout.start()
-//			cerr.start()
-//
-//			deploy.waitFor()
-//
-//			if (log != null) {
-//				log comando.join(" ")
-//				log cout.getOut()
-//				log cerr.getOut()
-//			}
-//			else {
-//				println cout.getOut()
-//				println cerr.getOut()
-//			}
-//		}
+		
 		def exec_command = comando.join(" ")
 		
 		println "Comando :${exec_command}"
@@ -241,62 +235,63 @@ class NexusHelper extends Loggable {
 	
 	/** 
 	 * Construye una instancia del helper con la URL de nexus apropiada
-	 * @param nexusURL Dirección de Nexus
+	 * @param nexusURL URL base de Nexus o bien del repo public de nexus
 	 */
 	public NexusHelper(String nexusURL) {
-		this.nexusURL = nexusURL;
+		// Trata de deducir la URL base de nexus
+		if (nexusURL.contains(CONTENT_GROUPS)) {
+			this.nexusBaseURL = 
+				nexusURL.substring(0, 
+					nexusURL.indexOf(CONTENT_GROUPS));
+		}
+		else if (nexusURL.contains(CONTENT_REPOSITORIES)) {
+			this.nexusBaseURL = 
+				nexusURL.substring(0, 
+					nexusURL.indexOf(CONTENT_REPOSITORIES));
+		}
+		else if (nexusURL.contains(SERVICE_LOCAL_REPOSITORIES)) {
+			this.nexusBaseURL = 
+				nexusURL.substring(0, 
+					nexusURL.indexOf(SERVICE_LOCAL_REPOSITORIES));
+		}
+		else {
+			this.nexusBaseURL = nexusURL;
+		}
 	}
 	
 	/**
-	 * Resuelve el timestamp exacto de un artefacto Snapshot contra Nexus
+	 * Devuelve la información completa de resolución de unas coordenadas contra Nexus.
 	 * @param coordinates GAV + packaging del artefacto
-	 * @param repo Nombre del repositorio de Nexus
-	 * @param nexus_user Usuario de nexus (se usa normalmente en repositorios privados)
-	 * @param nexus_pass Password de nexus (se usa normalmente en repositorios privados)
-	 * @return Si la versión acaba en -SNAPSHOT, devuelve el timestamp del último
-	 * snapshot de ese grupo y artefacto.  En caso contrario, devuelve la versión.
+	 * @return Información completa devuelta por el servicio de resolución de Nexus
 	 */
-	public String resolveSnapshot(MavenCoordinates coordinates, String repository = "public") {
-		def isNull = { String it ->
-			return it == null || it.trim().length() == 0;
-		}
-		def groupId = coordinates.getGroupId();
-		def artifactId = coordinates.getArtifactId();
-		def version = coordinates.getVersion();
-		def packaging = coordinates.getPackaging();
-		if (isNull(groupId) 
-				|| isNull(artifactId) 
-				|| isNull(version) 
-				|| isNull(packaging) 
-				|| isNull(repository)) {
-			throw new NullPointerException(
-				"Repo -> $repository ;; GAV -> $groupId :: $artifactId :: $version ;; Packaging -> $packaging");
-		}
-		String ret = version;
-		if (version.endsWith("-SNAPSHOT")) {
-			nexusURL += 
+	public String getResolveInformation(MavenCoordinates coordinates) {
+		String content = null;
+		long millis = Stopwatch.watch {
+			def groupId = coordinates.getGroupId();
+			def artifactId = coordinates.getArtifactId();
+			def version = coordinates.getVersion();
+			def packaging = coordinates.getPackaging();
+			def repository = coordinates.getRepository();
+			if (StringUtil.isNull(nexusBaseURL)
+					|| StringUtil.isNull(groupId) 
+					|| StringUtil.isNull(artifactId) 
+					|| StringUtil.isNull(version) 
+					|| StringUtil.isNull(packaging)) {
+				throw new NullPointerException(
+					"""Nexus -> $nexusBaseURL ;; 
+					Repo -> $repository ;; 
+					GAV -> $groupId :: $artifactId :: $version ;; 
+					Packaging -> $packaging""");
+			}
+			String resolverURL = nexusBaseURL + 
 				"/service/local/artifact/maven/resolve?r=${repository}&g=${groupId}&a=${artifactId}&v=${version}&p=${packaging}";
 			String classifier = coordinates.getClassifier(); 
 			if (classifier != null && classifier.trim().length() > 0) {
-				nexusURL += "&c=${classifier}"
+				resolverURL += "&c=${classifier}"
 			}
 			
-			URL resolverService = new URL(nexusURL);
-			URLConnection uc = resolverService.openConnection();
-			
-			// Estamos en repo privado
-			if (repository != "public") {
-				if ( isNull(nexus_user) || isNull(nexus_pass) ) {
-					log "### Aviso, no se están informando las credenciales para conectar a un repositorio privado" 
-				} else {
-					String userPassword = nexus_user + ":" + nexus_pass
-					String encoding = new sun.misc.BASE64Encoder().encode (userPassword.getBytes());
-					uc.setRequestProperty ("Authorization", "Basic " + encoding);
-				}
-			}
-			
-			log "Resolviendo el timestamp contra $resolverService";
-			ReadableByteChannel lectorEci = Channels.newChannel(uc.getInputStream());
+			log "Resolviendo el artefacto contra $resolverURL";
+			ReadableByteChannel lectorEci = getByteChannel(resolverURL, repository);
 			ByteBuffer bb = ByteBuffer.allocate(1024);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			boolean keepOn = true;
@@ -313,14 +308,43 @@ class NexusHelper extends Loggable {
 				}
 			}
 			// Traducir baos a una cadena
-			String content = new String(baos.toByteArray(), Charset.forName("UTF-8"));
-			log content;
+			content = new String(baos.toByteArray(), Charset.forName("UTF-8"));
+		}
+		log "Resolución de artefacto -> $millis mseg."
+		log content;
+		return content;
+	}
+	
+	/**
+	 * Resuelve el timestamp exacto de un artefacto Snapshot contra Nexus.
+	 * @param coordinates Coordenadas maven del artefacto
+	 * @param repository Nombre del repositorio de Nexus
+	 * @return Si la versión acaba en -SNAPSHOT, devuelve el timestamp del último
+	 * snapshot de ese grupo y artefacto.  En caso contrario, devuelve la versión.
+	 */
+	public String resolveSnapshot(MavenCoordinates coordinates) {
+		String ret = coordinates.getVersion();
+		if (coordinates.getVersion().endsWith("-SNAPSHOT")) {
+			String content = getResolveInformation(coordinates);
 			// El contenido se parsea a XML
 			def result = new XmlSlurper().parseText(content);
 			ret = result.data[0].version[0];
-			log "Resultado: $ret"
 		}
 		return ret;
+	}
+	
+	/**
+	 * Resuelve la dirección exacta de descarga de un artefacto contra Nexus.
+	 * @param coordinates Coordenadas maven del artefacto
+	 * @param repository Nombre del repositorio de Nexus
+	 * @return Dirección exacta del artefacto a partir de nexusBaseURL
+	 */
+	public String resolveDownloadLink(MavenCoordinates coordinates) {
+		String content = getResolveInformation(coordinates);
+		// El contenido se parsea a XML
+		def result = new XmlSlurper().parseText(content);
+		String url = result.data[0].repositoryPath[0];
+		return "${nexusBaseURL}/service/local/repositories/${coordinates.repository}/content${url}"
 	}
 	
 	/**
@@ -330,33 +354,45 @@ class NexusHelper extends Loggable {
 	 * @param pathNexus URL del repositorio nexus
 	 */
 	public File download(MavenCoordinates coordinates, File downloadPath) {
-		String extension = "jar"; 
-		// ¿Se indica un empaquetado?
-		if (coordinates.getPackaging() != null && coordinates.getPackaging().trim().length() > 0) {
-			extension = coordinates.getPackaging();
-		}
-		String classifier = "";
-		// ¿Se indica un clasificador?
-		if (coordinates.getClassifier() != null && coordinates.getClassifier().trim().length() > 0) {
-			classifier = coordinates.getClassifier();
-		}
-		String fixExtension = (extension.startsWith(".")?extension:("." + extension));
-		String pathNexusFinal = this.nexusURL + (this.nexusURL.endsWith("/")?"":"/") +
-			coordinates.getGroupId().replaceAll("\\.", "/") + "/" + coordinates.getArtifactId() + "/" +
-			coordinates.getVersion() + "/" + coordinates.getArtifactId() + "-" + coordinates.getVersion() + 
-			classifier + fixExtension;
+		String fixExtension = 
+			(coordinates.getPackaging().startsWith(".")?
+				coordinates.getPackaging():("." + coordinates.getPackaging()));
+		String pathNexusFinal = resolveDownloadLink(coordinates);
 
-		log "Descargando de Nexus: $pathNexusFinal"
-		URL urlNexus = new URL(pathNexusFinal);
-		ReadableByteChannel reader =
-			Channels.newChannel(urlNexus.openConnection().getInputStream());
-		File target = new File(downloadPath, coordinates.getArtifactId() + fixExtension)
-		FileOutputStream fos = new FileOutputStream(target);
-		fos.getChannel().transferFrom(reader, 0, 1 << 24);
-		log "To local file system path: " +
+		File target = null;
+		long millis = Stopwatch.watch {
+			log "Descargando de Nexus: $pathNexusFinal"
+			def repository = coordinates.getRepository();
+			ReadableByteChannel reader = getByteChannel(pathNexusFinal, repository);
+			target = new File(downloadPath, coordinates.getArtifactId() + fixExtension)
+			FileOutputStream fos = new FileOutputStream(target);
+			fos.getChannel().transferFrom(reader, 0, 1 << 24);
+		}
+		log "Descarga de artefacto -> $millis mseg."
+		log "Ruta de la descarga: " +
 			downloadPath.getCanonicalPath() + "/" + 
 			coordinates.getArtifactId() + fixExtension
-		return target
+		return target;
+	}
+	
+	// Obtiene un canal de datos asegurado con usuario y password si
+	//	fuera necesario
+	private ReadableByteChannel getByteChannel(String url, String repository) {
+		URL resolverService = new URL(url);
+		URLConnection uc = resolverService.openConnection();
+		
+		// Estamos en repo privado
+		if (repository != "public") {
+			if ( StringUtil.isNull(nexus_user) || StringUtil.isNull(nexus_pass) ) {
+				log "### Aviso, no se están informando las credenciales para conectar a un repositorio privado" 
+			} 
+			else {
+				String userPassword = nexus_user + ":" + nexus_pass
+				String encoding = DatatypeConverter.printBase64Binary(userPassword.getBytes());
+				uc.setRequestProperty ("Authorization", "Basic " + encoding);
+			}
+		}
+		return Channels.newChannel(uc.getInputStream());
 	}
 	
 	/**

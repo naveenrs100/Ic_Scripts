@@ -1,0 +1,4852 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.7.0" class="java.beans.XMLDecoder">
+ <object class="java.util.HashMap">
+  <void method="put">
+   <string>G.DOC - FECI(RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>G.DOC - FECI - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>G.DOC - FECI - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>G.DOC - FECI - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Personal - Componentes y Servicios (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Personal - Componentes y Servicios - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Personal - Componentes y Servicios - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Personal - Componentes y Servicios - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Personal - Componentes y Servicios - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CC.CC. - Conexflow (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CC.CC - Conexflow r1.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - Conexflow r1.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - Conexflow r2.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - Conexflow r2.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - Conexflow r3.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - Conexflow r3.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - Conexflow r4.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - Conexflow r4.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - Conexflow r5.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - Conexflow r5.0 - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CC.CC. - SCO.NCR.PdS2 (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CC.CC - SCO NCR PdS2 r1.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR Pds2 r1.0 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR PdS2 r1.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR Pds2 r2.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR Pds2 r2.0 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR PdS2 r2.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR Pds2 r3.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR Pds2 r3.0 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR Pds2 r3.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR Pds2 r4.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR Pds2 r4.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR Pds2 r5.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR Pds2 r5.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR Pds2 r6.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - SCO NCR Pds2 r6.0 - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Seguridad - Avisos Seguridad (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Seguridad - Avisos Seguridad - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Seguridad - Avisos Seguridad - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Seguridad - Avisos Seguridad - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Seguridad - Avisos Seguridad - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Compras - Reserva de Libros de Texto (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Compras - Reserva de Libros de Texto (RTC) - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Compras - Reserva de Libros de Texto (RTC) - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Compras - Reserva de Libros de Texto (RTC) - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Compras - Reserva de Libros de Texto (RTC) - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Cop4 - Desarrollo Cop4  (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Cop4 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Cop4 - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Cop4 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Cop4 - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Digital - Clientes (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Digital - API Cliente - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Digital - API Cliente - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Digital - API Cliente - NFT</string>
+    </void>
+    <void method="add">
+     <string>Digital - API Cliente - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Digital - API Cliente - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Digital - CargaSAT - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Digital - CargaSAT - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Digital - Gestion Empleados - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Digital - Gestion Empleados - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Digital - Reproceso CUC - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Digital - Reproceso CUC - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Digital - Sincronizacion CDC - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Digital - Sincronizacion CDC - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Digital - Suita Automatizacion SoapUI - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Digital - Suita Automatizacion SoapUI - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SSN - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SSN - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SSN - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>GIS - Desarrollo Ingenieria del Software</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Componentes SUELTOS</string>
+    </void>
+    <void method="add">
+     <string>GIS - GATLING - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - GATLING - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - MAVEN PLUGINS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - MAVEN PLUGINS - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - PlataformaICDemoC_CCCC - DESARROLLO </string>
+    </void>
+    <void method="add">
+     <string>GIS - PlataformaICDemoC_CCCC - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - PlataformaICDemoC_GD - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - PlataformaICDemoC_GD - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Venta - Cuadre de la Venta (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>449 - Prevencion de blanqueo Capitales - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>449 - Prevencion de blanqueo Capitales - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>449 - Prevencion de blanqueo Capitales - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Venta - Cuadre de la Venta - DES</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>G.DOC - Gestion de Contenidos(RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>G.DOC - Gestion de Contenidos - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>G.DOC - Gestion de Contenidos - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>G.DOC - Gestion de Contenidos - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>C. Internacional - Comercio Internacional. Importacion (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Comercio Internacional - Comercio Internacional - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Comercio Internacional - Comercio Internacional - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Comercio Internacional - Comercio Internacional - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Comercio Internacional - Comercio Internacional - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CESS - SGC (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>RULISTENER-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>RULISTENER-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SGC-DESARROLLO</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CESS - SWS (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>MULTISEGINTERNETWS-DESARROLLO</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Compras - Seguimiento de Proveedores (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Compras - Seguimiento de Proveedores - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Compras - Seguimiento de Proveedores - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Compras - Seguimiento de Proveedores - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Compras - Seguimiento de Proveedores - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Admon.Ventas - Tarjeta ECI (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Admon. Ventas - Administracion de Tarjetas - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Admon. Ventas - AdministraciÃ³n de Tarjetas - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Admon. Ventas - AdministraciÃ³n de Tarjetas - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Admon. Ventas - AdministraciÃ³n de Tarjetas - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Admon. Ventas - Cesion Tarjetas ECI - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Admon. Ventas - Cesion Tarjetas ECI - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Admon. Ventas - Cesion Tarjetas ECI - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Admon. Ventas - Cesion Tarjetas ECI - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Admon. Ventas - Corriente Custodia</string>
+    </void>
+    <void method="add">
+     <string>Admon. Ventas - Nueva Autenticacion FECISA - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Admon. Ventas - Nueva Autenticacion FECISA - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Admon. Ventas - Nueva Autenticacion FECISA - Shared - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Admon. Ventas - Nueva Autenticacion FECISA - Shared - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Vtas. y Marketing - Servicios Integracion de clientes (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Servicios Integracion de clientes - Fusion Clientes - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Servicios Integracion de clientes - Fusion Clientes - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Servicios Integracion de clientes - Fusion Clientes - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Servicios Integracion de clientes - Fusion Clientes - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Servicios Integracion de clientes - Reproceso CUC - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Servicios Integracion de clientes - Reproceso CUC - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Personal - SIE (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>PERSONAL - SIE - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>PERSONAL - SIE - DESARROLLO - OIVDIARIO</string>
+    </void>
+    <void method="add">
+     <string>PERSONAL - SIE - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>PERSONAL - SIE - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>PERSONAL - SIE - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>DVD - HiperCor (RTC)</string>
+   <object class="java.util.LinkedList"/>
+  </void>
+  <void method="put">
+   <string>DVD - Gestor de Catalogos (PIM) - RTC</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>2WP - Integracion Pim3os - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>2WP - Integracion Pim3os - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>2WP - Integracion Pim3os - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>2WP - Integracion Pim3os - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>2WP - MDM for PIM-Java ECI - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>2WP - MDM for PIM-Java ECI - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>2WP - MDM for PIM-Java ECI - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>2WP - MDM for PIM-Java ECI - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>2WP - Plataforma de Traduccion - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>2WP - Plataforma de Traduccion - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>2WP - Plataforma de Traduccion - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>2WP - Plataforma de Traduccion - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>2WP - Repositorio Auditoria - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>2WP - Repositorio Auditoria - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>2WP - Repositorio Auditoria - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>2WP - Repositorio Auditoria - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>2WP - Repositorio Importador - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>2WP - Repositorio Importador - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>2WP - Repositorio Importador - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>2WP - Repositorio Importador - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>2WP - Repositorio Recargas - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>2WP - Repositorio Recargas - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>2WP - Repositorio Recargas - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>2WP - Repositorio Recargas - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>DVD - 26C Adm Control Stock WS8.5 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - 26C Adm Control Stock WS8.5 - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - 26C Adm Control Stock WS8.5 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - 26C Adm Control Stock WS8.5 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>DVD - Data Entry WPC - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Evolutivo 2012 Super - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Gestor de Catalogos (PIM) - ENTORNO DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Gestor de Catalogos (PIM) - ENTORNO INTEGRACION</string>
+    </void>
+    <void method="add">
+     <string>DVD - Gestor de Catalogos (PIM) - ENTORNO PREPRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - Gestor de Catalogos (PIM) - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Gestor de Catalogos (PIM11) MIGRACION</string>
+    </void>
+    <void method="add">
+     <string>DVD - Gestor de Catalogos PIM - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Gestor de Catalogos PIM - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - Gestor de Catalogos PIM - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>DVD - Gestor de Catalogos PIM 11 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Integraciones MDM for PIM y terceros - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - IntegraciÃ³n de Datos TÃ©cnicos - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - MDM for PIM Evolutivo 2012 (SCRUM) - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - MDM for PIM11 - EVOLUTIVO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Mejoras en minisites por marca - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Modernizacion de la Plataforma de Comercio Electronico - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Nuevas jerarquÃ­as de venta para InternacionalizaciÃ³n - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Plataforma de traducciÃ³n ECIStore - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - PR00001646 - UnificaciÃ³n ficheros de propiedades - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - PR00001699 Web Supermercado en Aleman - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - PR00002167 - InternacionalizaciÃ³n MarketPlace Tesco - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - PR00002196 InformaciÃ³nAlimentaria - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - PR00002592 Nueva WEB de Hipercor - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - PR00002694 - EliminaciÃ³n del WorkFlow en la compaÃ±Ã­a DVD - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - PR00002694 - Generar WebService Recarga - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - PR00003274 - AdaptaciÃ³n Plataformarma de Traduccion al Portugues</string>
+    </void>
+    <void method="add">
+     <string>DVD - PR00003274 - Portugal DVD catalogo unico Moda - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - PRXXXXXX Libros de Texto - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Repositorio Catalogos PIM - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Repositorio Catalogos PIM - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - Repositorio Catalogos PIM - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>DVD - Tienda ATG de Bebes - PROYECTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Tienda ATG de Gourmet - PROYECTO</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Feed eCommerce (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Feed - eCommerce - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Feed - eCommerce - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Feed - eCommerce - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CESS - Correspondencia (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>SSB - Correspondencia - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SSB - Correspondencia - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SSB - Correspondencia - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SSB - Correspondencia - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Buscador Corporativo (RTC)</string>
+   <object class="java.util.LinkedList"/>
+  </void>
+  <void method="put">
+   <string>ATG - La Aventura de ser Madre (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>ATG - La Aventura de ser Madre - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>ATG - La Aventura de ser Madre - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>ATG - La Aventura de ser Madre - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>ATG - La Aventura de ser Madre - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>G.DOC - Contabilidad(RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>G.DOC - Contabilidad - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>G.DOC - Contabilidad - PRODUCCION</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>DVD - GPER (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>DVD - GPER - CENTRALIZACION</string>
+    </void>
+    <void method="add">
+     <string>DVD - GPER - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - GPER - INTEGRACION</string>
+    </void>
+    <void method="add">
+     <string>DVD - GPER - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - GPER - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - GPER - PROMOCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - GPER - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>DVD - GPER CentroComercial -  DESARROLLO </string>
+    </void>
+    <void method="add">
+     <string>DVD - GPER CentroComercial - CENTRALIZACION</string>
+    </void>
+    <void method="add">
+     <string>DVD - GPER CentroComercial - INTEGRACION</string>
+    </void>
+    <void method="add">
+     <string>DVD - GPER CentroComercial - MANTENIMIENTO (AE - GPER - Evolucion del Producto)</string>
+    </void>
+    <void method="add">
+     <string>DVD - GPER CentroComercial - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - GPER CentroComercial - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GPER - EvoluciÃ³n del Producto</string>
+    </void>
+    <void method="add">
+     <string>GPER - InterimStream</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Compras - Surtido (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Compras - Surtido - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Compras - Surtido - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Compras - Surtido - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Compras - Surtido - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CC.CC. - Carteleria Tecnica y Etiquetas centralizadas (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas-SSP_109_00V_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas-SSP_109_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas-SSP_110_00V_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas-SSP_110_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas-SSP_111_00V_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas-SSP_111_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas-SSP_115_00V_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas-SSP_115_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas-SSP_116_00V_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas-SSP_116_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas_J-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas_J-MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas_J-PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CCCC-EtiquetasCentralizadas_J-RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>GIS - QUVE (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>GIS - Admin QUVE - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Admin QUVE - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - QUVE - INTEGRACION</string>
+    </void>
+    <void method="add">
+     <string>GIS - QUVE - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - QUVE - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - QUVE - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>G.DOC - Utilidades(RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>GDOC - Utilidades - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GDOC - Utilidades - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GDOC - Utilidades - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Compras - Pedidos (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Compras - Pedidos - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Compras - Pedidos - HOST</string>
+    </void>
+    <void method="add">
+     <string>Compras - Pedidos - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Compras - Pedidos - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Compras - Pedidos - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Compras. Pedidos - Curva Tallas - DESARROLLO</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>LG041-DVD</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>ATG Mantenimiento</string>
+    </void>
+    <void method="add">
+     <string>Buscador Endeca</string>
+    </void>
+    <void method="add">
+     <string>Buscador Solr</string>
+    </void>
+    <void method="add">
+     <string>Corriente ATG</string>
+    </void>
+    <void method="add">
+     <string>Datalayer Portugal</string>
+    </void>
+    <void method="add">
+     <string>ECI-STORE 2013</string>
+    </void>
+    <void method="add">
+     <string>ECI-STORE Coherence Evolutivo</string>
+    </void>
+    <void method="add">
+     <string>ECI-STORE Loyalty</string>
+    </void>
+    <void method="add">
+     <string>ECI-STORE Mejora continua</string>
+    </void>
+    <void method="add">
+     <string>ECI-STORE OCIO</string>
+    </void>
+    <void method="add">
+     <string>ECI-STORE PORTUGAL</string>
+    </void>
+    <void method="add">
+     <string>ECI-STORE-PT Mantenimiento</string>
+    </void>
+    <void method="add">
+     <string>ECI-STORE_2013_MODA</string>
+    </void>
+    <void method="add">
+     <string>ECI-STORE_Click&amp;Collect</string>
+    </void>
+    <void method="add">
+     <string>Promociones por Subtotales</string>
+    </void>
+    <void method="add">
+     <string>Registro - Agenda Recordatorio</string>
+    </void>
+    <void method="add">
+     <string>Tienda Gourmet</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CC.CC. - Tique verde (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CC.CC. - Tique verde - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC. - Tique verde - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC. - Tique verde - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CC.CC. - Tique verde - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CESS - ContrataciÃ³n Blecis (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CESS - ContrataciÃ³n Blecis - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CESS - ContrataciÃ³n Blecis - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CESS - ContrataciÃ³n Blecis - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CESS - ContrataciÃ³n Blecis - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CC.CC. - SSP-Servicios de Tienda (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CCCC-SPP_MOVILIDAD_CARGAINICIAL-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_102_00S_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_102_1S_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_102_2V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_102_2V_PDA-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_103_00V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_103_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_105_00V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_105_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_105_01V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_105_02S_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_106_00V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_106_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_106_00V_PDA-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_106_01S_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_107_00V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_107_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_107_01S_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_107_01S_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_108_00V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_108_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_108_01S_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_108_01S_PC-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_108_01S_PC-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_109_00S_PDA-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_109_00V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_109_00V_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_109_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_109_01S_SB-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_109_01S_SB-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_109_01S_SB_LIBS-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_109_01S_SB_LIBS-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_109_03S_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_110_00S_PDA-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_110_00V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_110_00V_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_110_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_110_01V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_111_00V_C-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_111_00V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_111_00V_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_111_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_111_01V_C-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_111_01V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_111_01V_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_111_01V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_111_02S_C-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_111_02S_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_111_02S_PC-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_111_02S_PC-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_112_00V_C-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_112_00V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_112_00V_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_112_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_113_00V_C-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_113_00V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_113_00V_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_113_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_113_00V_PC-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_113_00V_PC-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_114_00V_C-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_114_00V_C-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_114_00V_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_114_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_115_00V_C-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_115_00V_JW-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_115_00V_JW-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_115_00V_PC-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_AW_S25_1-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_C_HOTFIX-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_C_S25_1-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_C_S25_1-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_J_APLICACIONESWEB-MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_J_APLICACIONESWEB-PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_J_APLICACIONESWEB-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_J_APLICACIONESWEB_CARGAINICIAL-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_J_JAVASERVIDOR-MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_J_JAVASERVIDOR-PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_J_SERVICIOSWAS-MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_J_SERVICIOSWAS-PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_J_SERVICIOSWAS_CARGAINICIAL-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_PC_CARGAINICIAL-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_PC_CARGAINICIAL-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_PC_HOTFIX-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-SSP_PDA_S24_1-RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>GIS - SEGURIDAD (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CKA10100 - Validacion TAM - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CKA10100 - Validacion TAM - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CKA10100 - Validacion TAM - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CKA10200 - Credenciales B2C - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CKA10200 - Credenciales B2C - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CKA10200 - Credenciales B2C - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - CAIM - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - CAIM - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - Gestion Credenciales - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Gestion Credenciales - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Gestion Credenciales - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - Gestion Credenciales - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CC.CC. - Terminal Financiero PdS2 - RTC</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.1 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.1 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.2 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.2 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.3 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.3 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.4 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.4 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.5 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.5 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.6 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.6 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.7 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V05.7 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TF Pds2 V06.00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-TF2_C_V01-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-TF2_C_V01-PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CCCC-TF2_C_V01-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-TF2_C_V02_DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-TF2_C_V02_RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>DVD - InternacionalizaciÃ³n MarketPlaces Externos (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>BACKUP - DVD - Conector Marketplace NETEVEN - BRANCH MULTICANAL</string>
+    </void>
+    <void method="add">
+     <string>BACKUP DE LA VERSION NO MULTICANAL - DVD - Conector Marketplace NETEVEN - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>BACKUP DVD - Conector Marketplace NETEVEN - DESARROLLO Antes de Channel Advisor</string>
+    </void>
+    <void method="add">
+     <string>DVD - Conector Marketplace NETEVEN - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Conector Marketplace NETEVEN - DESARROLLO CHANNELADVISOR</string>
+    </void>
+    <void method="add">
+     <string>DVD - Conector Marketplace NETEVEN - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Conector Marketplace NETEVEN - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - Conector Marketplace NETEVEN - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>DVD - Generica - Q01 (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>DVD - Generica Q01 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Generica Q01 - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Generica Q01 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - Generica Q01 - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Buscador eCommerce (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Buscador eCommerce - Consultas - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Buscador eCommerce - Consultas - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Buscador eCommerce - Consultas - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Buscador eCommerce - Indexacion - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Buscador eCommerce - Indexacion - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Buscador eCommerce - Indexacion - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Endeca - Core - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Endeca - Core - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Endeca - Core - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Endeca - ECISTORE - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Endeca - ECISTORE - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Endeca - ECISTORE - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Endeca - LTCSTORE - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Endeca - LTCSTORE - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Endeca - LTCSTORE - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Endeca - PORTUGALSTORE - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Endeca - PORTUGALSTORE - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Endeca - PORTUGALSTORE - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Indexacion API de estado  - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Indexacion parcial de precios - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Indexacion parcial de stock - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Indexacion REST Service MarketPlace - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Utilidades comunes - DESARROLLO</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>ECI - Sterling Order Management (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>a2IS - INSPIRE - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>a2IS - INSPIRE - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>a2IS - INSPIRE - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>a2IS - INSPIRE - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>a2IS - Sterling - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>a2IS - Sterling - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>a2IS - Sterling - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>a2IS - Sterling - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>DVD - Administrador Multicanal - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Administrador Multicanal - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Administrador Multicanal - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - Administrador Multicanal - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>DVD - Ajustes VPR Proveedor - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Ajustes VPR Proveedor - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Ajustes VPR Proveedor - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - Ajustes VPR Proveedor - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Extension Sterling -  DESARROLLO (AE - PR001689 - Reservas Multicanal - DES)</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Venta - Analitica de Venta (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Venta - Analitica de Venta - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Venta - Analitica de Venta - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Venta - Analitica de Venta - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Venta - Analitica de Venta - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Personal - Prevencion (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Personal - Gestion de Accidentes - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Personal - Gestion de Accidentes - DESARROLLO - TEMP WAS6</string>
+    </void>
+    <void method="add">
+     <string>Personal - Gestion de Accidentes - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Personal - Gestion de Accidentes - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Personal - Gestion de Accidentes - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>G.DOC - Viajes (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>G.DOC - Viajes - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>G.DOC - Viajes - PRODUCCION</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Catalogo - MPL (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Catalogo - MPL - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Catalogo - MPL - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Catalogo - MPL - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Catalogo - MPL - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CC.CC. - PdS Movil (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CCCC-PdsMovil r1.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-PdsMovil r1.0 - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>DVD - Gestion de Pedidos DVD (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>2NB - Integracion ATG - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>2NB - Integracion ATG - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>2NB - Integracion ATG - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>2NB - Integracion ATG - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>BWL - Administrador DVD - DES</string>
+    </void>
+    <void method="add">
+     <string>BWL - Captura Pedidos - DES</string>
+    </void>
+    <void method="add">
+     <string>BWL - Java - Integracion Pedidos - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>BWL - Microsoft Comunes - DES</string>
+    </void>
+    <void method="add">
+     <string>BWL - Microsoft Otros - DES</string>
+    </void>
+    <void method="add">
+     <string>BWL - Microsoft PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - Gestion de Pedidos DVD - DES</string>
+    </void>
+    <void method="add">
+     <string>Mis Pedidos -push to docker- DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Mis Pedidos -push to docker- INTEGRACION</string>
+    </void>
+    <void method="add">
+     <string>Mis Pedidos -push to docker- MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Mis Pedidos -push to docker- PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Mis Pedidos -push to docker- RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>GIS - Cluster Servicios (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>GIS - Administracion de Ventas - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Administracion de Ventas - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Administracion de Ventas - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - Administracion de Ventas - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - Aplicacion Pruebas de Servicios - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Aplicacion Pruebas de Servicios - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - Comunes - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Comunes - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Comunes - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - Comunes - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - DVD - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - DVD - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - DVD - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - DVD - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - Movilidad Notificaciones PUSH - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Promocion y Ventas - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Promocion y Ventas - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Promocion y Ventas - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - Promocion y Ventas - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - Servicio de Impresion - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0001 - Generacion Codigo Pedido - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0001 - Generacion Codigo Pedido - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0001 - Generacion Codigo Pedido - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0001 - Generacion Codigo Pedido - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0002 - Integracion BackOffice Host - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0002 - Integracion BackOffice Host - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0002 - Integracion BackOffice Host - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0002 - Integracion BackOffice Host - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0004 - Consulta Notificaciones - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0004 - Consulta Notificaciones - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0004 - Consulta Notificaciones - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0004 - Consulta Notificaciones - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0005 - Acceso a Crystal Reports - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0005 - Acceso a Crystal Reports - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0005 - Acceso a Crystal Reports - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0006 - Acceso a TAM B2BC - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0006 - Acceso a TAM B2BC - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0006 - Acceso a TAM B2BC - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0006 - Acceso a TAM B2BC - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0006B2E - Acceso a TAM B2E - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0006B2E - Acceso a TAM B2E - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0006B2E - Acceso a TAM B2E - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0006B2E - Acceso a TAM B2E - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0008 - Integracion RU en Venta Corporativa - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0008 - Integracion RU en Venta Corporativa - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0008 - Integracion RU en Venta Corporativa - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0008 - Integracion RU en Venta Corporativa - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0009 - Consulta Unidades Organizativas - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0009 - Consulta Unidades Organizativas - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0009 - Consulta Unidades Organizativas - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0009 - Consulta Unidades Organizativas - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0011 - Totalizador medios de pago - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0011 - Totalizador medios de pago - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0011 - Totalizador medios de pago - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0011 - Totalizador medios de pago - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0012 - Servicio de Impresion - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0012 - Servicio de Impresion - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0012 - Servicio de Impresion - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0012 - Servicio de Impresion - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0013 - Normalizacion Direcciones - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0013 - Normalizacion Direcciones - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0013 - Normalizacion Direcciones - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0013 - Normalizacion Direcciones - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0014 - Generacion y validacion de OTP - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0014 - Generacion y validacion de OTP - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0014 - Generacion y validacion de OTP - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0014 - Generacion y validacion de OTP - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0016 - Nuevo totalizador medios de pago - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0016 - Nuevo totalizador medios de pago - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0016 - Nuevo totalizador medios de pago - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0016 - Nuevo totalizador medios de pago - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0101 - Tarjetas Regalo - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0101 - Tarjetas Regalo - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0101 - Tarjetas Regalo - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0101 - Tarjetas Regalo - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0102 - Validacion Tarjeta ECI y Bancaria - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0102 - Validacion Tarjeta ECI y Bancaria - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0102 - Validacion Tarjeta ECI y Bancaria - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0102 - Validacion Tarjeta ECI y Bancaria - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0103 - Credito ECI - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0103 - Credito ECI - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0103 - Credito ECI - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0103 - Credito ECI - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0104 - EciPayPal - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0104 - EciPayPal - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0104 - EciPayPal - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0104 - EciPayPal - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0105 - Consulta Log PGP - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0105 - Consulta Log PGP - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0105 - Consulta Log PGP - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0105 - Consulta Log PGP - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0106 - Backend TPV Virtual - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0106 - Backend TPV Virtual - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0106 - Backend TPV Virtual - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0106 - Backend TPV Virtual - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0108 - Log PGP - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0108 - Log PGP - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0108 - Log PGP - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0108 - Log PGP - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0109 - Consulta VVP - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0109 - Consulta VVP - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0109 - Consulta VVP - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0109 - Consulta VVP - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0110 - Referencia FPP - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0110 - Referencia FPP - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0110 - Referencia FPP - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0110 - Referencia FPP - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0111 - Consulta Datos Cliente ECI - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0111 - Consulta Datos Cliente ECI - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0111 - Consulta Datos Cliente ECI - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0111 - Consulta Datos Cliente ECI - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0112 - Consulta Entidades Clientes - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0112 - Consulta Entidades Clientes - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0112 - Consulta Entidades Clientes - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0112 - Consulta Entidades Clientes - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0113 - Cartera Digital - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0113 - Cartera Digital - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0113 - Cartera Digital - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0113 - Cartera Digital - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM0114 - TPV Virtual SIS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0114 - TPV Virtual SIS - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM0114 - TPV Virtual SIS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM0114 - TPV Virtual SIS - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM1401 - Disponibilidad VPR - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM1401 - Disponibilidad VPR - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM1401 - Disponibilidad VPR - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM1401 - Disponibilidad VPR - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM2901 - Descuento a colectivos - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM2901 - Descuento a colectivos - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM2901 - Descuento a colectivos - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM2901 - Descuento a colectivos - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM4101 - Generacion Codigo Reserva - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4101 - Generacion Codigo Reserva - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4101 - Generacion Codigo Reserva - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM4101 - Generacion Codigo Reserva - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM4102 - Busqueda Descripciones Envio Correo - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4102 - Busqueda Descripciones Envio Correo - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4102 - Busqueda Descripciones Envio Correo - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM4102 - Busqueda Descripciones Envio Correo - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM4103 - Obtencion Referencia Gastos Envio - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4103 - Obtencion Referencia Gastos Envio - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4103 - Obtencion Referencia Gastos Envio - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM4103 - Obtencion Referencia Gastos Envio - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM4104 - Tratamiento de referencias - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4104 - Tratamiento de referencias - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4104 - Tratamiento de referencias - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM4104 - Tratamiento de referencias - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM4106 - Restricciones Encargos - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4106 - Restricciones Encargos - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4106 - Restricciones Encargos - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM4106 - Restricciones Encargos - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM4107 - Registro Ajustes Foto Inventario - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4107 - Registro Ajustes Foto Inventario - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4107 - Registro Ajustes Foto Inventario - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM4107 - Registro Ajustes Foto Inventario - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM4108 - Fechas de compromiso - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4108 - Fechas de compromiso - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4108 - Fechas de compromiso - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM4108 - Fechas de compromiso - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SKSM4109 - Consulta de Stock - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4109 - Consulta de Stock - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>SKSM4109 - Consulta de Stock - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>SKSM4109 - Consulta de Stock - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Serv. Grales. - Tarjetas de Visita (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Serv. Grales - Tarjetas de Visita - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Serv. Grales - Tarjetas de Visita - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Serv. Grales - Tarjetas de Visita - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Serv. Grales - Tarjetas de Visita - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>DVD - SPCC (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>DVD - SPCC - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - SPCC - EVOLUTIVOS</string>
+    </void>
+    <void method="add">
+     <string>DVD - SPCC - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - SPCC - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CC.CC. - TPV PdS2 - RTC</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CC.CC - Carta de Compra - r22.1 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV PdS2 - v19.0 - DES</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 Cambios Herramientas y Empaquetado - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 CertificaciÃ³n Facturas Portugal - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r22.1 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r22.1 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r22.1 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r23.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r23.0 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r23.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r23.3 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV PdS2 r23.3 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r23.3 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r24.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r24.0 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r24.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r24.1 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r24.1 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r24.1 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r25.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV PdS2 r25.0 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r25.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r26.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV PdS2 r26.0 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r26.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r26.1 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r26.1 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r27.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV PdS2 r27.0 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r27.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r28.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r28.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r28.1 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r28.1 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r29.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r29.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r30.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r30.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r30.1 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r31.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r31.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r32.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r32.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r33.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r33.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV PdS2 r33.1 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r33.1 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r34.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r34.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r34.1 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r34.1 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r35.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r35.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r36.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r36.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r37.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV Pds2 r37.0 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - TPV PdS2 r38.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC. - TPV PdS2 - Desarrollo - RFT</string>
+    </void>
+    <void method="add">
+     <string>CC.CC. - TPV PdS2 - Desarrollo -R2.0 - RFT</string>
+    </void>
+    <void method="add">
+     <string>CC.CC. - TPV PdS2 - Produccion - RFT</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CC.CC. - AllInOne.Expertus (venta de localidades) (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CC.CC - AllinOne r1.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC - AllinOne r1.0 - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Serv. Financieros - Caja y Tarjetas RAP (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Serv Financieros - Tarjeta Promocion - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Serv Financieros - Tarjeta Promocion - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Serv Financieros - Tarjeta Promocion - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Serv Financieros - Tarjeta Promocion - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Vtas. y Marketing - Gestion de Patrocinios y Periodistas (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Vtas. y Marketing - Gestion de Patrocinios y Periodistas - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Vtas. y Marketing - Gestion de Patrocinios y Periodistas - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Vtas. y Marketing - Gestion de Patrocinios y Periodistas - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Vtas. y Marketing - Gestion de Patrocinios y Periodistas - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>DVD - Marketplace ECI (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>DVD - Marketplace - common - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - common - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - common - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - conectorECI - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - conectorECI - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - conectorECI - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - conectorRest - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - conectorRest - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - conectorRest - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - consola - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - consola - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - consola - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - DESARROLLO old no usar</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - MANTENIMIENTO old no usar</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace - RELEASE- old no usar</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace ECI - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace ECI - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Marketplace ECI - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>old - DVD - Marketplace ECI V7 - DES</string>
+    </void>
+    <void method="add">
+     <string>old - DVD - Marketplace ECI V8 - Release</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Compras - CCG (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Compras - CCG - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Compras - CCG - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Compras - CCG - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Compras - CCG - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>ECI - Gestion de la Demanda (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>ECI - Gestion de la Demanda - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>ECI - Gestion de la Demanda - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>ECI - Gestion de la Demanda - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>ECI - Gestion de la Demanda - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CC.CC. - Layer (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CC.CC. Layer v13.0.0 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CC.CC. Layer v14.0.0 - DESARROLLO</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>G.DOC - Seguros(RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>G.DOC - Seguros - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>G.DOC - Seguros - DESARROLLO (ANETO)</string>
+    </void>
+    <void method="add">
+     <string>G.DOC - Seguros - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>G.DOC - Seguros - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>C. Precios - Gestion Centros Oportunidades (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>C. Precios - Gestion Centros Oportunidades - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>C. Precios - Gestion Centros Oportunidades - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>C. Precios - Gestion Centros Oportunidades - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>C. Precios - Gestion Centros Oportunidades - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>G.DOC - Personal - RTC</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>GDOC - Personal - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GDOC - Personal - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GDOC - Personal - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Vtas. y Marketing - Carteleria Promocional (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Vtas. y Marketing - Carteleria Promocional - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Vtas. y Marketing - Carteleria Promocional - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Vtas. y Marketing - Carteleria Promocional - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Vtas. y Marketing - Carteleria Promocional - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Personal - Servicio Medico (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Personal - Recursos Sanitarios - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Personal - Recursos Sanitarios - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Personal - Recursos Sanitarios - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Personal - Recursos Sanitarios - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Personal - Nominas (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Personal - Nominas - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Personal - Nominas - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Personal - Nominas - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Personal - Nominas - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Marketing - Colectivos (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Marketing - Colectivos - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Colectivos - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Colectivos - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Colectivos - Release</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>GIS - Servicios y Estandarizaciones - RTC</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CKA40007 - Utilidades importes - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CKA40007 - Utilidades importes - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CKA40007 - Utilidades importes - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CKA40007 - Utilidades importes - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - BASICOS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - BASICOS - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - BASICOS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - BASICOS - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - CALLEJERO - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - CALLEJERO - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - CALLEJERO - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - COMPONENTES Y SERVICIOS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - COMPONENTES Y SERVICIOS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - COMPONENTES Y SERVICIOS - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - DESCATALOGADOS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - DOCUMENTACION TECNICA</string>
+    </void>
+    <void method="add">
+     <string>GIS - K07 EnvioSMS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - K07 EnvioSMS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - K07 EnvioSMS - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - K12 Consultas BDIC - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - MAVEN PLUGINS OBSOLETA - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - MAVEN PLUGINS OBSOLETA - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - MICROSOFT - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - MICROSOFT - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - NEGOCIO - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - NEGOCIO - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - NEGOCIO - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - OTROS SIN SOFTWARE</string>
+    </void>
+    <void method="add">
+     <string>GIS - PDAs - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - PDAs - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - PDAs - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - PDAs - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - SEGURIDAD - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - SEGURIDAD - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - SEGURIDAD - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - SEGURIDAD - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - SERVICIOS SAP - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - SERVICIOS SAP - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - TECNICOS - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - TECNICOS- VISTA - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - TECNICOS-DATOS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - TECNICOS-DATOS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - TECNICOS-DATOS - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - TECNICOS-DATOS-MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - TECNICOS-INFRAESTRUCTURA - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - TECNICOS-INFRAESTRUCTURA - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - TECNICOS-INFRAESTRUCTURA - PRODUCCION </string>
+    </void>
+    <void method="add">
+     <string>GIS - TECNICOS-INFRAESTRUCTURA - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - TECNICOS-VISTA - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - TECNICOS-VISTA - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - TECNICOS-VISTA - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>K11 - Administrador de tablas maestras - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>K11 - Administrador de tablas maestras - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>K11 - Administrador de tablas maestras - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>K11 - Administrador de tablas maestras - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Admon.Ventas - PGP (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string> AVENTAS - ECIPayPal - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>AVENTAS - ECIPayPal - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>AVENTAS - ECIPayPal - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>AVENTAS - ECIPayPal - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>AVENTAS - PASARELA GLOBAL PAGOS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>AVENTAS - PASARELA GLOBAL PAGOS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>AVENTAS - PASARELA GLOBAL PAGOS - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - PAGOS ECI - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - PAGOS ECI - PRODUCCION  </string>
+    </void>
+    <void method="add">
+     <string>GIS - PAGOS ECI - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - SERVICIOS CLIENTES KS2 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - SERVICIOS CLIENTES KS2 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>PGP - PasarelaGlobalPagos - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>PGP - PasarelaGlobalPagos - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>PGP - PasarelaGlobalPagos - Services - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>PGP - PasarelaGlobalPagos - Services - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Serv. Financieros - Oficina de Servicios (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Serv. Fin. - Oficina Servicios - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Serv. Fin. - Oficina Servicios - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Serv. Fin. - Oficina Servicios - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>SS. FF - Oficina Servicios</string>
+    </void>
+    <void method="add">
+     <string>SS.FF - Oficina Servicios - DESARROLLO</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Marketing - Muebles (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Marketing - Muebles - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Muebles - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Muebles - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Muebles - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>DVD - Integracion automatica omnicanal de pedidos  (IAO) (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>DVD - INTEGRACION FICHEROS EXTERNOS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - INTEGRACION FICHEROS EXTERNOS - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - INTEGRACION FICHEROS EXTERNOS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - INTEGRACION FICHEROS EXTERNOS - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>DVD - MIGRACION DE PEDIDOS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - MIGRACION DE PEDIDOS - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - MIGRACION DE PEDIDOS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - MIGRACION DE PEDIDOS - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>STOCK - Facturacion de Mercancias (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>STOCK - Facturacion de Mercancias - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>STOCK - Facturacion de Mercancias - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>STOCK - Facturacion de Mercancias - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>STOCK - Facturacion de Mercancias - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Intranet - Ecivitas - Portal del empleado (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Ecivitas - Portal del empleado - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Ecivitas - Portal del empleado - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Ecivitas - Portal del empleado - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Ecivitas - Portal del empleado - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Marketing - Gestion Turismo Internacional (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Marketing - Intranet Registro E - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Intranet Registro E - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Intranet Registro E - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Intranet Registro E - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Web Tarjeta Promocion - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Web Tarjeta Promocion - PRE</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Web Tarjeta Promocion - PRODUCCION</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Compras - Portal B2B (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>COMPRAS - B2B - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>COMPRAS - B2B - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>COMPRAS - B2B - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>COMPRAS - B2B - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Admon.Ventas - Facturas IVA (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>FACTURAS IVA - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>FACTURAS IVA - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>FACTURAS IVA - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>FACTURAS IVA - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>GIS - Integracion WMBroker - RTC</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Areas - Interfaces Corporativo  - MEJORAS</string>
+    </void>
+    <void method="add">
+     <string>GIS - 2CO - ExpedicionesPT - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - 6DM - TLOG - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - 6DM - TLOG - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - ARQUITECTURA_IIB - MARTIAN - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - ARQUITECTURA_IIB - MARTIAN - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - ARQUITECTURA_IIB - MARTIAN - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - ARQUITECTURA_WMB_DESARROLLO </string>
+    </void>
+    <void method="add">
+     <string>GIS - ARQUITECTURA_WMB_DESARROLLO - VERSION 8.0</string>
+    </void>
+    <void method="add">
+     <string>GIS - ARQUITECTURA_WMB_MANTENIMIENTO - VERSION 8.0</string>
+    </void>
+    <void method="add">
+     <string>GIS - ARQUITECTURA_WMB_MARTIAN - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - ARQUITECTURA_WMB_MARTIAN - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - ARQUITECTURA_WMB_MARTIAN - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - ARQUITECTURA_WMB_PRODUCCION </string>
+    </void>
+    <void method="add">
+     <string>GIS - ARQUITECTURA_WMB_PRODUCCION - VERSION 8.0</string>
+    </void>
+    <void method="add">
+     <string>GIS - ARQUITECTURA_WMB_RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - ARQUITECTURA_WMB_RELEASE - VERSION 8.0</string>
+    </void>
+    <void method="add">
+     <string>GIS - BodaMas - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - BodaMas - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - BodaMas - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - CEDIAL - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - CEDIAL - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - CEDIAL - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - GlobalBlue - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - GlobalBlue - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - GlobalBlue - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - Interfaces Corporativo WMB - MEJORAS ANALISIS Y DISEÃ‘O</string>
+    </void>
+    <void method="add">
+     <string>GIS - K01 Servicio Envio Correo Corporativo - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - K01 Servicio Envio Correo Corporativo - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - K01 Servicio Envio Correo Corporativo - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CORPORATIVO - V02_11_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KWS - CORPORATIVO - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KWS - CORPORATIVO - DESARROLLO - VERSION 8.0</string>
+    </void>
+    <void method="add">
+     <string>GIS - KWS - CORPORATIVO - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KWS - CORPORATIVO - PRODUCCION - VERSION 8.0</string>
+    </void>
+    <void method="add">
+     <string>GIS - KWS - CORPORATIVO - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KWS - CORPORATIVO - RELEASE - VERSION 8.0</string>
+    </void>
+    <void method="add">
+     <string>GIS - LogEventos 0I0 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - Pim - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Pim - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - QEO - Telecor - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - TOOLS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - TOOLS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - TOOLS - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - WMBBuildDeploy - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - WMBComponentes - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - WMBComponentes - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - WMBComponentes - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - WMBFrameworkBalboo - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - WMBFrameworkBalboo - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - WMBFrameworkBalboo - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - WMBPruebas - PRODUCCION</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>FECI - MiTarjeta (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>FECI - Frontal MiTarjeta - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>FECI - Frontal MiTarjeta - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>FECI - Servicios MiTarjeta - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>FECI - Servicios MiTarjeta - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>FECI - Servicios MiTarjeta - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>FECI - Servicios MiTarjeta - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>FECI - Web Financiera - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>FECI - Web Financiera - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>FECI - Web Financiera - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>FECI - Web Financiera - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>G.DOC - Logistica - RTC</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>G.DOC - Logistica - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>G.DOC - Logistica - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>G.DOC - Logistica - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Digital - Servicios Comunes (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Digital-Documentacion Clientes-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Digital-Documentacion Clientes-MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Digital-Documentacion Clientes-PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Digital-Documentacion Clientes-RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>PLANTILLA ECI SCRUM</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Corriente PLANTILLA ECI SCRUM</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>BI - Compras (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>BI - COMPRAS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>BI - COMPRAS - DESARROLLO - SAS 9.4 GRID</string>
+    </void>
+    <void method="add">
+     <string>BI - COMPRAS - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>BI - COMPRAS - MANTENIMIENTO - SAS 9.4 GRID</string>
+    </void>
+    <void method="add">
+     <string>BI - COMPRAS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>BI - COMPRAS - PRODUCCION - SAS 9.4 GRID</string>
+    </void>
+    <void method="add">
+     <string>BI - COMPRAS - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>DVD - Reservas Multicanalidad (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Desarrollos auxiliares multicanalidad - DES</string>
+    </void>
+    <void method="add">
+     <string>Disponibilidad VPR - DES</string>
+    </void>
+    <void method="add">
+     <string>DVD - DevolucionIcoc - DES</string>
+    </void>
+    <void method="add">
+     <string>DVD - DevolucionIcoc - INT</string>
+    </void>
+    <void method="add">
+     <string>DVD - DevolucionIcoc - PRE</string>
+    </void>
+    <void method="add">
+     <string>DVD - DevolucionIcoc - PRO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Reservas MultiCanal - DES</string>
+    </void>
+    <void method="add">
+     <string>Sterling - CERTIFICACION</string>
+    </void>
+    <void method="add">
+     <string>Sterling - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Sterling - INTEGRACION</string>
+    </void>
+    <void method="add">
+     <string>Sterling - PRODUCCION</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>DVD - Administracion (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>ADM - LINEACREDITO - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>ADM - LINEACREDITO - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>ADM - LINEACREDITO - PRODUCCION</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Clientes MKT - Registro Unico de Clientes (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Clientes MKT - Registro Unico de Clientes - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Clientes MKT - Registro Unico de Clientes - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Clientes MKT - Registro Unico de Clientes - Release</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>ECI - Multicanal (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Automatizacion Multicanal</string>
+    </void>
+    <void method="add">
+     <string>Integracion Multical</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Logistica - VPR (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Logistica - VPR - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - VPR - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - VPR - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Logistica - VPR - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Almacen - Recepcion de Perecederos (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Almacen - Recepcion de Perecederos - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Almacen - Recepcion de Perecederos - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Almacen - Recepcion de Perecederos - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Almacen - Recepcion de Perecederos - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Almacen_ Recepcion_Perecederos_Correctivo</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>ATG - El Sitio de las Compras - RTC</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>(OBSOLETA) ECI-STORE LTC_CC</string>
+    </void>
+    <void method="add">
+     <string>ATG - ECI-STORE - MTO</string>
+    </void>
+    <void method="add">
+     <string>ATG - El Sitio de las Compras - RFT - Produccion</string>
+    </void>
+    <void method="add">
+     <string>Ayuda al Vendedor</string>
+    </void>
+    <void method="add">
+     <string>ECI-STORE Endeca Server</string>
+    </void>
+    <void method="add">
+     <string>ECI-STORE Solr Server</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Venta - Auditoria de Ventas (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Venta - Auditoria de Ventas - DES</string>
+    </void>
+    <void method="add">
+     <string>Ventas - Hard Total - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Ventas - Hard Total - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Ventas - Hard Total - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Ventas - Hard Total - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Gestion Interna - Cobertura tecnica (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Gestion Interna - Cobertura tecnica - Correctivo</string>
+    </void>
+    <void method="add">
+     <string>Gestion Interna - Cobertura tecnica - Desarrollo</string>
+    </void>
+    <void method="add">
+     <string>Gestion Interna - Cobertura tecnica - Produccion</string>
+    </void>
+    <void method="add">
+     <string>Gestion Interna - Cobertura tecnica - Release</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>ATG - Utilidades Comunes (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Coherence</string>
+    </void>
+    <void method="add">
+     <string>Coherence - CSC</string>
+    </void>
+    <void method="add">
+     <string>Coherence - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Coherence - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Coherence - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Coherence Corporativo - Release</string>
+    </void>
+    <void method="add">
+     <string>Coherence Corporativo - Trunk</string>
+    </void>
+    <void method="add">
+     <string>CQQZB2C1 Registro Evolutivo</string>
+    </void>
+    <void method="add">
+     <string>CQQZB2C1_MAIN</string>
+    </void>
+    <void method="add">
+     <string>ECI - Coherence - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>ECI - Coherence - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>ECI - Coherence - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Mantenimiento</string>
+    </void>
+    <void method="add">
+     <string>Registro Unico</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>ATG - Clientes - RTC</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>ATG - Servicios My Account - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>ATG - Servicios My Account - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>REGISTRO Evolutivo</string>
+    </void>
+    <void method="add">
+     <string>REGISTRO_MTO</string>
+    </void>
+    <void method="add">
+     <string>Servicios Mi Tarjeta</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>GIS - FDOS</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>ANALISIS - JAVA - DESA</string>
+    </void>
+    <void method="add">
+     <string>ANALISIS - JAVA - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - FDOS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - FDOS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - FDOS - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - FDOS - RELEASE2</string>
+    </void>
+    <void method="add">
+     <string>GIS - FDOS - TEST</string>
+    </void>
+    <void method="add">
+     <string>GIS - FDOS Taller - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - FDOS Taller - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GISATG - OmniStore - DES</string>
+    </void>
+    <void method="add">
+     <string>GISATG - OmniStore - Release</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>ATG - OMNISTORE - RTC</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>ATG - OmniStore - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore - DESARROLLO-ATG10.2</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore - DESARROLLO_Backup_20170331</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore - DESARROLLO_copia_04/04/2017</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore - MANTENIMIENTO - sp-23 - 20170314</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore - MANTENIMIENTO-ATG10.2</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore - NUEVO BUSCADOR DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore - RELEASE-ATG10.2</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore Archivo</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore Microservicios - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore Microservicios - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore Modulos - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore Modulos - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore Modulos - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore Tests - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore Tests - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>ATG - OmniStore Utilidades - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>ATG ? OmniStore - ScriptPA</string>
+    </void>
+    <void method="add">
+     <string>OLD - ATG -  Omnistore - Prod</string>
+    </void>
+    <void method="add">
+     <string>OLD - ATG - OmniStore - API-REST-MP (OBSOLETA)</string>
+    </void>
+    <void method="add">
+     <string>OLD - ATG - OmniStore - CSC/STERLING</string>
+    </void>
+    <void method="add">
+     <string>OLD - ATG - OmniStore - CSC/STERLING - Release</string>
+    </void>
+    <void method="add">
+     <string>OLD - ATG - OmniStore - DES</string>
+    </void>
+    <void method="add">
+     <string>OLD - ATG - Omnistore - DES (RESPONSIVE)</string>
+    </void>
+    <void method="add">
+     <string>OLD - ATG - OmniStore - DES - Libreta</string>
+    </void>
+    <void method="add">
+     <string>OLD - ATG - OmniStore - Integracion</string>
+    </void>
+    <void method="add">
+     <string>OLD - ATG - Omnistore - MergeOmnistoreMulticanal</string>
+    </void>
+    <void method="add">
+     <string>OLD - ATG - OmniStore - OCIO/MP/API</string>
+    </void>
+    <void method="add">
+     <string>OLD - ATG - OmniStore - Release</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>G.DOC - Organizacion y Metodos (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>GDOC - Organizacion y Metodos - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GDOC - Organizacion y Metodos - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GDOC - Organizacion y Metodos - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>BI - VENTAS Y PROMOCIONES (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>BI - PLANHIFICAWS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>BI - PLANHIFICAWS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>BI - VENTAS Y PROMOCIONES - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>BI - VENTAS Y PROMOCIONES - DESARROLLO - SAS 9.4 GRID</string>
+    </void>
+    <void method="add">
+     <string>BI - VENTAS Y PROMOCIONES - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>BI - VENTAS Y PROMOCIONES - MANTENIMIENTO - SAS 9.4 GRID</string>
+    </void>
+    <void method="add">
+     <string>BI - VENTAS Y PROMOCIONES - MANTENIMIENTO - SAS 9.4 GRID</string>
+    </void>
+    <void method="add">
+     <string>BI - VENTAS Y PROMOCIONES - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>BI - VENTAS Y PROMOCIONES - PRODUCCION - SAS 9.4 GRID</string>
+    </void>
+    <void method="add">
+     <string>BI - VENTAS Y PROMOCIONES - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Moonshine2</string>
+   <object class="java.util.LinkedList"/>
+  </void>
+  <void method="put">
+   <string>Almacen - Agenda y Paneles (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Almacen - Agenda y Paneles - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Almacen - Agenda y Paneles - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Almacen - Agenda y Paneles - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Almacen - Agenda y Paneles - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Personal - Gestion de Personal (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Personal - Gestion de Personas - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Personal - Gestion de Personas - DESARROLLO - HORARIOSOFICINAS</string>
+    </void>
+    <void method="add">
+     <string>Personal - Gestion de Personas - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Personal - Gestion de Personas - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Personal - Gestion de Personas - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>GIS - Servicios e Integraciones WMB (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Areas - Interfaces Multicanal - MEJORAS</string>
+    </void>
+    <void method="add">
+     <string>BORRAR</string>
+    </void>
+    <void method="add">
+     <string>GIS - 2IM - CEDIAL - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - 2IM - CEDIAL - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - 2IM - CEDIAL - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - 2IM - CEDIAL - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - Interfaces MultiCanal WMB - MEJORAS ANALISIS Y DISEÃ‘O</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CORPORATIVO - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CORPORATIVO - IIB - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CORPORATIVO - IIB - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CORPORATIVO - IIB - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CORPORATIVO - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CORPORATIVO - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CORPORATIVO - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V02_10_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V02_10_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V02_10_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V02_11_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V02_11_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V02_11_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V02_18_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V02_18_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V02_18_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V02_20_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V02_20_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V02_20_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V03_06_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V03_06_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V03_06_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V03_07_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V03_07_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V03_07_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER - V04_00_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER RELATIONSHIP - V02_08_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER RELATIONSHIP - V02_08_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER RELATIONSHIP - V02_08_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER RELATIONSHIP - V02_10_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER RELATIONSHIP - V02_10_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER RELATIONSHIP - V02_10_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER RELATIONSHIP - V02_12_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER RELATIONSHIP - V02_12_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER RELATIONSHIP - V02_12_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER RELATIONSHIP - V03_04_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER RELATIONSHIP - V03_04_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - CUSTOMER RELATIONSHIP - V03_04_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_01_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_01_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_01_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_02_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_02_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_02_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_03_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_03_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_03_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_04_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_04_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_04_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_05_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_05_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_05_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_06_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_06_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_06_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_08_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_08_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FINANCE - V03_08_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_00_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_00_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_00_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_01_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_01_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_01_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_03_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_03_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_03_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_04_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_04_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_04_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_05_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_05_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_05_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_06_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_06_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_06_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_07_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_07_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_07_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_08_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_08_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - FULFILLMENT - V03_08_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V02_10_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V02_10_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V02_10_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V02_17_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V02_17_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V02_17_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V02_18_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V02_18_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V02_18_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V03_03_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V03_03_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V03_03_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V03_05_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V03_05_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V03_07_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V03_07_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V03_07_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V04_00_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V04_00_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ITEM - V04_00_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - MULTICANAL - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - MULTICANAL - DESARROLLO - VERSION 8.0</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - MULTICANAL - INTEGRACION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - MULTICANAL - INTEGRACION - VERSION 8.0</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - MULTICANAL - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - MULTICANAL - PRODUCCION - VERSION 8.0</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - MULTICANAL - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - MULTICANAL - RELEASE - VERSION 8.0</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V02_07_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V02_07_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_00_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_00_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_00_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_01_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_01_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_01_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_02_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_02_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_02_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_03_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_03_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_03_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_03_06_05 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_03_06_05 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_03_08_02 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_03_08_02 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_03_08_02 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_04_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_04_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_04_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_05_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_05_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_05_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_05_00_01 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_05_00_01 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_05_00_01 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_06_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_06_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_06_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_07_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_07_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_07_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_08_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_08_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - ORDER - V03_08_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V02_10_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V02_10_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V02_10_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V02_16_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V02_16_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V02_16_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V02_17_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V02_17_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V02_17_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V03_04_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V03_04_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V03_04_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V03_06_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V03_06_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V03_06_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V03_08_00_00 - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V03_08_00_00 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - UTILS - V03_08_00_00 - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - WMS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - WMS - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - WMS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - KSM - WMS - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - WMB Sistema de Construccion Automatizado - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - WMB Sistema de Construccion Automatizado - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS_PRUEBA_V1</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>API_Super (RTC)</string>
+   <object class="java.util.LinkedList"/>
+  </void>
+  <void method="put">
+   <string>CESS - SNS (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>DIRECTOR-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DIRECTOR-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>RU-CESS-CONVERTER-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>RU-CESS-CONVERTER-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>RUCLIENT-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>RUCLIENT-DESARROLLO-1.1.0.0</string>
+    </void>
+    <void method="add">
+     <string>RUCLIENT-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>TSMANAGER-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>TSMANAGER-RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>DVD - Comercio Electronico Internacional (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>DVD - Comercio Electronico Internacional RTC - BRANCH MERGE</string>
+    </void>
+    <void method="add">
+     <string>DVD - Comercio Electronico Internacional RTC - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Comercio Electronico Internacional RTC - DESARROLLO - Ev. Quitar Zip Imagenes</string>
+    </void>
+    <void method="add">
+     <string>DVD - Comercio Electronico Internacional RTC - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DVD - Comercio Electronico Internacional RTC - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DVD - Comercio Electronico Internacional RTC - Pruebas de reemplazar codigo</string>
+    </void>
+    <void method="add">
+     <string>DVD - Comercio Electronico Internacional RTC - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>CC.CC. - Affluence (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CCCC-AFFLUENCE_C_CARGAINICIAL-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-AFFLUENCE_C_CARGAINICIAL-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-AFFLUENCE_WEB_CARGAINICIAL-DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCCC-AFFLUENCE_WEB_CARGAINICIAL-RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCCC-AFLUENCE_DISTRIBUIDO_DESARROLLO</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>ATG - Tarjetas Regalo (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>ATG - Tarjetas Regalo - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>ATG - Tarjetas Regalo - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>ATG - Tarjetas Regalo - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>ATG - Tarjetas Regalo - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Marketing - Calendario de aperturas (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Marketing - Calendario de aperturas - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Calendario de aperturas - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Calendario de aperturas - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Calendario de aperturas - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Contabilidad - Liquidacion Gastos de Viajes y Kilometrajes (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Contabilidad - Liquidacion Gastos  - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Contabilidad - Liquidacion Gastos  - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Contabilidad - Liquidacion Gastos  - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Contabilidad - Liquidacion Gastos  - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Venta - Servicio de Asistencia Tecnica (SAT) (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Venta - Servicio de Asistencia Tecnica - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Venta - Servicio de Asistencia Tecnica - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Venta - Servicio de Asistencia Tecnica - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Venta - Servicio de Asistencia Tecnica - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Compras - SUMISURA (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Compras - Automatizacion Su misura - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Compras - Automatizacion Su misura - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Compras - Automatizacion Su misura - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Compras - Automatizacion Su misura - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>DIGITAL- MyAccount (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>DIGITAL - Servicios MyAccount - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>DIGITAL - Servicios MyAccount - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>DIGITAL - Servicios MyAccount - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>DIGITAL - Servicios MyAccount - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>GIS - Desarrollo Centro de Calculo (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>CCALCULO - 012 GESTION DE LA CONFIGURACION - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 012 GESTION DE LA CONFIGURACION - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 012 GESTION DE LA CONFIGURACION - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0G2 GESTION IMPLANTACIONES - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0G2 GESTION IMPLANTACIONES - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0G2 GESTION IMPLANTACIONES - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0G2 GESTION IMPLANTACIONES - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0VC CERBERO - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0VC CERBERO - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0VC CERBERO - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0VD SAMA - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0VD SAMA - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0VD SAMA - PRUEBAS</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0VD SAMA - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0VJ PDATJCL - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0VJ PDATJCL - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0X1 CONTRATOS - PRODUCCION (OBSOLETO)</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0X4 ADMINISTRACION - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0X4 ADMINISTRACION - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0X4 ADMINISTRACION - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0X4 ADMINISTRACION - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - 0X4 SEGURIDAD DB2 - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - CARGA - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - D12 Setiweb - PRODUCCION </string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - OV7 PRETIQUE - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - OV7 PRETIQUE - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - OV7 PRETIQUE - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>CCALCULO - OV7 PRETIQUE - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Vtas. y Marketing - Control Medios (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Vtas. y Marketing - Control Medios - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Vtas. y Marketing - Control Medios - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Vtas. y Marketing - Control Medios - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Vtas. y Marketing - Control Medios - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>GIS - Plataforma de Desarrollo y Calidad (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>GIS - Checking - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Checking - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - Librerias - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Librerias - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - MovilidadMacMini - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - PlataformaIC - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - PlataformaIC - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>GIS - PlataformaIC - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - PlataformaIC - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>GIS - Soporte Herramientas - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Soporte Herramientas - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>GIS - Suita - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Suita - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Layer Java - DESARROLLO</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Digital - Area Programa Cliente (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Digital - Frontal Muy - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Digital - Frontal Muy - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Digital - Servicios Muy - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Digital - Servicios Muy - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Digital - Servicios Muy - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Digital - Servicios Muy - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Digital - Servicios Programa Cliente - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Digital - Servicios Programa Cliente - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Digital - Servicios Programa Cliente - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Digital - Servicios Programa Cliente - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>ENROLMENTMARCAS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>ENROLMENTMARCAS - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>ENROLMENTMARCAS - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>ENROLMENTMARCAS - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Marketing - Sistema Promocional Corporativo (SPC) (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Marketing - Gestion Promociones - GESTION DE PROMOCIONES - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - GESTION DE PROMOCIONES - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - MONITOR PROMOCIONAL - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - MONITOR PROMOCIONAL - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - MOTOR PROMOCIONAL - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - MOTOR PROMOCIONAL - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - MULTINAVEGADOR</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - SERVICIOS - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - SERVICIOS - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - SGP - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - SGP - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - SGP - TEMPORAL</string>
+    </void>
+    <void method="add">
+     <string>Marketing - Gestion Promociones - Subsistema_XXX</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>GIS - OdC</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>GIS - ODC - DESARROLLO</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>G.DOC - RECYFD(RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>G.DOC - RECYFD - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>G.DOC - RECYFD - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>G.DOC - RECYFD - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Logistica - Venta en Proceso (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Logistica - Venta en Proceso - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Venta en Proceso - DESARROLLO ITEXT</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Venta en Proceso - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Venta en Proceso - MPC - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Venta en Proceso - MPC - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Venta en Proceso - MPC - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Venta en Proceso - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Venta en Proceso - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Venta en Proceso - ReplicaciÃ³n MongoDB - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Venta en Proceso PDA - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Venta en Proceso PDA - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Venta en Proceso PDA - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Venta en Proceso PDA - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Vta. Proceso - Servicios Gestion Agencias - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Vta. Proceso - Servicios Impresion - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Vta. Proceso - Servicios Impresion - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Vta. Proceso - Servicios Impresion - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Vta. Proceso - Servicios Impresion - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Vta. Proceso - Servicios Telecumplimentacion - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Vta. Proceso - Servicios Telecumplimentacion - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Vta. Proceso - Servicios Telecumplimentacion - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Vta. Proceso - Servicios Telecumplimentacion - RELEASE</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Vta. Proceso - Servicios VEP - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Vta. Proceso - Servicios VEP - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Vta. Proceso - Servicios VEP - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Logistica - Vta. Proceso - Servicios VEP - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>Venta - Cobro de Servicios (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>Venta - Cobro de Servicios - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>Venta - Cobro de Servicios - MANTENIMIENTO</string>
+    </void>
+    <void method="add">
+     <string>Venta - Cobro de Servicios - PRODUCCION</string>
+    </void>
+    <void method="add">
+     <string>Venta - Cobro de Servicios - RELEASE</string>
+    </void>
+   </object>
+  </void>
+  <void method="put">
+   <string>PRUEBAS SISTEMAS (RTC)</string>
+   <object class="java.util.LinkedList">
+    <void method="add">
+     <string>GIS - Ejemlpo - DESARROLLO</string>
+    </void>
+    <void method="add">
+     <string>GIS - Ejemlpo - Produccion</string>
+    </void>
+    <void method="add">
+     <string>GIS - Ejemlpo - RELEASE</string>
+    </void>
+   </object>
+  </void>
+ </object>
+</java>

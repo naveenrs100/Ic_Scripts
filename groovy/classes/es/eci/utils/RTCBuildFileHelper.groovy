@@ -1,8 +1,8 @@
 package es.eci.utils
 import java.nio.charset.Charset
+import java.util.List;
 
 import components.MavenComponent
-
 import es.eci.utils.base.Loggable
 import es.eci.utils.pom.MavenCoordinates
 import es.eci.utils.pom.PomNode
@@ -10,22 +10,23 @@ import es.eci.utils.pom.PomTree
 import groovy.io.FileVisitResult
 import groovy.json.JsonSlurper
 import groovy.xml.*
+import es.eci.utils.VersionUtils;
 
 /**
  * Esta clase recupera la estructura de buildfiles de un componente RTC
  */
 class RTCBuildFileHelper extends Loggable {
-	
+
 	//-------------------------------------------------------------------
 	// Constantes de la clase
-	
+
 	// Nombre del reactor eci
 	private static final String REACTOR_FILE_NAME = "reactor_sort_jobs"
-	
+
 
 	//-------------------------------------------------------------------
 	// Propiedades de la clase
-	
+
 	// Tecnologías soportadas por el parser
 	private static Map tecnologias = ['maven': 'pom.xml']
 	// Invocación a comando SCM ligero
@@ -38,10 +39,10 @@ class RTCBuildFileHelper extends Loggable {
 	private File parentWorkspace;
 	// Utilidades de versions
 	private VersionUtils vUtils = new VersionUtils();
-	
+
 	//-------------------------------------------------------------------
 	// Métodos de la clase
-	
+
 	/**
 	 * Indica si el helper soporta determinada tecnología
 	 * @param technology Tecnología por la que se pregunta
@@ -50,8 +51,8 @@ class RTCBuildFileHelper extends Loggable {
 	 */
 	public static boolean supportsTechnology(String technology) {
 		return tecnologias.keySet().contains(technology)
-	} 
-	
+	}
+
 	/**
 	 * Este método parsea los módulos si existen en el fichero de construcción
 	 * @param currentModule Módulo actual
@@ -80,7 +81,7 @@ class RTCBuildFileHelper extends Loggable {
 		}
 		return ret
 	}
-	
+
 	/**
 	 * Constructor del helper
 	 * @param ligero Indica si el helper debe utilizar el comando ligero de RTC
@@ -94,14 +95,14 @@ class RTCBuildFileHelper extends Loggable {
 			initLogger(log)
 		}
 	}
-	
+
 	/** 
 	 * Constructor con las opciones por defecto: RTC pesado, sin logging
 	 */
 	public RTCBuildFileHelper(String action, File parentWorkspace) {
 		this(action, parentWorkspace, true, null)
 	}
-	
+
 	// Compone el nombre del fichero
 	private String buildFileName(String... arguments) {
 		StringBuilder sb = new StringBuilder();
@@ -117,7 +118,7 @@ class RTCBuildFileHelper extends Loggable {
 		}
 		return sb.toString()
 	}
-	
+
 	// Limpia restos de RTC del directorio
 	private void cleanRTC(File directory) {
 		if (directory != null && directory.exists() && directory.isDirectory()) {
@@ -125,10 +126,10 @@ class RTCBuildFileHelper extends Loggable {
 				File eliminar = new File(directory, dir)
 				eliminar.deleteDir()
 			}
-			[ ".jazz5", ".metadata" ].each { dir -> remove(dir) }			
+			[ ".jazz5", ".metadata" ].each { dir -> remove(dir) }
 		}
 	}
-			
+
 	/**
 	 * Crea el reactor de la corriente
 	 * @param jobs Lista de componentes en la corriente
@@ -146,7 +147,7 @@ class RTCBuildFileHelper extends Loggable {
 		parentReactor << "\t\t<groupId>es.eci.reactor</groupId>\n"
 		parentReactor << "\t\t<artifactId>${REACTOR_FILE_NAME}</artifactId>\n"
 		parentReactor << "\t\t<version>1.0.0</version>\n"
-	
+
 		parentReactor << "\t\t<packaging>pom</packaging>\n"
 		parentReactor << "\t\t<modules>\n"
 		jobs.each { job ->
@@ -157,7 +158,7 @@ class RTCBuildFileHelper extends Loggable {
 		parentReactor << "\t\t</modules>\n"
 		parentReactor << "\t</project>\n"
 	}
-	
+
 	/**
 	 * Este método crea un repositorio de RTC y le añade 
 	 * de la corriente los componentes
@@ -170,10 +171,10 @@ class RTCBuildFileHelper extends Loggable {
 	 * @return Nombre del workspace creado
 	 */
 	private String setupRepositoryWorkspace(
-			String stream, 
+			String stream,
 			List<String> componentes,
-			String userRTC, 
-			String pwdRTC, 
+			String userRTC,
+			String pwdRTC,
 			String urlRTC,
 			File baseDir) {
 		ScmCommand command = new ScmCommand(ScmCommand.Commands.LSCM);
@@ -181,22 +182,22 @@ class RTCBuildFileHelper extends Loggable {
 		long timestamp = new java.util.Date().getTime();
 		String ret = "WSR_${stream}_${timestamp}";
 		command.ejecutarComando(
-			"create workspace -e \"${ret}\"", 
-			userRTC, 
-			pwdRTC, 
-			urlRTC, 
-			baseDir);
+				"create workspace -e \"${ret}\"",
+				userRTC,
+				pwdRTC,
+				urlRTC,
+				baseDir);
 		componentes.each { componente ->
 			command.ejecutarComando(
-				"workspace add-components \"${ret}\" \"${componente}\" -s \"${stream}\"",
-				userRTC, 
-				pwdRTC, 
-				urlRTC, 
-				baseDir);
+					"workspace add-components \"${ret}\" \"${componente}\" -s \"${stream}\"",
+					userRTC,
+					pwdRTC,
+					urlRTC,
+					baseDir);
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * Este método elimina un WSR
 	 * @param workspaceRTC Workspace de RTC 
@@ -206,21 +207,21 @@ class RTCBuildFileHelper extends Loggable {
 	 * @param baseDir Directorio base
 	 */
 	private void deleteRepositoryWorkspace(
-				String workspaceRTC, 
-				String userRTC, 
-				String pwdRTC, 
-				String urlRTC, 
-				File baseDir) {
+			String workspaceRTC,
+			String userRTC,
+			String pwdRTC,
+			String urlRTC,
+			File baseDir) {
 		ScmCommand command = new ScmCommand(ScmCommand.Commands.LSCM);
 		command.initLogger(this);
 		command.ejecutarComando(
-			"workspace delete \"${workspaceRTC}\" ", 
-			userRTC, 
-			pwdRTC, 
-			urlRTC, 
-			baseDir)
+				"workspace delete \"${workspaceRTC}\" ",
+				userRTC,
+				pwdRTC,
+				urlRTC,
+				baseDir)
 	}
-				
+
 	/**
 	 * Devuelve el artefacto en forma de clase ArtifactBeanLight
 	 * @param pom Estructura XML del fichero
@@ -242,7 +243,7 @@ class RTCBuildFileHelper extends Loggable {
 		}
 		return artifact
 	}
-	
+
 	// Devuelve la lista de artefactos maven en una serie de ficheros pom.xml
 	def getArtifactsMaven(Map<String, List<File>> ficheros, File baseDirectory) {
 		def artifacts = [:]
@@ -267,7 +268,7 @@ class RTCBuildFileHelper extends Loggable {
 		}
 		return artifacts
 	}
-				
+
 	/**
 	 * Este método construye a partir de una lista de ficheros pom.xml
 	 * el fichero json de artefactos necesario para poder lanzar los procesos
@@ -277,8 +278,8 @@ class RTCBuildFileHelper extends Loggable {
 	 * @param home Directorio de construcción del artifacts.json
 	 * @param baseDirectory Directorio base del conjunto de poms
 	 */
-	public boolean processSnapshotMaven(String action, 
-			Map<String, List<File>> ficheros, File home, File baseDirectory){
+	public boolean processSnapshotMaven(String action, Map<String, List<File>> ficheros,
+			File home, File baseDirectory, List<String> finalComponentsList = null) {
 		def result = false
 		def err = new StringBuffer()
 		def artifactsComp = getArtifactsMaven(ficheros, baseDirectory)
@@ -286,14 +287,14 @@ class RTCBuildFileHelper extends Loggable {
 		artifactsComp.each { artsComp ->
 			def a = artsComp.value
 			a.each{ artifact ->
-				artifacts.add(artifact)	
+				artifacts.add(artifact)
 			}
 		}
 		ficheros.each { fComp ->
 			def comp = fComp.key
 			def f = fComp.value
 			f.each { fichero ->
-			def pom = new XmlParser().parse(fichero)
+				def pom = new XmlParser().parse(fichero)
 				pom.dependencies.dependency.each { dependency ->
 					def artifact = getArtifactMaven(dependency, baseDirectory)
 					if (artifact.version!=null){
@@ -314,31 +315,53 @@ class RTCBuildFileHelper extends Loggable {
 			}
 		}
 		// escribe artifacts para ser usado por stepFileVersioner.groovy para quitar los snapshots
-		writeJsonArtifactsMaven(artifactsComp,home)
+		//writeJsonArtifactsMaven(artifactsComp,home,finalComponentsList)
+		VersionUtils vUtils = new VersionUtils();
+		vUtils.writeJsonArtifactsMaven(artifactsComp, home, "artifacts.json", finalComponentsList);
+		vUtils.writeJsonArtifactsMaven(artifactsComp, home, "artifactsAll.json", null);
 		return result
 	}
-	
+
 	// Escribe el fichero de artefactos maven en el directorio de la construcción
-	def writeJsonArtifactsMaven(artifactsComp, File home){
-		def file = new File("${home.canonicalPath}/artifacts.json")
-		file.delete()
-		def cont = 0
-		file << "["
-		artifactsComp.each { artsComp ->
-		def cont2 = 0
-		cont = cont + 1
-		def comp = artsComp.key
-		def artifacts = artsComp.value
-		artifacts.each{ artifact ->
-			cont2 = cont2 +1
-			file << "{\"version\":\"${artifact.version}\",\"component\":\"${comp}\",\"groupId\":\"${artifact.groupId}\",\"artifactId\":\"${artifact.artifactId}\"}"
-			if (cont < artifactsComp.size() || cont2 != artifacts.size() )
-				file << ","
+	def writeJsonArtifactsMaven(artifactsComp, File home, List<String> finalComponentsList = null){
+		def artifactsJsonFile = new File("${home.canonicalPath}/artifacts.json");
+		def artifactsJsonAllFile = new File("${home.canonicalPath}/artifactsAll.json");
+		artifactsJsonFile.delete();
+		artifactsJsonAllFile.delete();
+		def cont1 = 0
+		def cont4 = 0
+		artifactsJsonFile << "["
+		artifactsJsonAllFile << "["
+		artifactsComp.each { artsComp ->			
+			// Añadimos al artifactsJson sólo los componentes que entran en la release.
+			if(finalComponentsList.contains(artsComp.key.trim())) {
+				cont1 = cont1 + 1
+				def cont2 = 0				
+				def comp = artsComp.key
+				def artifacts = artsComp.value
+				artifacts.each{ artifact ->
+					cont2 = cont2 +1
+					artifactsJsonFile << "{\"version\":\"${artifact.version}\",\"component\":\"${comp}\",\"groupId\":\"${artifact.groupId}\",\"artifactId\":\"${artifact.artifactId}\"}"
+					if (cont1 < finalComponentsList.size() || cont2 != artifacts.size() )
+						artifactsJsonFile << ","
+				}
 			}
+
+			def cont3 = 0			
+			def comp = artsComp.key
+			def artifacts = artsComp.value
+			artifacts.each{ artifact ->
+				cont3 = cont3 +1
+				artifactsJsonAllFile << "{\"version\":\"${artifact.version}\",\"component\":\"${comp}\",\"groupId\":\"${artifact.groupId}\",\"artifactId\":\"${artifact.artifactId}\"}"
+				if (cont1 < artifacts.size() || cont3 != artifacts.size() )
+					artifactsJsonAllFile << ","
+			}
+
 		}
-		file << "]"
+		artifactsJsonFile << "]";
+		artifactsJsonAllFile << "]";
 	}
-	
+
 	/**
 	 * Este método crea, sobre el directorio base, la estructura de buildFiles 
 	 * correspondiente.  Por ejemplo
@@ -367,50 +390,52 @@ class RTCBuildFileHelper extends Loggable {
 	 * @return lista de componentes ordenados
 	 */
 	public List<MavenComponent> createStreamReactor(
-			File baseDirectory, 
+			File baseDirectory,
 			String stream,
-			String technology, 
-			String userRTC, 
-			String pwdRTC, 
+			String technology,
+			String userRTC,
+			String pwdRTC,
 			String urlRTC,
-			String componentesRelease = null) {
+			String componentesRelease = null,
+			List<String> finalComponentsList = null
+	) {
 		String workspaceRTC = "";
 		try {
 			// Listado de componentes
 			List<String> components;
 			if(componentesRelease == null || componentesRelease.trim().equals("")) {
 				components = new ComponentVersionHelper().getComponents(
-					baseDirectory,
-					stream,
-					userRTC,
-					pwdRTC,
-					urlRTC);
+						baseDirectory,
+						stream,
+						userRTC,
+						pwdRTC,
+						urlRTC);
 			} else {
 				components = componentesRelease.split(",");
-			}			
+			}
 			// Setup del workspace de repositorio
-			workspaceRTC = 
-				setupRepositoryWorkspace(
-					stream, 
-					components, 
-					userRTC, 
-					pwdRTC, 
+			workspaceRTC =
+					setupRepositoryWorkspace(
+					stream,
+					components,
+					userRTC,
+					pwdRTC,
 					urlRTC,
 					baseDirectory);
 			// Descarga de los respectivos ficheros de construcción
 			components.each { String component ->
 				createBuildFileStructure(
-					baseDirectory,
-					workspaceRTC, 
-					component,
-					technology,
-					userRTC,
-					pwdRTC,
-					urlRTC);
+						baseDirectory,
+						workspaceRTC,
+						component,
+						technology,
+						userRTC,
+						pwdRTC,
+						urlRTC);
 			}
-			
+
 			// Construcción del reactor padre
-			return buildArtifactsFile(components, baseDirectory)
+			return buildArtifactsFile(components, baseDirectory, finalComponentsList)
 		}
 		finally {
 			deleteRepositoryWorkspace(workspaceRTC, userRTC, pwdRTC, urlRTC, baseDirectory);
@@ -427,7 +452,7 @@ class RTCBuildFileHelper extends Loggable {
 	 * @param components Listado de componentes leído de RTC
 	 * @param baseDirectory Directorio base
 	 */
-	public List<MavenComponent> buildArtifactsFile(List components, File baseDirectory) {
+	public List<MavenComponent> buildArtifactsFile(List components, File baseDirectory, List<String> finalComponentsList = null) {
 		List<MavenComponent> ret = null;
 		createParentReactor(components, baseDirectory)
 		// Creación del artifacts.json
@@ -435,11 +460,11 @@ class RTCBuildFileHelper extends Loggable {
 		components.each { component->
 			poms.put(component, getPoms(new File(baseDirectory, component)))
 		}
-		processSnapshotMaven(action, poms, parentWorkspace, baseDirectory)
+		processSnapshotMaven(action, poms, parentWorkspace, baseDirectory, finalComponentsList);
 		// Redistribuir las dependencias en los pom.xml a partir del fichero artifacts.json
 		// Para ello es necesario convertir las dependencias de cada pom.xml en dependencias
 		//	al artefacto de cabecera de cada componente.
-		
+
 		return buildDependencyGraph(components, baseDirectory)
 	}
 
@@ -457,12 +482,12 @@ class RTCBuildFileHelper extends Loggable {
 			File headerPom = new File(baseDirectory, "$component/pom.xml");
 			if (headerPom.exists()) {
 				def headerPomXML = new XmlSlurper().parseText(headerPom.text);
-				MavenCoordinates coords = 
-					new MavenCoordinates(
-						headerPomXML.groupId.text(), 
-						headerPomXML.artifactId.text(), 
+				MavenCoordinates coords =
+						new MavenCoordinates(
+						headerPomXML.groupId.text(),
+						headerPomXML.artifactId.text(),
 						vUtils.solve(
-							headerPomXML, headerPomXML.version.text()));
+						headerPomXML, headerPomXML.version.text()));
 				MavenComponent headerComponent = new MavenComponent(component);
 				headerArtifacts.put(component, headerComponent);
 				headerComponent.addArtifact(coords);
@@ -470,8 +495,7 @@ class RTCBuildFileHelper extends Loggable {
 		}
 		log "headerArtifacts <- $headerArtifacts"
 		Map<String, MavenComponent> artifacts = [:]
-		new JsonSlurper().parseText(
-				new File(parentWorkspace, "artifacts.json").text).each { def artifact ->
+		new JsonSlurper().parseText(new File(parentWorkspace, "artifactsAll.json").text).each { def artifact ->
 			MavenComponent comp = null;
 			if (!artifacts.containsKey(artifact.component)) {
 				comp = new MavenComponent(artifact.component);
@@ -487,10 +511,10 @@ class RTCBuildFileHelper extends Loggable {
 		//	y, si se identifica mediante el artifacts.json una dependencia interna
 		//	de la construcción, sustituirla al vuelo
 		baseDirectory.traverse(
-			type: groovy.io.FileType.FILES,
-			preDir: { if (it.name.startsWith(".") || it.name == 'target') return FileVisitResult.SKIP_SUBTREE},
-			maxDepth: -1
-			)
+				type: groovy.io.FileType.FILES,
+				preDir: { if (it.name.startsWith(".") || it.name == 'target') return FileVisitResult.SKIP_SUBTREE},
+				maxDepth: -1
+				)
 		{ File file ->
 			if ("pom.xml".equals(file.getName())) {
 				log "Revisando $file ..."
@@ -500,50 +524,50 @@ class RTCBuildFileHelper extends Loggable {
 				def tmpGroup = null;
 				def tmpVersion = null
 				if (pom.version != null
-						&& pom.version.text() != null
-						&& pom.version.text().trim().length() > 0) {
+				&& pom.version.text() != null
+				&& pom.version.text().trim().length() > 0) {
 					tmpVersion = pom.version.text()
 				}
 				else {
 					tmpVersion = pom.parent.version.text()
 				}
-				if (pom.groupId != null 
-						&& pom.groupId.text() != null
-					    && pom.groupId.text().trim().length() > 0) {
+				if (pom.groupId != null
+				&& pom.groupId.text() != null
+				&& pom.groupId.text().trim().length() > 0) {
 					tmpGroup = pom.groupId.text();
 				}
 				else {
 					tmpGroup = pom.parent.groupId.text();
-				}						
-				tmpVersion = vUtils.solveRecursive(baseDirectory, pom, tmpVersion) 
+				}
+				tmpVersion = vUtils.solveRecursive(baseDirectory, pom, tmpVersion)
 				// Buscar el componente al que corresponde este pom.xml
 				MavenComponent artifactComponent = artifacts.values().find { MavenComponent it ->
 					return (
-						it.contains(
+							it.contains(
 							new MavenCoordinates(
-								tmpGroup, 
-								pom.artifactId.text(), 
-								vUtils.solve(pom, tmpVersion))))
+							tmpGroup,
+							pom.artifactId.text(),
+							vUtils.solve(pom, tmpVersion))))
 				};
 				pom.dependencies.dependency.each { dependency ->
 					// Para cada dependencia, buscar si corresponde con un artefacto en este proceso
 					MavenComponent dependencyComponent = artifacts.values().find { MavenComponent it ->
 						return (
-							it.contains(
+								it.contains(
 								new MavenCoordinates(
-									dependency.groupId.text(),
-									dependency.artifactId.text(),
-									vUtils.solveRecursive(
-										baseDirectory, pom, dependency.version.text())
-									)));
+								dependency.groupId.text(),
+								dependency.artifactId.text(),
+								vUtils.solveRecursive(
+								baseDirectory, pom, dependency.version.text())
+								)));
 					}
 					// En caso positivo:
 					if (dependencyComponent != null) {
 						// ¿Pertenecen al mismo componente?
 						if (!artifactComponent.equals(
-								dependencyComponent)) {
+						dependencyComponent)) {
 							log "---> $artifactComponent depende de $dependencyComponent"
-							artifactComponent.addDependency(dependencyComponent)												
+							artifactComponent.addDependency(dependencyComponent)
 						}
 					}
 				};
@@ -561,11 +585,11 @@ class RTCBuildFileHelper extends Loggable {
 					ret << it;
 				}
 			}
-		}		
+		}
 		log "### Reactor order: " + ret.toString();
 		return ret;
 	}
-	
+
 	// Recorrido de árbol de dependencias visto en
 	// http://www.electricmonk.nl/docs/dependency_resolving_algorithm/dependency_resolving_algorithm.html
 	private List<MavenComponent> walkDependencyGraph(MavenComponent comp) {
@@ -573,7 +597,7 @@ class RTCBuildFileHelper extends Loggable {
 		walkDependencyGraphI(comp, ret);
 		return ret;
 	}
-	
+
 	// Inmersión recursiva del recorrido del grafo
 	private List<MavenComponent> walkDependencyGraphI(
 			MavenComponent comp, List<MavenComponent> resolved) {
@@ -584,8 +608,8 @@ class RTCBuildFileHelper extends Loggable {
 		}
 		resolved << comp;
 	}
-			
-	// Devuelve el listado de pom.xml bajo un directorio, excluyendo aquellos que 
+
+	// Devuelve el listado de pom.xml bajo un directorio, excluyendo aquellos que
 	//	no debemos utilizar por no formar parte del árbol real de pom.xml
 	def getPoms(File fromDir, String fileMatch = "pom\\.xml"){
 		List<File> files = []
@@ -596,7 +620,7 @@ class RTCBuildFileHelper extends Loggable {
 		}
 		return files
 	}
-	
+
 	/**
 	 * Este método crea, sobre el directorio base, la estructura de buildFiles 
 	 * correspondiente.  Por ejemplo
@@ -616,12 +640,12 @@ class RTCBuildFileHelper extends Loggable {
 	 * @param urlRTC URL del repositorio RTC
 	 */
 	public File createBuildFileStructure(
-			File baseDirectory, 
-			String workspaceRTC, 
-			String component, 
-			String technology, 
-			String userRTC, 
-			String pwdRTC, 
+			File baseDirectory,
+			String workspaceRTC,
+			String component,
+			String technology,
+			String userRTC,
+			String pwdRTC,
 			String urlRTC) {
 		File dirComponente = null
 		if (tecnologias.keySet().contains(technology)) {
@@ -636,12 +660,13 @@ class RTCBuildFileHelper extends Loggable {
 				modulos.remove(modulo)
 				// Intenta descargar el fichero
 				String ficheroRTC = buildFileName(component, modulo, tecnologias[technology])
-				File directorioModulo = 
-					new File(dirComponente, modulo)
-				directorioModulo.mkdirs()			
+				File directorioModulo =
+						new File(dirComponente, modulo)
+				directorioModulo.mkdirs()
+				log("Bajando ${modulo} para crear el árbol de poms...");
 				comando.ejecutarComando(
-					"load \"${workspaceRTC}\" -t \"${directorioModulo.canonicalPath}\" \"${ficheroRTC}\" --force", 
-					userRTC, pwdRTC, urlRTC, baseDirectory);//dirComponente)
+						"load \"${workspaceRTC}\" -t \"${directorioModulo.canonicalPath}\" \"${ficheroRTC}\" --force",
+						userRTC, pwdRTC, urlRTC, baseDirectory);//dirComponente)
 				//cleanRTC(directorioModulo)
 				// ¿Ha bajado?
 				File buildFile = new File(directorioModulo, tecnologias[technology] )
@@ -653,8 +678,8 @@ class RTCBuildFileHelper extends Loggable {
 		}
 		return dirComponente
 	}
-	
-	// Clase privada con la información de un artefacto 
+
+	// Clase privada con la información de un artefacto
 	private class ArtifactBeanLight {
 		public String version
 		public String groupId
@@ -666,5 +691,5 @@ class RTCBuildFileHelper extends Loggable {
 			}
 			return false
 		}
-	} 
+	}
 }

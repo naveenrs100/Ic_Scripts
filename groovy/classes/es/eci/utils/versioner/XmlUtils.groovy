@@ -1,23 +1,9 @@
 package es.eci.utils.versioner;
 
-import es.eci.utils.encoding.EncodingUtils
-import es.eci.utils.pom.ArtifactObject
-import es.eci.utils.pom.MavenCoordinates
-import es.eci.utils.pom.MavenCoordinatesDocument
-import es.eci.utils.pom.NodeProps
-import es.eci.utils.pom.PomNode
-import es.eci.utils.pom.PomTree
-import groovy.json.JsonSlurper
-
 import java.nio.charset.Charset
 
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.transform.OutputKeys
-import javax.xml.transform.Transformer
-import javax.xml.transform.TransformerFactory
-import javax.xml.transform.dom.DOMSource
-import javax.xml.transform.stream.StreamResult
 import javax.xml.xpath.XPath
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
@@ -26,33 +12,20 @@ import org.w3c.dom.Document
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 
+import es.eci.utils.NexusHelper;
+import es.eci.utils.TmpDir;
+import es.eci.utils.pom.ArtifactObject
+import es.eci.utils.pom.MavenCoordinates
+import es.eci.utils.pom.MavenCoordinatesDocument
+import es.eci.utils.pom.NodeProps
+import es.eci.utils.pom.PomNode
+import es.eci.utils.pom.PomTree
+import groovy.json.JsonSlurper
+
 public class XmlUtils {
 
 	// Cache de propiedades
 	private static Map<File, Map<String, String>> propertiesCache = [:]
-
-	/**
-	 * Transforma un org.w3c.dom.Document en un archivo destino;
-	 * @param doc
-	 * @param destFile
-	 */
-	public static void transformXml(Document doc, File destFile) {
-		String encoding = EncodingUtils.getEncodingName(destFile);
-		DOMSource domSource = new DOMSource(doc);
-		StringWriter sw = new StringWriter();
-		OutputStreamWriter char_output = new OutputStreamWriter(
-				new FileOutputStream(destFile.getAbsolutePath()),
-				Charset.forName(encoding).newEncoder()
-				);
-		StreamResult sr = new StreamResult(char_output);
-
-		TransformerFactory tf = TransformerFactory.newInstance();
-		Transformer transformer = tf.newTransformer();
-		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-		transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
-		transformer.setOutputProperty(OutputKeys.ENCODING, encoding);
-		transformer.transform(domSource, sr);
-	}
 
 	/**
 	 * Obtiene el encoding de un archivo utilizando herramientas
@@ -416,6 +389,20 @@ public class XmlUtils {
 		return nodePropsArray;
 	}
 
+
+	/**
+	 * Devuelve un nodo que cuelgue de otro en base a un xpath
+	 * relativo indicado
+	 * @param Node node
+	 * @param String xPathQuery
+	 * @return Node
+	 */
+	public static Node getChildNode(Node node, String xPathQuery) {
+		XPath xPath = XPathFactory.newInstance().newXPath();
+		Node retNode = xPath.evaluate("${xPathQuery}", node, XPathConstants.NODE);
+		return retNode;
+	}
+
 	/**
 	 * Devuelve los artifacts indicados en el artifacts.json
 	 * @param dir
@@ -443,7 +430,7 @@ public class XmlUtils {
 	 */
 	public static ArrayList<ArtifactObject> getArtifactsMap(String artifactsJson) {
 		ArrayList<ArtifactObject> artifacts = []
-		
+
 		if(artifactsJson.trim() != "") {
 			println("Se parsea el parametro artifactsJson con contenido: ${artifactsJson}")
 			JsonSlurper jsonSlurper = new JsonSlurper();
@@ -492,7 +479,7 @@ public class XmlUtils {
 	 * @param value
 	 * @return Node ret
 	 */
-	public static NodeProps getFinalPropNode(File pomFile, Map<String,Map<String,String>> treeMap, String value) {	
+	public static NodeProps getFinalPropNode(File pomFile, Map<String,Map<String,String>> treeMap, String value, String nexusUrl = null) {
 		println("Intentando resolver la propiedad \"${value}\" contra el pom.xml \"${pomFile.getCanonicalPath()}\"");
 		NodeProps ret = null;
 		def doc = XmlUtils.parseXml(pomFile);
@@ -505,34 +492,58 @@ public class XmlUtils {
 				println("Encontrado valor para ${cleanValue} en ${pomFile} = ${propNode.getTextContent()}")
 				ret = new NodeProps(doc, propNode, pomFile);
 				return ret;
-				
+
 			} else if(propValue.contains("\${")) {
 				def cleanPropValue = propValue.substring(2, propValue.length() -1);
-				def nextPropNode = XmlUtils.xpathNode(doc,"/project/properties/${cleanPropValue}");				
-				if(nextPropNode == null) {				
+				def nextPropNode = XmlUtils.xpathNode(doc,"/project/properties/${cleanPropValue}");
+				if(nextPropNode == null) {
 					def parentNode = XmlUtils.xpathNode(doc, "/project/parent/artifactId");
 					if(parentNode != null) {
 						Map<String,String> parentProp = treeMap.getAt(parentNode.getTextContent());
 						def parentFilePath = parentProp.entrySet().iterator().next().getKey();
 						File parentFile = new File(parentFilePath);
-						ret = getFinalPropNode(parentFile , treeMap, propValue);
+						ret = getFinalPropNode(parentFile , treeMap, propValue, nexusUrl);
 					}
 				} else {
-					ret = getFinalPropNode(pomFile, treeMap, propValue);
+					ret = getFinalPropNode(pomFile, treeMap, propValue, nexusUrl);
 				}
 			}
 		}
 		else if(propNode == null) {
-			def parentNode = XmlUtils.xpathNode(doc, "/project/parent/artifactId");
-			if(parentNode == null || parentNode.getTextContent().equals("eci-pom") || parentNode.getTextContent().equals("atg-super-pom")) {
-				// Propiedad no resuelta y estamos al final del árbol.
-				throw new NumberFormatException("La propiedad \"${cleanValue}\" no se puede resolver.");
-			}
-			else {
-				Map<String,String> parentProp = treeMap.getAt(parentNode.getTextContent());
-				def parentFilePath = parentProp.entrySet().iterator().next().getKey();
-				File parentFile = new File(parentFilePath);
-				ret = getFinalPropNode(parentFile , treeMap, value);
+			def parentNode = XmlUtils.xpathNode(doc, "/project/parent");
+			if(parentNode != null) {
+				String parentArtifactId = getChildNode(parentNode, "artifactId").getTextContent();
+				String parentGroupId = getChildNode(parentNode, "groupId").getTextContent();
+				String parentVersion = getChildNode(parentNode, "version").getTextContent();
+				if(parentArtifactId.equals("eci-pom") || parentArtifactId.equals("atg-super-pom")) {
+					// Bajarse el eci-pom y el atg-super-pom de Nexus, abrirlo y ver si está definida ahí.
+					if(nexusUrl != null) {
+						TmpDir.tmp { File tmpDir ->
+							NexusHelper nxHelper = new NexusHelper(nexusUrl);
+							nxHelper.initLogger { println it }
+							MavenCoordinates coord = new MavenCoordinates(parentGroupId, parentArtifactId, parentVersion);
+							coord.setPackaging("pom");
+							File parentPomFile = nxHelper.download(coord,tmpDir);
+							Document parentPomDoc = XmlUtils.parseXml(parentPomFile);
+							def parentPropNode = XmlUtils.xpathNode(parentPomDoc, "/project/properties/${cleanValue}");
+							if(parentPropNode == null) {
+								// Propiedad no resuelta y estamos al final del árbol.
+								throw new NumberFormatException("La propiedad \"${cleanValue}\" no se puede resolver.");
+							} else {
+								ret = new NodeProps(parentPomDoc, parentPropNode, parentPomFile);
+							}
+						}
+					} else {
+						println("[WARNING] No se ha indicado valor para \"nexusUrl\", no se podrá resolver la propiedad contra el pom padre \"${parentArtifactId}\".")
+					}
+
+				}
+				else {
+					Map<String,String> parentProp = treeMap.getAt(parentArtifactId);
+					def parentFilePath = parentProp.entrySet().iterator().next().getKey();
+					File parentFile = new File(parentFilePath);
+					ret = getFinalPropNode(parentFile , treeMap, value, nexusUrl);
+				}
 			}
 		}
 

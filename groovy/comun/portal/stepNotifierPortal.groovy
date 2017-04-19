@@ -9,6 +9,7 @@
 import es.eci.utils.MultipartUtility;
 import es.eci.utils.ParamsHelper
 import es.eci.utils.Stopwatch;
+import es.eci.utils.TmpDir
 import groovy.io.FileType
 import groovy.json.*
 import hudson.model.*
@@ -36,9 +37,15 @@ def generaStart(component, stream, process, jobInvokerType, workItem, instantane
 			jsonInfo.put('type',type)
 			jsonInfo.put('workItem',workItem)
 			jsonInfo.put('instantanea',instantanea)
+			// Incidencia de lanzamientos repetidos: el parámetro scheduled a true
+			//	permite a QUVE distinguir cuando jenkins simplemente solicita UUID
+			//	correspondiente a una ejecución planificada ya existente, y no
+			//	lanzar una nueva ejecución
+			jsonInfo.put("scheduled", "true");
 		}
 	
 		println ('Create Json Created...')
+		println jsonInfo
 	}
 	println "generaStart: $millis ms."
 
@@ -309,7 +316,7 @@ if (isTrue(quveConnection)) {
 		def step = resolver.resolve("step")
 		def executionUuid = resolver.resolve('executionUuid')
 		def baseline = resolver.resolve('baseline')
-		def version = resolver.resolve('version')
+		def version = resolver.resolve('builtVersion')
 		def workItem = resolver.resolve('workItem')
 		def instantanea = resolver.resolve('instantanea')
 		def jobName = resolver.resolve("jobName")
@@ -373,19 +380,17 @@ if (isTrue(quveConnection)) {
 			//Variables calculadas
 			
 			def jobFilesName = "jobFiles.zip"
-			def dirPortal = new File("${workspaceLocal}/portal");
 			def ant = new AntBuilder()
 			
 			if (build.getResult() != hudson.model.Result.SUCCESS) {
-				dirPortal.mkdir();
-				try{
-		
+				TmpDir.tmp { File dirPortal ->			
 					if (jsonInfo.type!=null){
 		
 						//def entity = new StringEntity(new JsonOutput().toJson(jsonInfo), ContentType.APPLICATION_JSON)
 						def jsonRespTxt = sendHttp("${quveurl}/executions/","",
 								new JsonOutput().toJson(jsonInfo),"application/json", null, TIMEOUT,
 								jenkinsHome)
+						println("jsonResponseTxt -> ${jsonRespTxt} ")
 						// Informar el UUID de ejecución en los parámetros del job
 						def causa = build.getCause(Cause.UpstreamCause)
 						def nombrePadre = causa.getUpstreamProject()
@@ -395,6 +400,7 @@ if (isTrue(quveConnection)) {
 						
 						def executionJson = new JsonSlurper().parseText(jsonRespTxt);
 						def executionUuid = executionJson.executionId;
+						ParamsHelper.deleteParams(lastBuild,["executionUuid"].toArray(new String[1]))
 						ParamsHelper.addParams(lastBuild,["executionUuid":"${executionUuid}"])
 		
 					}
@@ -410,10 +416,6 @@ if (isTrue(quveConnection)) {
 							"multipart/form-data", jobFiles, TIMEOUT,
 							jenkinsHome)
 					}
-				}
-				finally{
-					// Elimina el directorio portal
-					ant.delete(dir: dirPortal)
 				}
 			}
 			else {

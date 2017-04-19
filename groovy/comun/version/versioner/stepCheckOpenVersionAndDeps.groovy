@@ -15,4 +15,4 @@ def action = params["action"];
 
 def artifactsJson = ArtifactsJsonUtils.getArtifactsJson(params, component, parentWorkspaceFile, action);
 
-PomXmlOperations.checkOpenVersionAndDeps(parentWorkspaceFile, artifactsJson);
+PomXmlOperations.checkOpenVersionAndDeps(parentWorkspaceFile, artifactsJson, params["nexusUrl"]);

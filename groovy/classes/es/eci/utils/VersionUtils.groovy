@@ -1,5 +1,7 @@
 package es.eci.utils
 
+import java.io.File;
+
 import es.eci.utils.pom.MavenCoordinates
 import es.eci.utils.pom.PomNode
 import es.eci.utils.pom.PomTree
@@ -12,25 +14,25 @@ import hudson.model.*
  * Agrupa funcionalidad de lectura de versión, actualización, etc.
  */
 class VersionUtils {
-	
+
 	private List<String> exceptionsList;
 
 	private static final Map tecnologias = ["maven":"pom\\.xml","gradle":"build\\.gradle"]
-	
+
 	private boolean fixMavenErrors = false
-	
+
 	// Cache de propiedades
 	private Map<File, PomTree> propertiesCache = [:]
-	
-	//---------------> Funciones 
-	
+
+	//---------------> Funciones
+
 	/**
 	 * Construye un versionador con la excepción del directorio target
 	 */
 	public VersionUtils() {
 		setup("target")
 	}
-	
+
 	/**
 	 * Construye un objeto de versionado con las excepciones indicadas.
 	 * @param strExceptions Cadena que determina las excepciones, que son los
@@ -39,7 +41,7 @@ class VersionUtils {
 	public VersionUtils(String strExceptions) {
 		setup(strExceptions)
 	}
-	
+
 	// Setup del versionado
 	private void setup(String strExceptions) {
 		exceptionsList = new LinkedList<String>();
@@ -62,7 +64,7 @@ class VersionUtils {
 			def mVersion = line =~ /.*version\s?=\s?["|'](.*)["|']/
 			def mGroupId = line =~ /.*group\s?=\s?["|'](.*)["|']/
 			if (mGroupId.matches()) version.groupId = mGroupId[0][1]
-	   		if (mVersion.matches()) version.version = mVersion[0][1]
+			if (mVersion.matches()) version.version = mVersion[0][1]
 		}
 
 		return version
@@ -119,8 +121,8 @@ class VersionUtils {
 	}
 
 	/**
-	* Comprueba que no hay ninguna versión snapshot
-	*/
+	 * Comprueba que no hay ninguna versión snapshot
+	 */
 	def mavenSnapshotCheck(fichero,err,artifacts){
 		def pom = new XmlParser().parse(fichero)
 		pom.dependencies.dependency.each { dependency ->
@@ -195,7 +197,7 @@ class VersionUtils {
 				artifacts = getArtifacts(homeStream, this.getAllFiles(homeStream, tecnologias.get("maven")) ,parentWorkspace)
 			}
 		}
-		
+
 		ficheros.each { fichero ->
 			try {
 				def pom = new XmlParser().parse(fichero)
@@ -358,7 +360,7 @@ class VersionUtils {
 		log.log "ficheroRoot: ${ficheroRoot}"
 		if (ficheroRoot==null || !ficheroRoot.exists())
 			throw new Exception("No se encuentra pom raiz en ${parentWorkspace} con patron ${tecnologias['maven']}")
-		
+
 		def artifacts = null
 		if (action=="removeSnapshot" || action=="addSnapshot" || action == 'addFix') {
 			if (fullCheck == null || fullCheck == Boolean.FALSE) {
@@ -368,7 +370,7 @@ class VersionUtils {
 				artifacts = getArtifacts(homeStream,this.getAllFiles(homeStream, tecnologias.get("maven")),parentWorkspace)
 			}
 		}
-		
+
 		// El pom raíz define una versión.  Si está definida como una propiedad, se guarda
 		//	en esta variable
 		def mainImplicitVersion = null
@@ -393,11 +395,11 @@ class VersionUtils {
 				if (!explicita) {
 					validateNotExplicitVersion(pom);
 				}
-	
+
 				if (action=="removeSnapshot") {
 					pom = this.removeSnapshotDependencies(pom, artifacts, changeVersion)
 				}
-	
+
 				if (ficheroRoot.getCanonicalPath()==fichero.getCanonicalPath()){
 					if (pom.version != null && pom.version.size() > 0 && pom.version[0]!=null) {
 						if (explicita){
@@ -437,11 +439,11 @@ class VersionUtils {
 				log.log("AVISO: el fichero $fichero no es parseable -> " + e.getMessage())
 			}
 		}
-		
+
 		if (action=="removeSnapshot" || action=="addSnapshot" || action=="addFix") {
-			// El fichero pom raíz puede tener dependencias a otros módulos de la 
+			// El fichero pom raíz puede tener dependencias a otros módulos de la
 			//	aplicación definidas como propiedades.  En este caso, se debe distinguir
-			//	qué propiedades del pom raíz son dependencias a otros módulos y 
+			//	qué propiedades del pom raíz son dependencias a otros módulos y
 			//	aplicarles la acción necesaria (sea quitarle el snapshot o volver a ponérselo
 			//	subiendo el tercer dígito)
 			def versionesModulos = getImplicitMavenModuleDependencies(ficheros, artifacts)
@@ -485,7 +487,7 @@ class VersionUtils {
 							if (!propiedad.startsWith("project.")) {
 								// Apuntamos la propiedad para cerrarla e incrementarla luego
 								if (!ret.contains(propiedad)) {
-									ret << propiedad 
+									ret << propiedad
 								}
 							}
 						}
@@ -498,7 +500,7 @@ class VersionUtils {
 		}
 		return ret;
 	}
-	
+
 	//------------- SELECTOR ------------------
 
 	/**
@@ -557,7 +559,7 @@ class VersionUtils {
 			}
 		}else if (technology=="maven"){
 			def ficheros = this.getAllFiles(parentWorkspace, tecnologias.get("maven"))
-			version = this.mavenGetVersion(parentWorkspace, ficheros, checkSnapshot,checkErrors, homeStream, fullCheck)			
+			version = this.mavenGetVersion(parentWorkspace, ficheros, checkSnapshot,checkErrors, homeStream, fullCheck)
 			checkSnapshotVersion(action, version)
 			log.log("Versión -> ${version.version}")
 			newVersion = this.getNewVersion(version.version,action,changeVersion)
@@ -565,7 +567,7 @@ class VersionUtils {
 			if (version.version!=newVersion || fixMavenErrors){
 				this.mavenWriteVersion(ficheros, version.version,newVersion,action,homeStream,parentWorkspace,changeVersion, fullCheck)
 			}
-			
+
 			// Bloque WAS deploy plugin
 			if (action=="deploy") {
 				ficheros.each { fichero ->
@@ -576,7 +578,7 @@ class VersionUtils {
 			throw new NumberFormatException("Technology ${technology} is not supported")
 		}
 
-		
+
 		if (save!="false"){
 			if (save=="old") {
 				this.writeStandarVersion(version.version,version.groupId,parentWorkspace,checkSnapshot)
@@ -586,7 +588,7 @@ class VersionUtils {
 			}
 		}
 	}
-	
+
 	/**
 	 * Comprueba que la versión esté abierta o cerrada en función de la acción solicitada
 	 * @param action  Distingue las posibles acciones a llevar a cabo por el método.
@@ -606,7 +608,7 @@ class VersionUtils {
 			}
 		}
 	}
-	
+
 	/**
 	 * Realiza la adicción de la propiedad "plugin_was_version" al pom.xml
 	 * del módulo ear de los proyectos que lo tengan.
@@ -615,41 +617,41 @@ class VersionUtils {
 	 */
 	def addWASPluginVersion(File fichero) {
 		try {
-		    def pom = new XmlParser().parse(fichero)
-		    		
-		    if (pom.packaging.text() == 'ear') {
-		
-			    log.log('Update WAS plugin property in ear project...')
-		
-		    	def hasProperties = false
-			    def hasPluginWASVersion = false
-			    def changes = false
-			    
-			    if (pom.properties != null && pom.properties.size() > 0) {
+			def pom = new XmlParser().parse(fichero)
+
+			if (pom.packaging.text() == 'ear') {
+
+				log.log('Update WAS plugin property in ear project...')
+
+				def hasProperties = false
+				def hasPluginWASVersion = false
+				def changes = false
+
+				if (pom.properties != null && pom.properties.size() > 0) {
 					hasProperties = true
-				    pom.properties['*'].each { propertiesChild ->
+					pom.properties['*'].each { propertiesChild ->
 						String nombreNodo = propertiesChild.name().getLocalPart()
-		                log.log nombreNodo
+						log.log nombreNodo
 						if ('plugin_was_version' == nombreNodo) {
-		                	log.log "--> plugin_was_version found"
-		                	hasPluginWASVersion = true
-		                }
-		            }
-			    }
-			    
-			    log.log "hasProperties $hasProperties"
-			    log.log "hasPluginWASVersion $hasPluginWASVersion"
-			    
-			    if (!hasProperties) {
-			        pom.appendNode('properties')
-			        changes = true
-			    }
-			    
-			    if (!hasPluginWASVersion) {
-			        pom.properties[0].appendNode('plugin_was_version', '1.0.5.0')
-			        changes = true
-			    }
-				
+							log.log "--> plugin_was_version found"
+							hasPluginWASVersion = true
+						}
+					}
+				}
+
+				log.log "hasProperties $hasProperties"
+				log.log "hasPluginWASVersion $hasPluginWASVersion"
+
+				if (!hasProperties) {
+					pom.appendNode('properties')
+					changes = true
+				}
+
+				if (!hasPluginWASVersion) {
+					pom.properties[0].appendNode('plugin_was_version', '1.0.5.0')
+					changes = true
+				}
+
 				// Localizar el plugin
 				if (pom.profiles?.size() > 0) {
 					pom.profiles.profile.each { profile ->
@@ -661,46 +663,46 @@ class VersionUtils {
 									plugin.groupId[0].setValue("es.eci.gis.maven")
 									plugin.version[0].setValue("\${plugin_was_version}")
 									changes = true
-								} 
+								}
 							}
 						}
 					}
 				}
-			    
-			    log.log "property was plugin value:${pom.properties.plugin_was_version.text()}"
-			    log.log "changes $changes"
-			    
-			    if (changes) XmlUtil.serialize(pom, new FileOutputStream(fichero))
-			    
-			    log.log('Finish WAS plugin property update')
-		    
-		    }
+
+				log.log "property was plugin value:${pom.properties.plugin_was_version.text()}"
+				log.log "changes $changes"
+
+				if (changes) XmlUtil.serialize(pom, new FileOutputStream(fichero))
+
+				log.log('Finish WAS plugin property update')
+
+			}
 		} catch (FileNotFoundException e) {
-		    log.log e.getMessage()
+			log.log e.getMessage()
 		}
 	}
 
 	//---- COMUNES -----------
 
-	
+
 	def getRootFile(fromDirName,fileMatch){
 		def fromDir = new File(fromDirName)
 		def file = null
-		// traverse recorre los directorios en orden aleatorio en la versión 
+		// traverse recorre los directorios en orden aleatorio en la versión
 		//	de groovy en la que se probó este código.  Se intenta asegurar
 		//	mediante el código a continuación que se elige el fichero de menor
 		//	profundidad
 		fromDir.traverse(
-			type: groovy.io.FileType.FILES,
-			preDir: { if (it.name.startsWith(".") || it.name == 'target') return FileVisitResult.SKIP_SUBTREE},
-			nameFilter: ~/${fileMatch}/,
-			maxDepth: 2
-		){
-			def itDepth = getDepth(it)
-			if (file == null || itDepth < getDepth(file)) {
-				file = it
-			}
-		}
+				type: groovy.io.FileType.FILES,
+				preDir: { if (it.name.startsWith(".") || it.name == 'target') return FileVisitResult.SKIP_SUBTREE},
+				nameFilter: ~/${fileMatch}/,
+				maxDepth: 2
+				){
+					def itDepth = getDepth(it)
+					if (file == null || itDepth < getDepth(file)) {
+						file = it
+					}
+				}
 		log.log "Encuentra: ${file}....."
 		return file
 
@@ -719,14 +721,14 @@ class VersionUtils {
 		def fromDir = new File(fromDirName)
 		def files = []
 		fromDir.traverse(
-			type: groovy.io.FileType.FILES,
-			preDir: { if (exceptionsList.contains(it.name) 
+				type: groovy.io.FileType.FILES,
+				preDir: { if (exceptionsList.contains(it.name)
 						|| it.name.startsWith(".")) return FileVisitResult.SKIP_SUBTREE},
-			nameFilter: ~/${fileMatch}/,
-			maxDepth: max
-		){
-			files << it
-		}
+				nameFilter: ~/${fileMatch}/,
+				maxDepth: max
+				){
+					files << it
+				}
 		return files
 	}
 
@@ -763,8 +765,8 @@ class VersionUtils {
 	}
 
 	/**
-	* Chequea que el número de digitos de la versión es el adecuado y si no lo es lo arregla automáticamente.
-	*/
+	 * Chequea que el número de digitos de la versión es el adecuado y si no lo es lo arregla automáticamente.
+	 */
 	def setDigits(version, digits){
 		def versionRes = ""
 		def tmpVersion = version.split("-")
@@ -830,7 +832,7 @@ class VersionUtils {
 		}
 		return newVersion
 	}
-	
+
 	def writeStandarVersion(version,groupId,parentWorkspace,checkSnapshot){
 		if (checkSnapshot=="false"){
 			if (version.toLowerCase().indexOf("snapshot")<0){
@@ -877,24 +879,20 @@ class VersionUtils {
 		}
 		return changed
 	}
-	
+
 	/**
 	 * Intenta resolver los valores posibles de la versión
 	 * de un pom a una String, remontándose hasta baseDirectory si es necesario.
 	 * En el peor caso:
-
 	 ...
 	 <version>${core-version}</version>
 	 ...
-
 	 <properties>
-		  <toolkit-version>21.0.0</toolkit-version>
-		  <core-version>${toolkit-version}-SNAPSHOT</core-version>
-	  </properties>
-
-
-	  Debería resolver la versión a:
-	  21.0.0-SNAPSHOT
+	 <toolkit-version>21.0.0</toolkit-version>
+	 <core-version>${toolkit-version}-SNAPSHOT</core-version>
+	 </properties>
+	 Debería resolver la versión a:
+	 21.0.0-SNAPSHOT
 	 */
 	def solveRecursive(File baseDirectory, pom, s) {
 		StringBuilder sb = new StringBuilder();
@@ -902,8 +900,8 @@ class VersionUtils {
 		for(String token: tokens) {
 			if (token.startsWith('${') && token.endsWith('}')) {
 				// Inmersión recursiva (resolviendo antes la propiedad)
-				sb.append(solve(pom, lookupPropertyRecursive(baseDirectory, 
-					pom, token.substring(2, token.length() - 1))));
+				sb.append(solve(pom, lookupPropertyRecursive(baseDirectory,
+						pom, token.substring(2, token.length() - 1))));
 			}
 			else {
 				// Caso trivial
@@ -916,19 +914,15 @@ class VersionUtils {
 	/**
 	 * Intenta resolver los valores posibles de la versión
 	 * de un pom a una String. En el peor caso:
-
 	 ...
 	 <version>${core-version}</version>
 	 ...
-
 	 <properties>
-	  	<toolkit-version>21.0.0</toolkit-version>
-	  	<core-version>${toolkit-version}-SNAPSHOT</core-version>
-	  </properties>
-
-
-	  Debería resolver la versión a:
-	  21.0.0-SNAPSHOT
+	 <toolkit-version>21.0.0</toolkit-version>
+	 <core-version>${toolkit-version}-SNAPSHOT</core-version>
+	 </properties>
+	 Debería resolver la versión a:
+	 21.0.0-SNAPSHOT
 	 */
 	def solve(pom, s) {
 		StringBuilder sb = new StringBuilder();
@@ -945,7 +939,7 @@ class VersionUtils {
 		}
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Intenta resolver una propiedad contra el elemento <properties/>
 	 * de un pom.xml
@@ -963,12 +957,12 @@ class VersionUtils {
 		// Caso trivial
 		def solveProjectParentVersion = { groovy.util.Node project ->
 			if (project.parent != null && project.parent.version != null
-					&& !isNull(project.parent.version.text())) {
+			&& !isNull(project.parent.version.text())) {
 				ret = solveRecursive(baseDirectory, project, project.parent.version.text());
 			}
 		}
 		if (value == "project.version") {
-			// Puede estar en el propio elemento			
+			// Puede estar en el propio elemento
 			if (projectPom.version != null && !isNull(projectPom.version.text())) {
 				ret = solveRecursive(baseDirectory, projectPom, projectPom.version.text())
 			}
@@ -985,7 +979,7 @@ class VersionUtils {
 			String tmp = lookupProperty(pom, value);
 			if (!isNull(tmp) && !tmp.startsWith('${')) {
 				ret = tmp;
-			} 
+			}
 			else {
 				Map<String, String> properties = populatePropertiesMap(baseDirectory, pom);
 				ret = properties[value];
@@ -993,7 +987,7 @@ class VersionUtils {
 		}
 		return ret;
 	}
-	
+
 	// Dado un nodo, nos retrotrae al ancestro final (el project en el caso de maven)
 	private groovy.util.Node lastAncestor(groovy.util.Node node) {
 		groovy.util.Node ret = node;
@@ -1008,7 +1002,7 @@ class VersionUtils {
 		}
 		return ret;
 	}
-	
+
 	// Construye una tabla de propiedades desde la raíz hasta el pom indicado
 	private Map<String, String> populatePropertiesMap(File baseDirectory, pom) {
 		Map<String, String> ret = new HashMap<String, String>();
@@ -1016,14 +1010,14 @@ class VersionUtils {
 		if (propertiesCache[baseDirectory] != null) {
 			tree = propertiesCache[baseDirectory];
 		}
-		else {	
+		else {
 			tree = new PomTree(baseDirectory);
 			propertiesCache.put(baseDirectory, tree);
 		}
 		MavenCoordinates soughtCoordinates = MavenCoordinates.readPom(pom);
 		PomNode actual = null;
-		for (Iterator<PomNode> iterator = tree.widthIterator(); 
-				iterator.hasNext() && actual == null;) {
+		for (Iterator<PomNode> iterator = tree.widthIterator();
+		iterator.hasNext() && actual == null;) {
 			// Buscar el nodo
 			PomNode tmp = iterator.next();
 			MavenCoordinates tmpCoordinates = tmp.getCoordinates();
@@ -1068,11 +1062,11 @@ class VersionUtils {
 			}
 			else {
 				// Entonces el parent version
-				if (pom.parent != null && pom.parent.version != null 
-					&& !isNull(pom.parent.version.text())) {
+				if (pom.parent != null && pom.parent.version != null
+				&& !isNull(pom.parent.version.text())) {
 					ret = solve(pom, pom.parent.version.text());
 				}
-				
+
 			}
 		}
 		else if (pom.properties != null && pom.properties.size() > 0) {
@@ -1137,5 +1131,43 @@ class VersionUtils {
 			}
 		}
 		return ret;
+	}
+
+	/**
+	 * Crea un archivo artifactsJson con los componentes filtrados por el parámetro componentsFilter.
+	 * Si este parámetro llega vacío o a null se incluyen todos los componentes.
+	 * @param artifactsComp
+	 * @param home
+	 * @return
+	 */
+	def writeJsonArtifactsMaven(artifactsComp, File home, String fileName, List<String> componentsFilter) {
+		def file = new File("${home.canonicalPath}/${fileName}")
+		file.delete()
+		file << "["
+		
+		if(componentsFilter == null || componentsFilter.size() == 0) {
+			componentsFilter = [];
+			artifactsComp.keySet().each { String compo ->
+				componentsFilter.add(compo);
+			}
+		}		
+		StringBuilder buffer_components = new StringBuilder()
+		artifactsComp.each { artsComp ->
+			if(componentsFilter.contains(artsComp.key.trim())) {
+				def component = artsComp.key
+				def artifacts = artsComp.value
+				StringBuilder buffer_artifacts = new StringBuilder()
+				if (artifacts.size() > 0) {
+					artifacts.each { artifact ->
+						buffer_artifacts.append("{\"version\":\"${artifact.version}\",\"component\":\"${component}\",\"groupId\":\"${artifact.groupId}\",\"artifactId\":\"${artifact.artifactId}\"},")
+					}
+					buffer_components.append(buffer_artifacts.substring(0, buffer_artifacts.length() - 1))
+					buffer_components.append(",")
+				}
+			}
+		}
+
+		file << buffer_components.substring(0, buffer_components.length() - 1)
+		file << "]"
 	}
 }

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.atsistemas.jenkins</groupId>
   <artifactId>dic-scripts</artifactId>
-  <version>8.0.173.0-SNAPSHOT</version>
+  <version>8.0.193.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>dic-scripts</name>
   <!-- áéíóú -->  
@@ -24,7 +24,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <gmavenVersion>1.4</gmavenVersion>
     <gmavenProviderSelection>2.0</gmavenProviderSelection>
-    <groovyVersion>2.3.0</groovyVersion>
+    <groovyVersion>2.3.10</groovyVersion>
     <ivy-version>2.4.0</ivy-version>
   </properties>
   <build>
@@ -113,6 +113,32 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-antrun-plugin</artifactId>
+		  <version>1.7</version>
+		  <executions>
+		    <execution>
+		      <id>groovydoc</id>
+		      <phase>site</phase>
+		      <goals>
+		        <goal>run</goal>
+		      </goals>
+		      <configuration>
+		        <target>
+		          <taskdef classname="org.codehaus.groovy.ant.Groovydoc" classpathref="maven.compile.classpath" name="groovydoc"/>
+		          <groovydoc destdir="${project.reporting.outputDirectory}/groovydoc" doctitle="${project.name}" sourcepath="${basedir}/groovy/classes" use="true" windowtitle="${project.name}">
+		            <link href="http://download.oracle.com/javase/6/docs/api" packages="java.,org.xml.,javax.,org.xml."/>
+		            <link href="http://evgeny-goldin.org/javadoc/ant/api" packages="org.apache.tools.ant."/>
+		            <link href="http://kentbeck.github.com/junit/javadoc/latest" packages="org.junit.,junit.framework."/>
+		            <link href="http://groovy.codehaus.org/api/" packages="groovy.,org.codehaus.groovy."/>
+		            <link href="http://evgeny-goldin.org/javadoc/gmaven" packages="org.codehaus.gmaven."/>
+		          </groovydoc>
+		        </target>
+		      </configuration>
+		    </execution>
+		  </executions>
+		</plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.2</version>

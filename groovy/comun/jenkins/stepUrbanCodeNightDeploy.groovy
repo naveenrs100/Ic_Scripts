@@ -81,6 +81,10 @@ if (!isNull(urbanCodeApp)) {
 					ParamsHelper.getDefaultParameterValue(
 						componentJob, 
 						"componenteUrbanCode");
+				String componentDocumentation =
+					ParamsHelper.getDefaultParameterValue(
+						componentJob,
+						"documentacion");
 				if (componentUrbanCode != null && componentUrbanCode.trim().length() > 0) {	
 					println "Recuperando desde $urlUrbanCode la información de $componentUrbanCode"
 					// Obtener el parámetro de versión guardado en la ejecución del job	
@@ -88,8 +92,13 @@ if (!isNull(urbanCodeApp)) {
 						"builtVersion");
 					println "---> Recuperada versión: $componentUrbanCode <-- $builtVersion";
 					Map<String, String> tmp = [:];
-					tmp.put(componentUrbanCode, builtVersion);
-					componentsVersions << tmp;
+					tmp.put(componentUrbanCode, builtVersion);					
+					if(componentDocumentation != null && componentDocumentation.trim().equals("true")) {
+						Map<String, String> tmpDoc = [:];
+						tmpDoc.put(componentUrbanCode + ".doc", builtVersion);
+						componentsVersions.add(tmpDoc);
+					}
+					componentsVersions.add(tmp);
 				}
 				else {
 					println "Descartando ${bean} al no tener despliegue en Urban"

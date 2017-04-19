@@ -4,6 +4,7 @@ import es.eci.utils.TmpDir
 import es.eci.utils.base.Loggable;
 import es.eci.utils.commandline.CommandLineHelper
 import git.commands.GitCloneCommand
+import groovy.json.JsonSlurper
 
 /** Funciones de utilidad para git. */
 class GitUtils extends Loggable {
@@ -17,6 +18,26 @@ class GitUtils extends Loggable {
 	
 	//----------------------------------------------------------
 	// Métodos de la clase
+	
+	/**
+	 * Este método consulta la caché de grupos git dejada por la noche por el job
+	 * actualizarUsuariosSonar, en el fichero gitlab_groups.json, para deducir el id
+	 * del grupo git.
+	 * @param gitGroup Nombre del grupo git
+	 * @return Id interno del grupo git correspondiente
+	 */
+	public static Integer getCachedGroupId(String gitGroup) {
+		Integer ret = null;
+		File workspace = new File("/jenkins/workspace/actualizarUsuariosSonar");
+		File groupsFile = new File(workspace, "gitlab_groups.json");
+		if (groupsFile.exists()) {
+			String content = groupsFile.text;
+			def obj = new JsonSlurper().parseText(content);
+			def group = obj.find { it.name.equals(gitGroup) } 
+			ret = group.id
+		}
+		return ret;
+	}
 	
 	/**
 	 * Construye un objeto de utilidades con la información para logarse en git

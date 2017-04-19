@@ -17,8 +17,10 @@ class TestActionPatterns {
 		Assert.assertEquals("WSR - mi corriente de prueba - RELEASE - IC", 
 			RTCWorkspaceHelper.getWorkspaceRTC("release", "mi corriente de prueba"));
 		
+		
 		Assert.assertEquals("WSR - mi corriente de prueba - ADDFIX - IC", 
 			RTCWorkspaceHelper.getWorkspaceRTC("addFix", "mi corriente de prueba"));
+		
 		
 		Assert.assertEquals("WSR - mi corriente de prueba - ADDHOTFIX - IC", 
 			RTCWorkspaceHelper.getWorkspaceRTC("addHotfix", "mi corriente de prueba"));

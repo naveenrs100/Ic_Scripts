@@ -18,7 +18,7 @@ class VersionerComun {
 	 * @param Closure c1 A ejecutar en el caso de que la versión venga indicada directamente.
 	 * @param Closure c2 A ejecutar en el caso de que la versión venga indicada como variable.
 	 */
-	public static void action(File dir, String artifactsJson, Closure c1, Closure c2) {
+	public static void action(File dir, String artifactsJson, Closure c1, Closure c2, String nexusUrl) {
 		def pomRaiz = new File(dir.getCanonicalPath() + "/pom.xml");
 		def treeNodesMap = XmlUtils.getTreeNodesMap(dir);
 		ArrayList<ArtifactObject> artifacts = XmlUtils.getArtifactsMap(artifactsJson);
@@ -56,7 +56,7 @@ class VersionerComun {
 							String depVersionText = depVersionNode.getTextContent();
 							def finalDepVersion;
 							if(depVersionText.contains("\${") && !depVersionText.contains("\${project.") && !depVersionText.contains("\${parent.")) {
-								finalDepNode = XmlUtils.getFinalPropNode(file,treeNodesMap,depVersionText).getNode();
+								finalDepNode = XmlUtils.getFinalPropNode(file,treeNodesMap,depVersionText, nexusUrl).getNode();
 								finalDepVersion = finalDepNode.getTextContent();
 							}
 							else {

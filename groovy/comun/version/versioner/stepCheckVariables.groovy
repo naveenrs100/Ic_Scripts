@@ -11,7 +11,7 @@ def params = parameterBuilder.getSystemParameters();
 
 def parentWorkspaceFile = new File(params["parentWorkspace"]);
 
-def notResolvedVariables = PomXmlOperations.checkVariables(parentWorkspaceFile);
+def notResolvedVariables = PomXmlOperations.checkVariables(parentWorkspaceFile, params["nexusUrl"]);
 
 if(notResolvedVariables.size() > 0) {
 	def listaVariablesString = "";

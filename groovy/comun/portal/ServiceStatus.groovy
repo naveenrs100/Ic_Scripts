@@ -4,10 +4,9 @@
 @Grab(group='org.apache.httpcomponents', module='httpmime', version='4.4')
 
 //imports
-
-import java.net.*;
-import java.io.*;
 import javax.net.ssl.*;
+import javax.xml.bind.DatatypeConverter
+
 import java.security.cert.X509Certificate;
 
 import groovy.io.FileType
@@ -131,7 +130,7 @@ def testGet(environment){
 	
 	if (environment.username!=null){
 	  String userPassword = environment.username + ":" + environment.password;
-	  String encoding = new sun.misc.BASE64Encoder().encode(userPassword.getBytes());
+	  String encoding = DatatypeConverter.printBase64Binary(userPassword.getBytes());
 	  con.setRequestProperty("Authorization", "Basic " + encoding);
 	  }
 

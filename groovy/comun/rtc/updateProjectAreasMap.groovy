@@ -8,6 +8,16 @@ import es.eci.utils.Stopwatch;
 import es.eci.utils.TmpDir;
 import rtc.*;
 
+// Devuelve un map similar al inicial, pero indexado por los nombres embellecidos
+//	de la corriente
+def beautify(Map<String, List<String>> areas) {
+	Map<String, List<String>> ret = [:]
+	areas.keySet().each { String area ->
+		ret[ProjectAreasMap.beautify(area)] = 
+			areas[area];
+	}
+	return ret;
+}
 
 def build = Thread.currentThread().executable;
 def workspace = build.workspace;
@@ -29,9 +39,18 @@ TmpDir.tmp { tmpDir ->
 		Map<String, List<String>> areas = p.map(userRTC, pwdRTC, urlRTC, tmpDir);
 		println areas
 		// Serializarlas en XML		
-		XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(new FileOutputStream("${build.workspace}/areas.xml")));
-		encoder.writeObject(areas);
+		// areas.xml -> nombres embellecidos para checking
+		XMLEncoder encoder = new XMLEncoder(
+			new BufferedOutputStream(
+				new FileOutputStream("${build.workspace}/areas.xml")));
+		encoder.writeObject(beautify(areas));
 		encoder.close();
+		// full_areas.xml -> nombres reales para usar en clarive
+		XMLEncoder fullEncoder = new XMLEncoder(
+			new BufferedOutputStream(
+				new FileOutputStream("${build.workspace}/full_areas.xml")));
+		fullEncoder.writeObject(areas);
+		fullEncoder.close();
 	}
 	catch (Exception e) {
 		println e.getMessage()

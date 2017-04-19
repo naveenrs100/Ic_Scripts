@@ -33,12 +33,13 @@ Map<String, LDAPRecord> ldapCache = [:]
 Map<String, GitlabUser> gitlabCache = [:]
 
 // Conexión a gitlab
-GitlabHelper gitlabHelper = new GitlabHelper(
-	new GitlabClient(
+GitlabClient gitClient = new GitlabClient(
 		params["urlGitlab"],
 		params["privateGitlabToken"],
 		params["keystoreVersion"],
-		params["nexusURL"]))
+		params["nexusURL"]);
+gitClient.initLogger { println it }
+GitlabHelper gitlabHelper = new GitlabHelper(gitClient);
 
 // Usuarios administradores de gitlab, mantenidos como usuarios locales de gitlab
 List<String> userExceptions = []

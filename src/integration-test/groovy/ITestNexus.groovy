@@ -1,62 +1,100 @@
-import org.junit.Assert;
-import org.junit.Before;
+import java.security.DigestInputStream
+import java.security.MessageDigest
+
+import org.junit.Assert
 import org.junit.Test
 
 import es.eci.utils.NexusHelper
 import es.eci.utils.TmpDir
-import es.eci.utils.ZipHelper
 import es.eci.utils.pom.MavenCoordinates
 
-class ITestNexus {
+class ITestNexus extends BaseTest {
 
-	private String mavenHome = null;
 	
-	@Before
-	public void setup() {
-		// Las propiedades deberán haberse inyectado desde Jenkins, o por
-		//	línea de comandos con -DuserRTC=XXXX -DurlRTC=XXXX, etc.
-		mavenHome = System.getProperty("MAVEN_HOME");
+	private checkDownload(MavenCoordinates coords, String md5, String repo = null) {
+		TmpDir.tmp { File dir ->
+			NexusHelper helper = new NexusHelper(repo==null?nexusURL:repo);
+			helper.initLogger { println it }
+			helper.setNexus_user(nexusUser);
+			helper.setNexus_pass(nexusPwd);
+			File f = helper.download(coords, dir);
+			Assert.assertNotNull(f);
+			Assert.assertTrue(f.exists());
+			// El primer zip es el que necesitamos
+			InputStream is = null;
+			try {
+				is = new FileInputStream(f); 
+				DigestInputStream dis = new DigestInputStream(is, MessageDigest.getInstance('MD5'));
+				dis.eachByte { };
+				Assert.assertEquals(md5,
+					dis.getMessageDigest().digest().encodeHex().toString())
+			}
+			catch (Throwable t) {
+				throw t;
+			}
+			finally {
+				is.close();
+			}
+		}
 	}
 	
-	//@Test
-//	public void testSnapshotResolution() {
-//		String urlNexus = "http://nexus.elcorteingles.pre";
-//		String urlNexusRepoSnapshots = "${urlNexus}/content/repositories/eci-snapshots/"
-//		MavenCoordinates coords = new MavenCoordinates("grupo.prueba", "artefacto.prueba", "1.0-SNAPSHOT");
-//		coords.setPackaging("jar");
-//		
-//		// Componer un jar y subirlo a nexus
-//		TmpDir.tmp { File dir ->
-//			File content = new File(dir, "content");
-//			content.mkdirs();
-//			
-//			// Construir algo en contents
-//			File txt = new File(content, "file.txt");
-//			txt.text = "contenido de prueba";
-//			
-//			File artifact = ZipHelper.addDirToArchive(content);
-//			String mavenExecutable = mavenHome + "/bin/mvn";
-//			if (System.getProperty('os.name').toLowerCase().contains('windows')) {
-//				mavenExecutable += ".bat";
-//			}
-//			NexusHelper.uploadToNexus(
-//				// Ejecutable de maven
-//				mavenExecutable, 
-//				// Coordenadas
-//				coords.getGroupId(), 
-//				coords.getArtifactId(), 
-//				coords.getVersion(),
-//				artifact.getCanonicalPath(),
-//				urlNexusRepoSnapshots,
-//				// Coordenadas 
-//				coords.getPackaging(),
-//				// Logger
-//				{println it});
-//		}
-//		// Leer el timestamp devuelto por nexus para ese jar
-//		NexusHelper helper = new NexusHelper(urlNexus);
-//		helper.initLogger { println it }
-//		String timestamp = helper.resolveSnapshot(coords, "public");
-//		Assert.assertNotNull(timestamp);
-//	}
+	@Test
+	public void testNexusDownload() {
+		MavenCoordinates coords = 
+			new MavenCoordinates(
+				"es.eci.pruebas", 
+				"notClassifiedArtifact", 
+				"1.0.0.1");
+		coords.setPackaging("zip");
+		checkDownload(coords, "3c522317e3b1c5bf15d9d831dca11ef2");
+	}
+	
+	@Test
+	public void testNexusDownloadWithClassifier() {
+		MavenCoordinates coords = 
+			new MavenCoordinates(
+				"es.eci.pruebas", 
+				"classifiedArtifact", 
+				"1.0.0.1");
+		coords.setPackaging("zip");
+		coords.setClassifier("myclassifier")
+		checkDownload(coords, "b55f6a285da6dd464757e8cd49da488f");
+	}
+	
+	@Test
+	public void testPrivateNexusDownload() {
+		MavenCoordinates coords = 
+			new MavenCoordinates(
+				"es.eci.pruebas", 
+				"privateNoClassifierArtifact", 
+				"1.2.3.4");
+		coords.setPackaging("zip");
+		coords.setRepository("private");
+		checkDownload(coords, "8353550df86b97831ff2c6bb1f7190a9");
+	}
+	
+	@Test
+	public void testPrivateWithClassifierNexusDownload() {
+		MavenCoordinates coords = 
+			new MavenCoordinates(
+				"es.eci.pruebas", 
+				"privateClassifierArtifact", 
+				"1.2.3.4");
+		coords.setPackaging("zip");
+		coords.setClassifier("anotherclassifier");
+		coords.setRepository("private");
+		checkDownload(coords, "579547cd23db1cfbe316937be4799ba4");
+	}
+	
+	@Test
+	public void testNexusDownloadAltRepo() {
+		MavenCoordinates coords = 
+			new MavenCoordinates(
+				"es.eci.pruebas", 
+				"notClassifiedArtifact", 
+				"1.0.0.1");
+		coords.setPackaging("zip");
+		checkDownload(coords, "3c522317e3b1c5bf15d9d831dca11ef2",
+			"http://nexus.elcorteingles.pre/content/repositories/fichas_despliegue/");
+	}	
 }

@@ -11,19 +11,19 @@ class UrbanCodeSnapshotDeployer extends Loggable {
 
 	//---------------------------------------------------------------
 	// Propiedades de la clase
-	
+
 	// Ejecutor de comandos en Urban
 	private UrbanCodeExecutor exec = null;
 	// URL de Nexus
 	private String urlNexus = null;
-	
+
 	// Opcionales para conectar a un repositorio privado
 	private String nexus_user = null;
 	private String nexus_pass = null;
-	
+
 	//---------------------------------------------------------------
 	// Métodos de la clase
-	
+
 	/**
 	 * Inicializa el despliegue con un ejecutor, creado apuntando al
 	 * entorno correcto de Urban con su autenticación y ubicación del
@@ -35,7 +35,7 @@ class UrbanCodeSnapshotDeployer extends Loggable {
 		this.exec = executor;
 		this.urlNexus = urlNexus;
 	}
-	
+
 	/**
 	 * Realiza el despliegue en Urban Code de las versiones seleccionadas
 	 * en el entorno indicado.
@@ -45,7 +45,7 @@ class UrbanCodeSnapshotDeployer extends Loggable {
 	 * @param nightlyName Nombre de la snapshot nocturna, por defecto 'nightly'
 	 */
 	public void deploySnapshotVersions(
-			List<Map<String, String>> componentsVersions, 
+			List<Map<String, String>> componentsVersions,
 			String urbanCodeApp,
 			String urbanCodeEnv,
 			String nightlyName = "nightly") {
@@ -54,32 +54,37 @@ class UrbanCodeSnapshotDeployer extends Loggable {
 		//	en -SNAPSHOT
 		boolean isThereOpenVersion = false;
 		// Resolver las versiones -SNAPSHOT si fuera necesario
-		componentsVersions.each { Map compVersion ->
-			compVersion.keySet().each { String componentUrbanCode ->
-				String builtVersion = compVersion[componentUrbanCode];
-				if (builtVersion.endsWith("-SNAPSHOT")) {
-					isThereOpenVersion = true;
-					UrbanCodeComponentInfoService service =
-						new UrbanCodeComponentInfoService(exec);
-					service.initLogger(this);
-					MavenCoordinates coords = service.getCoordinates(componentUrbanCode);
-					coords.setVersion(builtVersion);
-					NexusHelper nexusHelper = new NexusHelper(urlNexus);
-					nexusHelper.initLogger(this);
-					// Si el repo es privado
-					if ( coords.getRepository() != "public") {
-						nexusHelper.setNexus_user(nexus_user)
-						nexusHelper.setNexus_pass(nexus_pass)
-					}					
-					String snapshotVersion = nexusHelper.resolveSnapshot(coords, coords.getRepository());
-					println "---> Resuelta versión SNAPSHOT: $componentUrbanCode <-- $snapshotVersion";
-					compVersion.put(componentUrbanCode, snapshotVersion);
-				}
+		componentsVersions.each { Map<String,String> compoMap ->			
+			compoMap.keySet().each { String componentUrbanCode ->
+					log("compVersion = ${compoMap}. Obteniendo el valor para ${componentUrbanCode}...");										
+					String builtVersion = compoMap[componentUrbanCode];					
+					log("builtVersion para ${componentUrbanCode} -> ${builtVersion}");
+					String thisComponentUrbanCode = componentUrbanCode.split("\\.doc")[0];
+					if (builtVersion.endsWith("-SNAPSHOT")) {
+						log("Calculando el timestamp de ${thisComponentUrbanCode} (para el componente ${componentUrbanCode}) en version ${builtVersion}");
+						isThereOpenVersion = true;
+						UrbanCodeComponentInfoService service =
+								new UrbanCodeComponentInfoService(exec);
+						service.initLogger(this);
+						MavenCoordinates coords = service.getCoordinates(thisComponentUrbanCode);
+						coords.setVersion(builtVersion);
+						NexusHelper nexusHelper = new NexusHelper(urlNexus);
+						nexusHelper.initLogger(this);
+						// Si el repo es privado
+						if ( coords.getRepository() != "public") {
+							nexusHelper.setNexus_user(nexus_user)
+							nexusHelper.setNexus_pass(nexus_pass)
+						}
+						String snapshotVersion = nexusHelper.resolveSnapshot(coords);
+						println "---> Resuelta versión SNAPSHOT: $componentUrbanCode <-- $snapshotVersion";
+						compoMap.put(componentUrbanCode, snapshotVersion);
+					}
+				
 			}
 		}
 		log "Versiones definitivas a desplegar -> ${componentsVersions}"
 		UrbanCodeSnapshot nightly =
-			new UrbanCodeSnapshot(
+				new UrbanCodeSnapshot(
 				nightlyName,
 				urbanCodeApp,
 				nightlyName,
@@ -90,7 +95,7 @@ class UrbanCodeSnapshotDeployer extends Loggable {
 				String componentVersion = compVersion[componentName];
 				try {
 					UrbanCodeComponentVersion componentVersionObject =
-						new UrbanCodeComponentVersion(
+							new UrbanCodeComponentVersion(
 							componentName, componentVersion, null, null);
 					exec.createVersion(componentVersionObject);
 				}
@@ -112,7 +117,7 @@ class UrbanCodeSnapshotDeployer extends Loggable {
 		if (urbanCodeEnv != null && urbanCodeEnv.trim().length() > 0) {
 			// Mandar el despliegue
 			UrbanCodeApplicationProcess process =
-				new UrbanCodeApplicationProcess(
+					new UrbanCodeApplicationProcess(
 					urbanCodeApp,
 					Constants.DEPLOY_PROCESS,
 					urbanCodeEnv,
@@ -123,28 +128,28 @@ class UrbanCodeSnapshotDeployer extends Loggable {
 		} else
 			log "### Aviso, no se lanza deploy automatico al no estar informado el entorno en el job de corriente"
 	}
-			
+
 	/**
 	 * @return the nexus_user
 	 */
 	public String getNexus_user() {
 		return nexus_user;
 	}
-		
+
 	/**
 	 * @param nexus_user the nexus_user to set
 	 */
 	public void setNexus_user(String nexus_user) {
 		this.nexus_user = nexus_user;
 	}
-		
+
 	/**
 	 * @return the nexus_pass
 	 */
 	public String getNexus_pass() {
 		return nexus_pass;
 	}
-	
+
 	/**
 	 * @param nexus_pass the nexus_pass to set
 	 */

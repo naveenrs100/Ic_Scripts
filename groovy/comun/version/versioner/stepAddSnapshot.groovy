@@ -2,7 +2,7 @@
 @Grab(group='com.ibm.icu', module='icu4j', version='57.1')
 
 import es.eci.utils.SystemPropertyBuilder
-import es.eci.utils.versioner.PomXmlOperations
+import es.eci.utils.versioner.PomXmlWriteOperations
 import es.eci.utils.versioner.ArtifactsJsonUtils;
 
 SystemPropertyBuilder parameterBuilder = new SystemPropertyBuilder();
@@ -15,4 +15,4 @@ def component = ""
 
 def artifactsJson = ArtifactsJsonUtils.getArtifactsJson(params, component, parentWorkspaceFile, action);
 
-PomXmlOperations.addSnapshot(parentWorkspaceFile,artifactsJson);
+PomXmlWriteOperations.addSnapshot(parentWorkspaceFile,artifactsJson,params["nexusUrl"]);

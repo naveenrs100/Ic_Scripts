@@ -6,6 +6,7 @@ import es.eci.utils.ZipHelper
 import es.eci.utils.base.JSONBean
 import es.eci.utils.base.Loggable
 import es.eci.utils.commandline.CommandLineHelper
+import es.eci.utils.pom.MavenCoordinates
 import groovy.json.JsonSlurper
 
 /**
@@ -56,9 +57,13 @@ class UrbanCodeExecutor extends Loggable {
 		UrbanCodeSnapshot ret = null;
 		TmpDir.tmp { File dir ->
 			try {
-				File zipFile = NexusHelper.downloadLibraries(groupId, artifact, snapshot, dir.getCanonicalPath(), "zip", nexusURL)
+				NexusHelper helper = new NexusHelper(nexusURL);
+				helper.initLogger(this);
+				MavenCoordinates coords = new MavenCoordinates(groupId, artifact, snapshot);
+				coords.setPackaging("zip");
+				File zipFile = helper.download(coords, dir);
 				ZipHelper.unzipFile(zipFile, dir)
-				File jsonFile = new File(dir.getCanonicalPath() + System.getProperty("file.separator") + "descriptor.json")
+				File jsonFile = new File(dir, "descriptor.json")
 				log "Leyendo descriptor.json..."
 				ret = UrbanCodeSnapshot.parseJSON(jsonFile.text)
 			}

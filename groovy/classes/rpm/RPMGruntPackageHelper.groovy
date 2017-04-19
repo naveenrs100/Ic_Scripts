@@ -9,6 +9,7 @@ import es.eci.utils.TmpDir
 import es.eci.utils.ZipHelper;
 import es.eci.utils.base.Loggable
 import es.eci.utils.commandline.CommandLineHelper;
+import es.eci.utils.pom.MavenCoordinates
 
 /**
  * Esta clase baja una configuración de empaquetado de Nexus, la utiliza para
@@ -159,15 +160,16 @@ class RPMGruntPackageHelper extends Loggable {
 		// Se debe bajar la configuración sobre un directorio temporal
 		TmpDir.tmp { File dir ->
 			// Bajar y descomprimir la configuración
-			NexusHelper.downloadLibraries(
+			NexusHelper helper = new NexusHelper(nexusURL);
+			MavenCoordinates coords = new MavenCoordinates(
 				configGroupId, 
 				configArtifactId, 
-				configVersion, 
-				dir.getCanonicalPath(), 
-				"zip", 
-				nexusURL);
+				configVersion);
+			coords.setPackaging("zip");
+			helper.initLogger(this);
+			File f = helper.download(coords, dir);
 			// Fichero zip recién descargado
-			ZipHelper.unzipFile(dir.listFiles()[0], dir);
+			ZipHelper.unzipFile(f, dir);
 			// Resolver las dependencias de npm
 			CommandLineHelper npmCommand = new CommandLineHelper("npm install");
 			npmCommand.initLogger(this);

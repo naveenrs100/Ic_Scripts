@@ -1,17 +1,20 @@
 package es.eci.utils.clarive;
 
 import hudson.model.*;
+import rtc.ProjectAreaCacheReader
 import rtc.RTCUtils;
 import urbanCode.UrbanCodeComponentInfoService;
 import urbanCode.UrbanCodeExecutor;
 import es.eci.utils.JobRootFinder;
 import es.eci.utils.NexusHelper;
+import es.eci.utils.base.Loggable
 import es.eci.utils.pom.MavenCoordinates;
 import groovy.json.*;
+import es.eci.utils.Stopwatch;
 
 import com.cloudbees.plugins.flow.FlowCause;
 
-class ClariveParamsHelper {
+class ClariveParamsHelper extends Loggable {
 
 	def build;
 	def resolver;
@@ -31,8 +34,9 @@ class ClariveParamsHelper {
 	def nexusUrl;
 	def component;
 	def action;
-	def projectArea;
+	def pArea;
 	def given_result;
+	def jenkinsHome;
 
 	public ClariveParamsHelper(build) {
 		this.build = build;
@@ -50,11 +54,10 @@ class ClariveParamsHelper {
 		nexusUrl = build.getEnvironment(null).get("ROOT_NEXUS_URL");
 		component = resolver.resolve("component");
 		action = resolver.resolve("action");
-		projectArea = resolver.resolve("projectAreaUUID");
+		pArea = resolver.resolve("projectAreaUUID");
 		given_result = resolver.resolve("resultado");
-
+		jenkinsHome = build.getEnvironment(null).get("JENKINS_HOME");
 	}
-
 
 	/**
 	 * Define el parámetro "tipoCorriente" dependiedo
@@ -64,7 +67,7 @@ class ClariveParamsHelper {
 	 */
 	public String getTipoCorriente() {
 		def tipoCorriente;
-		if(action.trim().equals("build") || action.trim().equals("release")) {
+		if(action.trim().equals("build") || action.trim().equals("release") || action.trim().equals("deploy")) {
 			tipoCorriente = "DESARROLLO";
 
 		} else if(action.trim().equals("addFix")) {
@@ -80,23 +83,41 @@ class ClariveParamsHelper {
 	 * Calcula el área de proyecto RTC
 	 * @return projectArea
 	 */
-	public String getProjectArea() {
-		def ret;
-		if(gitGroup == null || gitGroup.trim().equals("")) {
-			if(projectArea == null || projectArea.trim().equals("") || projectArea.trim().equals("\${projectArea}")) {
-				RTCUtils ru = new RTCUtils();
-				def pa = ru.getProjectArea(
-						"${stream}",
-						"${rtcUser}",
-						"${rtcPass}",
-						"${rtcUrl}");						
-				ret = pa;
-			} else {
-				ret = projectArea;
+	public String findArea() {
+		def ret = null;
+		boolean busqueda = true;
+		Long millis = Stopwatch.watch {
+			// Se busca la projectArea en el fichero full_areas.xml, que tarda menos.
+			try {
+				ProjectAreaCacheReader reader = new ProjectAreaCacheReader(
+					new FileInputStream(jenkinsHome + "/workspace/CacheStreamToProjectAreas/full_areas.xml"));
+				ret = reader.getProjectArea(stream);
+			} catch (Exception e) {
+				busqueda = false;
 			}
-		} else {
-			ret = gitGroup.trim();
+			
+			if(ret == null || busqueda == false) {
+				// Se calcula el projectArea consultando directamente a RTC
+				if(gitGroup == null || gitGroup.trim().equals("")) {
+					if(pArea == null || pArea.trim().equals("") || pArea.trim().equals('${projectArea}')) {
+						RTCUtils ru = new RTCUtils();
+						ru.initLogger(this);
+						def pa = ru.getProjectArea(
+								stream,
+								rtcUser,
+								rtcPass,
+								rtcUrl);
+						ret = pa;
+					} else {
+						ret = pArea;
+					}
+				} else {
+					ret = gitGroup.trim();
+				}
+			}
 		}
+		log("Tiempo de calculo del Project Area: ${millis}")
+		return ret;
 	}
 
 	/**
@@ -105,14 +126,14 @@ class ClariveParamsHelper {
 	 */
 	public String getSubproducto() {
 		def subproducto;
-		def streamSuffixes = ["DESARROLLO","RELEASE","MANTENIMIENTO","DEVELOPMENT"];
-		if(gitGroup != null && !gitGroup.trim().equals("") && !gitGroup.trim().equals("\${gitGroup}")) {
+		def streamSuffixes = ["DESARROLLO","RELEASE","MANTENIMIENTO","DEVELOPMENT","Development"];
+		if(gitGroup != null && !gitGroup.trim().equals("") && !gitGroup.trim().equals('${gitGroup}')) {
 			subproducto = gitGroup.trim();
 
-		} else if(stream != null && !stream.trim().equals("") && !stream.trim().equals("\${stream}")) {
+		} else if(stream != null && !stream.trim().equals("") && !stream.trim().equals('${stream}')) {
 			subproducto = stream;
 			for(suffix in streamSuffixes) {
-				subproducto = subproducto.split("- ${suffix}")[0].split("-${suffix}")[0];
+				subproducto = subproducto.split("- ${suffix}")[0].split("-${suffix}")[0].trim();
 			}
 		}
 		return subproducto;
@@ -147,32 +168,34 @@ class ClariveParamsHelper {
 	 */
 	public String getVersionMaven(String builtVersion) {
 		def version_maven;
-		try {
-			UrbanCodeExecutor urbExe = new UrbanCodeExecutor(udClientCommand,urlUrbanCode,userUrban,passUrban);
-			UrbanCodeComponentInfoService compoInfo = new UrbanCodeComponentInfoService(urbExe);
-			compoInfo.initLogger { println it };
+		Long millis = Stopwatch.watch {
+			try {
+				UrbanCodeExecutor urbExe = new UrbanCodeExecutor(udClientCommand,urlUrbanCode,userUrban,passUrban);
+				UrbanCodeComponentInfoService compoInfo = new UrbanCodeComponentInfoService(urbExe);
+				compoInfo.initLogger(this);
 
-			if(componenteUrbanCode != null && !componenteUrbanCode.trim().equals("")) {
-				MavenCoordinates mvnCoord = compoInfo.getCoordinates("${componenteUrbanCode}");
-				if(!builtVersion.endsWith("-SNAPSHOT")) {
-					mvnCoord.setVersion("${builtVersion}-SNAPSHOT");
+				if(componenteUrbanCode != null && !componenteUrbanCode.trim().equals("")) {
+					MavenCoordinates mvnCoord = compoInfo.getCoordinates("${componenteUrbanCode}");
+					if(!builtVersion.endsWith("-SNAPSHOT")) {
+						mvnCoord.setVersion("${builtVersion}-SNAPSHOT");
+					} else {
+						mvnCoord.setVersion("${builtVersion}");
+					}
+					NexusHelper nexusHelper = new NexusHelper(nexusUrl);
+					version_maven = nexusHelper.resolveSnapshot(mvnCoord);
+					log("La \"version_maven\" calculada desde Nexus es \"${version_maven}\"");
+
 				} else {
-					mvnCoord.setVersion("${builtVersion}");
+					log("La variable \"componenteUrbanCode\" no viene indicada para el componente \"${component}\". Usamos \"${builtVersion}\".");
+					version_maven = "${builtVersion}";
 				}
-				NexusHelper nexusHelper = new NexusHelper(nexusUrl);
-				version_maven = nexusHelper.resolveSnapshot(mvnCoord);
-				println("La \"version_maven\" calculada desde Nexus es \"${version_maven}\"");
 
-			} else {
-				println("La variable \"componenteUrbanCode\" no viene indicada para el componente \"${component}\". Usamos \"${builtVersion}\".");
+			} catch(Exception e) {
+				log("No se ha podido calcular el timestamp de Nexus para la version ${builtVersion}.");
 				version_maven = "${builtVersion}";
 			}
-
-		} catch(Exception e) {
-			println("No se ha podido calcular el timestamp de Nexus para la version ${builtVersion}.");
-			version_maven = "${builtVersion}";
 		}
-
+		log("Tiempo de calcular la version_maven -> ${millis}");
 		return version_maven;
 	}
 
@@ -191,13 +214,13 @@ class ClariveParamsHelper {
 		def jobName = causa.getUpstreamProject();
 		def buildNumber = causa.getUpstreamBuild().toInteger();
 
-		println("Sacamos métrica para el job \"${jobName}\" y build \"${buildNumber}\" si procede...");
+		log("Sacamos métrica para el job \"${jobName}\" y build \"${buildNumber}\" si procede...");
 
 		def job = hudson.model.Hudson.instance.getJob(jobName);
 
 		// Sólo sacamos métrica si se trata de un job de componente.
 		if(jobName.toString().contains("-COMP-")) {
-			println("... sí procede sacar métricas al ser el job padre de componente.");
+			log("... sí procede sacar métricas al ser el job padre de componente.");
 			if(job != null) {
 				def buildInvoker = job.getBuildByNumber(buildNumber);
 				def actions = buildInvoker.getActions();
@@ -215,8 +238,8 @@ class ClariveParamsHelper {
 
 					} else if(nombreClaseAction == 'hudson.plugins.jacoco.JacocoBuildAction') {
 						def jacocoResult = action.getResult();
-						println("JacocoResult:");
-						println(jacocoResult);
+						log("JacocoResult:");
+						log(jacocoResult.toString());
 						jacocoMap.put('branchCoverage', jacocoResult.branch.percentage);
 						jacocoMap.put('complexityScore', jacocoResult.complexity.percentage);
 						jacocoMap.put('instructionCoverage', jacocoResult.instruction.percentage);
@@ -238,7 +261,7 @@ class ClariveParamsHelper {
 			}
 
 		} else {
-			println("El job padre es de corriente. No mostramos métricas.");
+			log("El job padre es de corriente. No mostramos métricas.");
 		}
 		return metricas;
 	}
@@ -267,7 +290,7 @@ class ClariveParamsHelper {
 		}
 
 		if(given_result != null && !given_result.trim().equals("")) {
-			println("El resultado del job padre ya viene indicado: ${given_result}");
+			log("El resultado del job padre ya viene indicado: ${given_result}");
 			resultado = given_result;
 		} else {
 			resultado = resultado;

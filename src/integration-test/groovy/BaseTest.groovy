@@ -29,7 +29,14 @@ class BaseTest {
 	
 	// Propiedades de Nexus
 	protected String nexusURL = null;
+	protected String nexusUser = null;
+	protected String nexusPwd = null;
 	
+	// Propiedades de Urban Code
+	protected String urbanCodeCommand = "";
+	protected String urbanCodeURL = "";
+	protected String urbanCodeUser = "";
+	protected String urbanCodePassword = "";
 	
 	// Setup con los valores iniciales
 	protected void init(AbstractRTCCommand command) {
@@ -111,5 +118,13 @@ class BaseTest {
 		
 		// Propiedades de Nexus
 		nexusURL = System.getProperty("NEXUS_PUBLIC_URL");
+		nexusUser = System.getProperty("NEXUS_USER");
+		nexusPwd = System.getProperty("NEXUS_PWD");
+		
+		// Urban Code
+		urbanCodeCommand = System.getProperty("UDCLIENT_COMMAND");
+		urbanCodeUser = System.getProperty("UDCLIENT_USER_PRE");
+		urbanCodePassword = System.getProperty("UDCLIENT_PASS_PRE");
+		urbanCodeURL = System.getProperty("UDCLIENT_URL_PRE")
 	}
 }

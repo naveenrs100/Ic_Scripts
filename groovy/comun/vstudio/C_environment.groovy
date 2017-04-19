@@ -130,7 +130,7 @@ xmlEnv.libs.lib.each  { lib ->
 }
 
 //Devolver el resultado del script
-def params = []
+def params = [:]
 		
 //Recuperar valores del entorno de ejecución
 def entorno = xmlEnv.entornoEjecucion
@@ -190,24 +190,41 @@ bibliotecas.each { lib ->
 		lib.version = helper.getVersion(lib.artifactId, stream, userRTC, pwdRTC, urlRTC)
 	}
 	if (helper.esAbierta(lib.version)) {
-		if ((comp != null && comp.cambios != null && comp.cambios.size() > 0)) {
-			def plataformas = lib.getPlatforms().join('::')
-			lista.add("${componente}?groupId=${lib.groupId}&artifactId=${lib.artifactId}&version=${lib.version}&type=lib&workspaceRTC=${workspaceRTC}&stream=${stream}&action=${action}")
-			comp.cambios.each { cambio ->
-				println "--> CAMBIO: " + cambio.comentario
-			}
-			// Si es release, actualizar el fichero de environment
-			if (action == 'release') {
-				println "**** ENTRO, llamo a cerrarSesionBiblioteca"
-				cerrarVersionBiblioteca(xmlEnv, lib.groupId, lib.artifactId, lib.version)
-				updateEnvironment(xmlEnv, environment)
+		if (comp != null) {
+			// Construir con cambios
+			if (onlyChanges == "true") {
+				if (comp.cambios != null && comp.cambios.size() > 0) {
+					def plataformas = lib.getPlatforms().join('::')
+					lista.add("${componente}?groupId=${lib.groupId}&artifactId=${lib.artifactId}&version=${lib.version}&type=lib&workspaceRTC=${workspaceRTC}&stream=${stream}&action=${action}")
+					comp.cambios.each { cambio ->
+						println "--> CAMBIO: " + cambio.comentario
+					}
+					// Si es release, actualizar el fichero de environment
+					if (action == 'release') {
+						println "**** ENTRO, llamo a cerrarSesionBiblioteca"
+						cerrarVersionBiblioteca(xmlEnv, lib.groupId, lib.artifactId, lib.version)
+						updateEnvironment(xmlEnv, environment)
+					}
+				} else {
+					println "--> EXCLUIDO componente ${lib.artifactId} -> no tiene cambios"
+				}
+			// Construir sin cambios
+			} else {
+			
+				println "--> Construcción sin cambios, se incluye ${lib.artifactId}"
+			
+				def plataformas = lib.getPlatforms().join('::')
+				lista.add("${componente}?groupId=${lib.groupId}&artifactId=${lib.artifactId}&version=${lib.version}&type=lib&workspaceRTC=${workspaceRTC}&stream=${stream}&action=${action}")
+				
+				// Si es release, actualizar el fichero de environment
+				if (action == 'release') {
+					println "**** ENTRO, llamo a cerrarSesionBiblioteca"
+					cerrarVersionBiblioteca(xmlEnv, lib.groupId, lib.artifactId, lib.version)
+					updateEnvironment(xmlEnv, environment)
+				}
 			}
 		}
-		else {
-			println "--> EXCLUIDO componente ${lib.artifactId} -> no tiene cambios"
-		}
-	}
-	else {
+	} else {
 		println "--> EXCLUIDO componente ${lib.artifactId}:${lib.version} -> no se encuentra en versión abierta"
 		listaEntornoCompilacion << "${pasoEntornoComilacion}?parentWorkspace=${workspace}&groupId=${lib.groupId}&artifactId=${lib.artifactId}&version=${lib.version}"
 	}
@@ -219,17 +236,24 @@ aplicaciones.each { app ->
 	println "Recuperando versión: ${app.artifactId}, $stream, $userRTC, $pwdRTC, $urlRTC..."
 	def version = helper.getVersion(app.artifactId, stream, userRTC, pwdRTC, urlRTC)
 	if (helper.esAbierta(version)) {
-		if ((comp != null && comp.cambios != null && comp.cambios.size() > 0)) {
-			lista.add("${componente}?artifactId=${app.artifactId}&version=${version}&groupId=${groupId}&type=app&workspaceRTC=${workspaceRTC}&stream=${stream}&action=${action}")
-			comp.cambios.each { cambio ->
-				println "--> CAMBIO: " + cambio.comentario
+		if (comp != null) {
+			if (onlyChanges == "true") {
+				if (comp.cambios != null && comp.cambios.size() > 0) {
+					lista.add("${componente}?artifactId=${app.artifactId}&version=${version}&groupId=${groupId}&type=app&workspaceRTC=${workspaceRTC}&stream=${stream}&action=${action}")
+					comp.cambios.each { cambio ->
+						println "--> CAMBIO: " + cambio.comentario
+					}
+				} else {
+					println "--> EXCLUIDO componente ${app.artifactId} -> no tiene cambios"
+				}
+			} else {
+			
+				println "--> Construcción sin cambios, se incluye ${app.artifactId}"
+			
+				lista.add("${componente}?artifactId=${app.artifactId}&version=${version}&groupId=${groupId}&type=app&workspaceRTC=${workspaceRTC}&stream=${stream}&action=${action}")
 			}
 		}
-		else {
-			println "--> EXCLUIDO componente ${app.artifactId} -> no tiene cambios"
-		}
-	}
-	else {
+	} else {
 		println "--> EXCLUIDO componente ${app.artifactId}:${version} -> no se encuentra en versión abierta"
 	}
 }

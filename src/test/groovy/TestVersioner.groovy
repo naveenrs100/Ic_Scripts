@@ -1,5 +1,6 @@
 import es.eci.utils.versioner.XmlUtils;
 import es.eci.utils.versioner.PomXmlOperations;
+import es.eci.utils.versioner.PomXmlWriteOperations;
 import es.eci.utils.TmpDir;
 import java.io.File;
 import java.util.zip.ZipInputStream;
@@ -40,7 +41,7 @@ class TestVersioner {
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath())
 			def error = false;
 			try {
-				PomXmlOperations.checkOpenVersion(new File(tmpDir,"PruebaRelease-App-2"));
+				PomXmlOperations.checkOpenVersion(new File(tmpDir,"PruebaRelease-App-2"), null);
 			}
 			catch(NumberFormatException e) {
 				error = true;
@@ -58,7 +59,7 @@ class TestVersioner {
 			def artifactsJson = new File("src/test/resources/versioner/artifactsJson/01artifactsInicial.json");
 			def error = false;
 			try {
-				PomXmlOperations.checkOpenVersionAndDeps(new File(tmpDir,"PruebaRelease-App-2"), artifactsJson.getText());
+				PomXmlOperations.checkOpenVersionAndDeps(new File(tmpDir,"PruebaRelease-App-2"), artifactsJson.getText(), null);
 			}
 			catch(NumberFormatException e) {
 				e.printStackTrace();
@@ -72,7 +73,7 @@ class TestVersioner {
 			def artifactsJson = new File("src/test/resources/versioner/artifactsJson/testCheckOpen.json");
 			def error = false;
 			try {
-				PomXmlOperations.checkOpenVersionAndDeps(new File(tmpDir,"PruebaRelease - App 2"), artifactsJson.getText());
+				PomXmlOperations.checkOpenVersionAndDeps(new File(tmpDir,"PruebaRelease - App 2"), artifactsJson.getText(), null);
 			}
 			catch(NumberFormatException e) {
 				e.printStackTrace();
@@ -89,7 +90,7 @@ class TestVersioner {
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath())
 			def dir = new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2");
 			def artifactsJson = new File("src/test/resources/versioner/artifactsJson/01artifactsInicial.json");
-			PomXmlOperations.fillVersion(dir,artifactsJson.getText());
+			PomXmlWriteOperations.fillVersion(dir,artifactsJson.getText(), null);
 
 			Document doc = XmlUtils.parseXml(new File(dir.getAbsolutePath() + "/pom.xml"));
 			Node mainVersionNode = XmlUtils.xpathNode(doc, "/project/properties/main-version");
@@ -118,9 +119,9 @@ class TestVersioner {
 
 			// Camino hasta el removeSnapshot
 			def artifactsJson = new File("src/test/resources/versioner/artifactsJson/01artifactsInicial.json");
-			PomXmlOperations.fillVersion(dir, artifactsJson.getText());
+			PomXmlWriteOperations.fillVersion(dir, artifactsJson.getText(), null);
 			artifactsJson = new File("src/test/resources/versioner/artifactsJson/02artifacts-postFillVersion.json");
-			PomXmlOperations.removeSnapshot(dir, artifactsJson.getText());
+			PomXmlWriteOperations.removeSnapshot(dir, artifactsJson.getText(), null);
 
 			Document docRaiz = 		XmlUtils.parseXml(new File(dir,"pom.xml"));
 			Document docApp2WAR = 	XmlUtils.parseXml(new File(dir,"App2-WAR/pom.xml"));
@@ -148,11 +149,11 @@ class TestVersioner {
 
 			// Camino hasta el increaseVersion
 			def artifactsJson = new File("src/test/resources/versioner/artifactsJson/01artifactsInicial.json");
-			PomXmlOperations.fillVersion(dir, artifactsJson.getText());
+			PomXmlWriteOperations.fillVersion(dir, artifactsJson.getText(), null);
 			artifactsJson = new File("src/test/resources/versioner/artifactsJson/02artifacts-postFillVersion.json");
-			PomXmlOperations.removeSnapshot(dir, artifactsJson.getText());
+			PomXmlWriteOperations.removeSnapshot(dir, artifactsJson.getText(), null);
 			artifactsJson = new File("src/test/resources/versioner/artifactsJson/03artifacts-postRemoveSnapshot.json");
-			PomXmlOperations.increaseVersion(dir, 3, artifactsJson.getText());
+			PomXmlWriteOperations.increaseVersion(dir, 3, artifactsJson.getText(), null);
 
 			Document docRaiz = XmlUtils.parseXml(new File(dir, "pom.xml"));
 			Document docWAR = XmlUtils.parseXml(new File(dir, "App2-WAR/pom.xml"));
@@ -182,7 +183,7 @@ class TestVersioner {
 
 			// Camino hasta el increaseVersion
 			def artifactsJson = new File("src/test/resources/versioner/artifactsJson/06artifacts-hotFix.json");
-			PomXmlOperations.increaseVersion(dir, 5, artifactsJson.getText());
+			PomXmlWriteOperations.increaseVersion(dir, 5, artifactsJson.getText(), null);
 			
 			Document docHijo = XmlUtils.parseXml(new File(dir, "App2-WAR/hijo/pom.xml"));
 			Document docWAR = XmlUtils.parseXml(new File(dir, "App2-WAR/pom.xml"));
@@ -224,13 +225,13 @@ class TestVersioner {
 			
 			// Camino hasta el addSnapshot
 			def artifactsJson = new File("src/test/resources/versioner/artifactsJson/01artifactsInicial.json");
-			PomXmlOperations.fillVersion(dir, artifactsJson.getText());
+			PomXmlWriteOperations.fillVersion(dir, artifactsJson.getText(), null);
 			artifactsJson = new File("src/test/resources/versioner/artifactsJson/02artifacts-postFillVersion.json");
-			PomXmlOperations.removeSnapshot(dir, artifactsJson.getText());
+			PomXmlWriteOperations.removeSnapshot(dir, artifactsJson.getText(), null);
 			artifactsJson = new File("src/test/resources/versioner/artifactsJson/03artifacts-postRemoveSnapshot.json");
-			PomXmlOperations.increaseVersion(dir, 3, artifactsJson.getText());
+			PomXmlWriteOperations.increaseVersion(dir, 3, artifactsJson.getText(), null);
 			artifactsJson = new File("src/test/resources/versioner/artifactsJson/04artifacts-postIncreaseVersion.json");
-			PomXmlOperations.addSnapshot(dir, artifactsJson.getText());
+			PomXmlWriteOperations.addSnapshot(dir, artifactsJson.getText(), null);
 			
 			Document docRaiz = XmlUtils.parseXml(new File(dir.getAbsolutePath() + "/pom.xml"));
 			Document docApp2WAR = XmlUtils.parseXml(new File(dir.getAbsolutePath() + "/App2-WAR/pom.xml"));

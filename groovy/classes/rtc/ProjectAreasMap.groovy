@@ -33,7 +33,7 @@ class ProjectAreasMap {
 	 * @param toolsHome Ruta de las herramientas SCM en local
 	 */  	
 	public ProjectAreasMap(String toolsHome) {
-		command = new ScmCommand(ScmCommand.Commands.SCM, toolsHome, null);		
+		command = new ScmCommand(ScmCommand.Commands.LSCM, toolsHome, null);		
 	}
 	
 	// Parsea la lista de áreas a partir de la salida del comando
@@ -50,15 +50,20 @@ class ProjectAreasMap {
 		return ret;
 	}
 	
-	// Elimina el (RTC) y recorta espacios del nombre del área
-	private String beautify(String projectAreaName){
+	/**
+	 * Elimina el (RTC) y recorta espacios del nombre del área
+	 * @param projectAreaName Nombre de área de proyecto.
+	 * @return Nombre de área de proyecto embellecido.
+	 */
+	public static String beautify(String projectAreaName){
 		if (projectAreaName.endsWith("(RTC)")) {
 			projectAreaName = projectAreaName.replace("(RTC)","");
 		}
 		if (projectAreaName.endsWith(" - RTC")) {
 			projectAreaName = projectAreaName.replace(" - RTC","");
 		}
-		projectAreaName = Normalizer.normalize(projectAreaName, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+		projectAreaName = Normalizer.normalize(projectAreaName, Normalizer.Form.NFD).
+			replaceAll("[^\\p{ASCII}]", "");
 		projectAreaName = projectAreaName.replace("(", "-");
 		projectAreaName = projectAreaName.replace(")", "-");
 		// Eliminar el identificador de área
@@ -82,20 +87,25 @@ class ProjectAreasMap {
 	 * 	necesita para construir el .metadata, etc.)
 	 */
 	public Map<String, List<String>> map(String user, String password, String urlRTC, File baseDir) {
-		log.log "Listando áreas de proyecto de ${user} en ${urlRTC} ..."
 		Map<String, List<String>> ret = new HashMap<String, List<String>>();
-		// Obtener las áreas de proyecto
-		String salidaAreas = command.ejecutarComando("list projectareas", user, password, urlRTC, baseDir);
-		// Parsear áreas de proyecto
-		List<String> areas = parseStrings(salidaAreas);
-		// Obtener las corrientes
-		log.log "Listando las corrientes correspondientes a cada área de proyecto..."
-		areas.each { String area ->
-			String salidaCorrientes = command.ejecutarComando("list streams --projectarea \"${area}\" --maximum 200", user, password, urlRTC, baseDir);
-			List<String> streams = parseStrings(salidaCorrientes);
-			ret.put(beautify(area), streams)
+		try {
+			log.log "Listando áreas de proyecto de ${user} en ${urlRTC} ..."
+			// Obtener las áreas de proyecto
+			String salidaAreas = command.ejecutarComando("list projectareas", user, password, urlRTC, baseDir);
+			// Parsear áreas de proyecto
+			List<String> areas = parseStrings(salidaAreas);
+			// Obtener las corrientes
+			log.log "Listando las corrientes correspondientes a cada área de proyecto..."
+			areas.each { String area ->
+				String salidaCorrientes = command.ejecutarComando(
+					"list streams --projectarea \"${area}\" --maximum 200", user, password, urlRTC, baseDir);
+				List<String> streams = parseStrings(salidaCorrientes);
+				ret.put(area, streams)
+			}
 		}
-		
+		finally {
+			command.detenerDemonio(baseDir);
+		}
 		return ret;
 	}
 	

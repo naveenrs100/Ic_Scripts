@@ -1,7 +1,5 @@
 package sonar.usersinterface
 
-import java.util.Map;
-
 import es.eci.utils.base.Loggable
 import groovy.json.JsonSlurper
 import sonar.SonarClient
@@ -119,12 +117,22 @@ public class SonarPermissionsService extends Loggable {
 	 */
 	public void loadGroups() {
 		this.groups = new HashMap<String, SonarGroup>()
-		String groupsJson = client.get("user_groups/search", [:]);
-		log groupsJson
-		def groupsObject = new JsonSlurper().parseText(groupsJson);
-		groupsObject.groups?.each { def group ->
-			List<String> users = getGroupUsers(group.name);
-			this.groups.put(group.name, new SonarGroup(group.name, users));
+		int totalAccounted = 0;
+		boolean keepOn = true;
+		int currentPage = 0;
+		while (keepOn) {
+			String groupsJson = client.get("user_groups/search", ["p":++currentPage]);
+			log groupsJson
+			def groupsObject = new JsonSlurper().parseText(groupsJson);
+			int total = groupsObject.total;
+			groupsObject.groups?.each { def group ->
+				List<String> users = getGroupUsers(group.name);
+				this.groups.put(group.name, new SonarGroup(group.name, users));
+				totalAccounted++;
+			}
+			if (totalAccounted >= total) {
+				keepOn = false;
+			}
 		}
 	}
 	

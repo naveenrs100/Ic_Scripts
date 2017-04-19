@@ -31,14 +31,43 @@ class SetMailParameters extends Loggable {
 
 	// Descompone una lista de destinatarios separada por comas en una lista de
 	//	cadenas de caracteres
-	private List<String> listaDestinatarios(String managersMail) {
+	private List<String> parseReceivers(String managersMail) {
 		List<String> ret = new LinkedList<String>()
 		def managers = managersMail.split(',')
 		managers.each { if (it != null && it.trim().size() > 0) { ret << it } }
 		return ret;
 	}
 	
-	def setParameters (numeroLineas,causa,action,build,managersMail,userRTC,mailSubject,defaultManagersMail=null) {
+	/**
+	 * Este método crea en el contexto de la acción las variables necesarias 
+	 * para el envío de la notificación por correo: destinatarios, cuerpo del
+	 * correo, etc. 
+	 * 
+	 * Si el método determinara que no es necesario enviar el mail, asignará
+	 * un valor falso a la variable sendMail del build jobInvoker.
+	 * 
+	 * @param numeroLineas Número de líneas del log a 
+	 * 	incluir en el correo 
+	 * @param causa Causa de la llamada al build.
+	 * @param action build/deploy/release/addFix/addHotfix/GenerateReleaseNotes
+	 * @param build Instancia de la ejecución en jenkins
+	 * @param managersMail Cadena con las direcciones de correo 
+	 * 	de los destinatarios, separadas por comas
+	 * @param userRTC Nombre de usuario funcional de RTC
+	 * @param mailSubject Tema del correo
+	 * @param defaultManagersMail Cadena con las direcciones de 
+	 * 	correo obligatorias de los destintarios del equipo de IC,
+	 * 	separadas por comas
+	 */
+	def setParameters (
+			int numeroLineas,
+			Cause causa,
+			String action,
+			AbstractBuild build,
+			String managersMail,
+			String userRTC,
+			String mailSubject,
+			String defaultManagersMail = null) {
 		if (causa != null || action == "GenerateReleaseNotes"){
 			// Ejecución -----------
 			def nombrePadre = causa.getUpstreamProject()
@@ -48,21 +77,44 @@ class SetMailParameters extends Loggable {
 			
 			log "**** ACTION: " + action
 			// Añadir a la lista de destinatarios los indicados expresamente en el job
-			List<String> destinatarios = listaDestinatarios(managersMail)
+			List<String> receivers = parseReceivers(managersMail)
 			if (causa != null){
-				prepareData(buildInvoker,build,userRTC, destinatarios)
-				prepareDataReleaseNotes(buildInvoker, build, userRTC)	
+				JobRootFinder finder = new JobRootFinder(buildInvoker);
+				finder.initLogger(this);
+				AbstractBuild ancestor = finder.getRoot();
+				if (ancestor.getProject().getName().contains("-COMP-")) {
+					log "Ancestro: job de componente"
+					// Componer el correo de componente
+					prepareData(buildInvoker,build,userRTC, receivers)
+					prepareDataReleaseNotes(buildInvoker, build, userRTC)	
+				}
+				else {
+					log "Ancestro: job de grupo"
+					// Si el ancestro es de grupo/corriente, y estamos en el componente, no
+					//	hacemos nada
+					if (!buildInvoker.getProject().getName().contains("-COMP-")) {
+						log "Actual: job de grupo"
+						// Preparar el correo de grupo/corriente
+						prepareData(buildInvoker,build,userRTC, receivers)
+						prepareDataReleaseNotes(buildInvoker, build, userRTC)		
+					}
+					else {						
+						log "Actual: job de componente"
+						ParamsHelper.deleteParams(build, 'sendMail')
+						ParamsHelper.addParams(build, ['sendMail':'false'])
+					}
+				}
 				// Añadir a la lista de destinatarios la lista de destinatarios por defecto
 				//	indicados en la variable de entorno MANAGERS_MAIL
-				addDefaultManagersMail(defaultManagersMail, destinatarios)			
+				addDefaultManagersMail(defaultManagersMail, receivers)			
 			}
 
 			if (action == "GenerateReleaseNotes"){
 				prepareDataReleaseNotes(buildInvoker,build,userRTC)
 			}
 			
-			log "Lista de correos 2: $destinatarios"
-			writeResult (buildInvoker,numeroLineas,mailSubject,build, destinatarios)
+			log "Lista de correos 2: $receivers"
+			writeResult (buildInvoker,numeroLineas,mailSubject,build, receivers)
 
 		}else{
 			log "ESTE JOB NECESITA SER LLAMADO SIEMPRE DESDE OTRO!!"
@@ -180,7 +232,7 @@ class SetMailParameters extends Loggable {
 	 * 	ejecución se añadirán parámetros con el resumen, etc.)
 	 * @param destinatarios Lista de destinatarios del correo de notificación
 	 */ 
-	def private writeResult (buildInvoker,numeroLineas,mailSubject, build, destinatarios){
+	def private writeResult (buildInvoker,int numeroLineas,mailSubject, build, destinatarios){
 		//----------
 		// Introduce el resultado de la ejecución para mostrarlo en el correo
 
