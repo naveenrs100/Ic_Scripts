@@ -1,3 +1,5 @@
+package version.versioner
+
 /*
  * SYSTEM GROOVY SCRIPT
  * Este script busca la variable artifactsJson en el entorno, y si está definida,
@@ -10,13 +12,11 @@ import groovy.json.*
 
 println "stepUpdateArtifactsJson -> Inicio de ejecución..."
 
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
-
-def artifactsJson = resolver.resolve("artifactsJson");
+def artifactsJson = build.buildVariableResolver.resolve("artifactsJson");
 println "stepUpdateArtifactsJson -> artifactsJson : $artifactsJson"
-def versionerStep = resolver.resolve("versionerStep");
-def increaseIndex = resolver.resolve("increaseIndex");
+def versionerStep = build.buildVariableResolver.resolve("versionerStep");
+def action = build.buildVariableResolver.resolve("action");
+def releaseMantenimiento = build.buildVariableResolver.resolve("releaseMantenimiento");
 
 def jsonObject;
 
@@ -30,7 +30,7 @@ if(jsonObject != null) {
 	
 	ArtifactsVariableHelper helper = new ArtifactsVariableHelper();
 	helper.initLogger { println it }
-	helper.updateArtifacts(jsonObject, versionerStep, increaseIndex);
+	helper.updateArtifacts(jsonObject, versionerStep, action, releaseMantenimiento);
 
 	// Actualizamos el parámetro artifactsJson si existiese.
 	// Si no existiese actualizamos el archivo
@@ -40,7 +40,7 @@ if(jsonObject != null) {
 		def params = [:];
 		params.put("artifactsJson",newArtifactsJson);
 
-		def parent = GlobalVars.getParentBuild(build);
+		def parent = new GlobalVars().getParentBuild(build);
 
 		if (parent != null) {
 			ParamsHelper.deleteParams(parent, "artifactsJson")

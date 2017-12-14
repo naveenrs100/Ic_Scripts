@@ -1,9 +1,8 @@
+package version
+
 //Obtiene los jobs que han sido modificados y existen
 //$JENKINS_HOME/jobs/ScriptsCore/workspace/groovy/comun/version/setMajorVersionJobs.groovy
 import hudson.model.*
-
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
 
 // --- FUNCIONES ---
 
@@ -35,9 +34,9 @@ def writeMajorVersionFile(jobs,jenkinsHome,home,action){
 	}
 }
 
-def action = resolver.resolve("action")
+def action = build.buildVariableResolver.resolve("action")
 def jenkinsHome	= build.getEnvironment(null).get("JENKINS_HOME")
-def jobs = resolver.resolve("jobs")
+def jobs = build.buildVariableResolver.resolve("jobs")
 
 println "setMajorVersionJobs :: Lista de jobs -> ${jobs}"
 

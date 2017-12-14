@@ -22,7 +22,7 @@ class GitMergeBranchesCommand extends Loggable {
 	public void execute() {
 		gitCommand = (this.gitCommand == null) || (this.gitCommand.trim().equals("")) ? "git" : gitCommand;
 		def commandsSequence = 
-		[	"${gitCommand} checkout ${this.originBranch}",
+		[	"${gitCommand} checkout --force ${this.originBranch}",
 			"${gitCommand} merge -s ours origin/${this.targetBranch}",
 			"${gitCommand} checkout ${this.targetBranch}",
 			"${gitCommand} merge ${this.originBranch}",
@@ -31,8 +31,8 @@ class GitMergeBranchesCommand extends Loggable {
 		];
 		
 		commandsSequence.each {
-			println "Ejecutando comando ${it}";
-			println "sobre ${this.parentWorkspace}";
+			log "Ejecutando comando ${it}";
+			log "sobre ${this.parentWorkspace}";
 			CommandLineHelper buildCommandLineHelper = new CommandLineHelper(it);
 			buildCommandLineHelper.initLogger(this);
 			def returnCode = buildCommandLineHelper.execute(new File("${this.parentWorkspace}"));

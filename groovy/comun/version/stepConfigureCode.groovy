@@ -1,12 +1,12 @@
+package version
+
 import hudson.model.*
 
-def build = Thread.currentThread().executable
 def paramsIn = build?.actions.find{ it instanceof ParametersAction }?.parameters
 def index = build?.actions.findIndexOf{ it instanceof ParametersAction }
-def resolver = build.buildVariableResolver
 
 //Obtiene parametros pasados al Job
-def parentWorkspace = resolver.resolve("parentWorkspace")
+def parentWorkspace = build.buildVariableResolver.resolve("parentWorkspace")
 
 def configFile = new File("${parentWorkspace}/version.txt")
 if (configFile.exists()){

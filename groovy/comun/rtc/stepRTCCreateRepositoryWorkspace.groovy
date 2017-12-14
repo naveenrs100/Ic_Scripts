@@ -1,3 +1,5 @@
+package rtc
+
 import es.eci.utils.SystemPropertyBuilder;
 import rtc.RTCUtils
 import rtc.commands.RTCCheckinCommand

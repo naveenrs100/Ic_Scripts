@@ -1,3 +1,5 @@
+package jenkins
+
 import java.nio.channels.FileLock
 import java.util.Map;
 import java.util.logging.Logger;

@@ -1,0 +1,45 @@
+{
+	"components" : [
+		{
+			"name": "Test Component 1",
+			"scm": "RTC",			
+			"changeset" : [
+				{
+					"Autor" : "dcjimenez",
+					"Email" : "david.castrojimenez@gexterno.es",
+					"WorkItem" : "1111",
+					"Comentario" : "Cambio de prueba 1",
+					"Fecha" : "19-07-2017"
+				},
+				{
+					"Autor" : "dcjimenez",
+					"Email" : "david.castrojimenez@gexterno.es",
+					"WorkItem" : "2222",
+					"Comentario" : "Cambio de prueba 2",
+					"Fecha" : "19-07-2017"
+				}
+			]
+		},
+		{
+			"name": "Test Component 2",
+			"scm": "RTC",
+			"changeset" : [
+				{
+					"Autor" : "jbau",
+					"Email" : "jbau@gexterno.es",
+					"WorkItem" : "3333",
+					"Comentario" : "Cambio de prueba 3",
+					"Fecha" : "19-07-2017"
+				},
+				{
+					"Autor" : "jbau",
+					"Email" : "jbau@gexterno.es",
+					"WorkItem" : "4444",
+					"Comentario" : "Cambio de prueba 4",
+					"Fecha" : "19-07-2017"
+				}
+			]
+		}
+	]
+}
+		

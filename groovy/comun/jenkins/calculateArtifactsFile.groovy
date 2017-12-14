@@ -1,3 +1,5 @@
+package jenkins
+
 // Este script escribe en su parentworkspace un fichero artifacts.json con el
 //	contenido del parámetro artifactsJson, y lo limpia de su invocante
 
@@ -9,9 +11,6 @@ import es.eci.utils.GlobalVars;
 import es.eci.utils.ParamsHelper
 import es.eci.utils.transfer.FTPClient;
 
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
-
 String artifactsJson = build.getEnvironment(null).get("artifactsJson")
 
 if(artifactsJson != null && !artifactsJson.trim().equals("")) {
@@ -20,14 +19,14 @@ if(artifactsJson != null && !artifactsJson.trim().equals("")) {
 	File artifacts = new File(workspace, "artifacts.json")
 	artifacts.text = artifactsJson
 	
-	def parent = GlobalVars.getParentBuild(build);
+	def parent = new GlobalVars().getParentBuild(build);
 	if (parent != null) {
 		ParamsHelper.deleteParams(parent, "artifactsJson")
 	}
 	
 	// Subir a ftp el fichero
 	def user = build.getEnvironment(null).get("CC_FTP_USER")
-	def password = resolver.resolve("CC_FTP_PWD")
+	def password = build.buildVariableResolver.resolve("CC_FTP_PWD")
 	def address = build.getEnvironment(null).get("CC_FTP")
 	
 	FTPClient client = new FTPClient(user, password, address);

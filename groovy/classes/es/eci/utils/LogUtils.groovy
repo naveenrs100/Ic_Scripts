@@ -14,7 +14,7 @@ class LogUtils {
 	/**
 	 * Constructor con una referencia a la closure apropiada del
 	 * script invocante. La Closure
-	 * debe contener una llamada al println o al m�todo que se
+	 * debe contener una llamada al println o al método que se
 	 * desee del script invocado por jenkins.
 	 * P. ej.: 
 	 * // dentro de un script .groovy invocado directamente por jenkins
@@ -28,7 +28,7 @@ class LogUtils {
 	/**
 	 * Imprescindible llamar a initLogger antes de poder usar
 	 * cualquiera de los métodos log, debug, etc.  La Closure
-	 * debe contener una llamada al println o al m�todo que se
+	 * debe contener una llamada al println o al método que se
 	 * desee del script invocado por jenkins.
 	 * P. ej.: 
 	 * // dentro de un script .groovy invocado directamente por jenkins

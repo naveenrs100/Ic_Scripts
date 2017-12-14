@@ -1,3 +1,5 @@
+package jenkins
+
 /**
  * Este script determina si existen tests unitarios en el proyecto.
  * 
@@ -8,11 +10,8 @@ import hudson.model.*
 import cobertura.*
 
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
-
 def proyecto = new File("${build.workspace}")
-def tecnologia = resolver.resolve("tecnologia")
+def tecnologia = build.buildVariableResolver.resolve("tecnologia")
 
 if (tecnologia == null || tecnologia.trim().length() == 0) {
 	tecnologia = "maven"

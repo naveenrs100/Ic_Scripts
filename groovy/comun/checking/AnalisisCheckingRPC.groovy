@@ -1,3 +1,5 @@
+package checking
+
 //$JENKINS_HOME/jobs/ScriptsStore/workspace/workFlowChecking/AnalisisCheckingRPC.groovy
 import groovy.net.xmlrpc.*  
 import java.text.DecimalFormat

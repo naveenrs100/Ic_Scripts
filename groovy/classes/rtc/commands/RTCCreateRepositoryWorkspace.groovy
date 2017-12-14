@@ -4,6 +4,7 @@ import rtc.RTCUtils
 import es.eci.utils.ParameterValidator
 import es.eci.utils.ScmCommand
 import es.eci.utils.Stopwatch
+import es.eci.utils.StringUtil;
 import es.eci.utils.TmpDir
 import groovy.json.JsonSlurper
 
@@ -21,6 +22,7 @@ import groovy.json.JsonSlurper
  * <b>urlRTC</b> URL de repositorio RTC<br/>
  * <b>workspaceRTC</b> Nombre del workspace de repositorio que se quiere crear<br/>
  * <b>stream</b> Corriente a la que se asocia el workspace de repositorio<br/>
+ * <b>snapshot</b> Snapshot a partir de la cual se quiere poblar el workspace.
  * --- OPCIONALES<br/>
  * <b>component</b> Componente que se debe añadir al wsr.
  * <b>light</b> Indica si se debe usar o no la versión ligera del comando scm.  VALOR POR DEFECTO: true<br/>
@@ -30,13 +32,24 @@ class RTCCreateRepositoryWorkspace extends AbstractRTCCommand {
 	//---------------------------------------------------------------
 	// Propiedades de la clase
 	
+	
+
 	// Obligatorios	
 	private String workspaceRTC;
 	private String stream;
 	private String component;
+	private String snapshot;
 	
 	//---------------------------------------------------------------
 	// Métodos de la clase
+	
+	/**
+	 * Asigna el nombre de la snapshot.
+	 * @param snapshot Nombre de la snapshot a partir de la cual se quiere poblar el workspace.
+	 */
+	public void setSnapshot(String snapshot) {
+		this.snapshot = snapshot;
+	}
 	
 	/**
 	 * Asigna el nombre del wsr.
@@ -83,7 +96,7 @@ class RTCCreateRepositoryWorkspace extends AbstractRTCCommand {
 					.add("pwdRTC", pwdRTC)
 					.add("urlRTC", urlRTC)
 					.add("workspaceRTC", workspaceRTC)
-					.add("stream", stream)
+					.add("stream", stream)					
 					.add("light", light).build().validate();
 			
 			long millis = Stopwatch.watch {
@@ -94,24 +107,36 @@ class RTCCreateRepositoryWorkspace extends AbstractRTCCommand {
 						command.initLogger(this);	
 						
 						// ¿Existe el WSR?
-						boolean exist = true;
+						boolean exists = true;
 						// "status-code": 25, cuando no lo encuentra
 						String jsonWSR = executeScmCommand(command, "get attributes -w \"${workspaceRTC}\" --description -j", dir);
 						RTCUtils.exitOnError(command.getLastResult(), "Querying repository workspace");
 						def objWSR = new JsonSlurper().parseText(jsonWSR);
 						if (objWSR.workspaces[0]["status-code"] == 25) {
-							exist = false;
+							exists = false;
 						}	
 						
-						if (!exist) {
+						if (!exists && StringUtil.isNull(snapshot)) {
 							// Crear el WSR desde cero
 							log "creating workspace \"${workspaceRTC}\""
 							executeScmCommand(command, "create workspace -e \"${workspaceRTC}\"", dir);
 							RTCUtils.exitOnError(command.getLastResult(), "Creating workspace");
 						}
 						
-						if (component != null) {
+						if(exists && StringUtil.notNull(snapshot)) {
+							log "Borrando workspace antiguo y creando nuevo a partir de la snapshot \"${snapshot}\"..."
+							executeScmCommand(command, "delete workspace \"${workspaceRTC}\"", dir);
+							RTCUtils.exitOnError(command.getLastResult(), "Borrando workspace \"${workspaceRTC}\"");
 							
+							executeScmCommand(command, "create workspace --snapshot \"${snapshot}\" \"${workspaceRTC}\"", dir);
+							RTCUtils.exitOnError(command.getLastResult(), "Creando workspace \"${workspaceRTC}\" a partir de la instantanea \"${snapshot}\"");
+							
+						} else if(!exists && StringUtil.notNull(snapshot)) {
+							executeScmCommand(command, "create workspace --snapshot \"${snapshot}\" \"${workspaceRTC}\"", dir);
+							RTCUtils.exitOnError(command.getLastResult(), "Creando workspace \"${workspaceRTC}\" a partir de la instantanea \"${snapshot}\"");
+						}
+						
+						if (component != null) {							
 							// Ver si tiene el componente
 							boolean existComp = false;
 							// ¿El componente deseado forma parte del WSR?		

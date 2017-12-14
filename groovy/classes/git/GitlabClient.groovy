@@ -23,7 +23,7 @@ import es.eci.utils.pom.MavenCoordinates
 
 
 /**
- * Esta clase encapsula la comunicación con el servidor gitlab.
+ * Esta clase encapsula la comunicación REST con el servidor gitlab.
  */
 class GitlabClient extends Loggable {
 

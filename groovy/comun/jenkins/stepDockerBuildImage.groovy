@@ -1,3 +1,5 @@
+package jenkins
+
 import docker.DockerBuildImage
 import es.eci.utils.SystemPropertyBuilder;
 

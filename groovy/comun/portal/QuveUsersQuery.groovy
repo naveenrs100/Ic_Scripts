@@ -1,3 +1,5 @@
+package portal
+
 //$JENKINS_HOME/jobs/ScriptsCore/workspace/groovy/comun/portal/QuveQuery.groovy
 @GrabResolver(name='nexuseci', root='http://nexus.elcorteingles.int/content/groups/public/')
 @Grab(group='org.codehaus.groovy.modules.http-builder', module='http-builder', version='0.7.1')

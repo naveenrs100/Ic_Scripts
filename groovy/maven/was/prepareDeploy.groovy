@@ -10,19 +10,17 @@ def copyDir = { originalDirPath, copyDirPath ->
 	}
 }
 
-def build = Thread.currentThread().executable
-def resolver = build.getBuildVariableResolver()
 def workspaceJob = build.getEnvironment(null).get("WORKSPACE")
 def mavenHome = build.getEnvironment(null).get("MAVEN_HOME")
 def mavenBin = "${mavenHome}/bin/mvn"
-def stream = resolver.resolve("stream")
-def componente = resolver.resolve("component")
+def stream = build.buildVariableResolver.resolve("stream")
+def componente = build.buildVariableResolver.resolve("component")
 def deployBasePath = build.getEnvironment(null).get("DEPLOYMENT_BASE_PATH")
-def uDeployerPass = resolver.resolve("uDeployerPass")
-def deploy_env = resolver.resolve("deploy_env")
-def buildFilePath =  resolver.resolve("buildFilePath")
+def uDeployerPass = build.buildVariableResolver.resolve("uDeployerPass")
+def deploy_env = build.buildVariableResolver.resolve("deploy_env")
+def buildFilePath =  build.buildVariableResolver.resolve("buildFilePath")
 
-if (resolver.resolve("jobInvoker").equals(build.getEnvironment(null).get("MAVEN_GENERIC_DEPLOYER"))) return 0;
+if (build.buildVariableResolver.resolve("jobInvoker").equals(build.getEnvironment(null).get("MAVEN_GENERIC_DEPLOYER"))) return 0;
 
 println "Prepare deploy ..."
 println "stream: $stream"

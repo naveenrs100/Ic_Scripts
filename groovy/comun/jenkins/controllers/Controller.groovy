@@ -1,3 +1,5 @@
+package jenkins.controllers
+
 //El workflow con rollback está en la lí­nea base 2.2.0
 
 def listaParam = params["lista"];

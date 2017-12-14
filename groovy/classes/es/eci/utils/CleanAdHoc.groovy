@@ -17,7 +17,7 @@ public class CleanAdHoc extends Loggable {
 	// Propiedades de la clase
 		
 	// Obligatorios	
-	private String action;
+	private String casens;
 	private String parentWorkspace;
 
 	/**
@@ -31,16 +31,16 @@ public class CleanAdHoc extends Loggable {
 			// Validación de obligatorios
 			ParameterValidator.builder()
 					.add("parentWorkspace", parentWorkspace)
-					.add("action", action);
+					.add("casens", casens).build().validate();
 			
 			long millis = Stopwatch.watch {
-				if ( this.action != null ) {
-					switch (this.action) {
+				if ( this.casens != null ) {
+					switch (this.casens) {
 						case 'case01':
 							case01()
 					    break
 					    default:
-					        println ""
+					        log ""
 					    break
 					}
 				}
@@ -85,10 +85,10 @@ public class CleanAdHoc extends Loggable {
 	}
 	
 	/**
-	 * @param action Acción a realizar, depende de la parametrización interna de la clase.
+	 * @param casens Acción a realizar, depende de la parametrización interna de la clase.
 	 */
-	public void setAction(String action) {
-		this.action = action;
+	public void setCasens(String casens) {
+		this.case = casens;
 	}
 	
 }

@@ -1,3 +1,5 @@
+package version.npm
+
 import es.eci.utils.SystemPropertyBuilder
 import es.eci.utils.npm.NpmCheckCommand
 

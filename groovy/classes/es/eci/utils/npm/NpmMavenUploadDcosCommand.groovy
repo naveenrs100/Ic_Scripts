@@ -78,9 +78,9 @@ class NpmMavenUploadDcosCommand extends VersionCommand {
 
 	public void execute() {
 		
-		println "execute NPM Maven Upload Command"
+		log "execute NPM Maven Upload Command"
 
-		println "maven :${maven}"
+		log "maven :${maven}"
 
 		// find for version
 		def parentWorkspace = this.getParentWorkspace()
@@ -103,7 +103,7 @@ class NpmMavenUploadDcosCommand extends VersionCommand {
 			
 		def filepath="${parentWorkspace}/dcos-service.json"
 			
-		println "filepath : ${filepath}"
+		log "filepath : ${filepath}"
 
 		def returnCode = NexusHelper.uploadToNexus(
 			maven, groupId, artifactId, version, 

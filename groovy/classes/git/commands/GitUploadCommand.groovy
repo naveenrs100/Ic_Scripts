@@ -43,8 +43,21 @@ class GitUploadCommand extends Loggable {
 			File folder = new File("${this.parentWorkspace}")
 			folder.traverse (
 				type: groovy.io.FileType.FILES,
+				preDir : { if (it.name == 'node_modules' || it.name == 'target') 
+					return groovy.io.FileVisitResult.SKIP_SUBTREE },
 				nameFilter: ~/${this.gitFilter}/
-				) { commands.add( "${gitCommand} add " + it.canonicalPath ) }
+				) { 
+				// Se comprueba que el archivo del que se va a hacer add no está ignorado por el .gitignore
+				CommandLineHelper buildCommandLineHelper = new CommandLineHelper("${gitCommand} check-ignore pathname \"" + it.canonicalPath + "\"");
+				buildCommandLineHelper.initLogger(this);
+				def returnCode = buildCommandLineHelper.execute(new File(this.parentWorkspace));
+				if(returnCode != 0) {
+					commands.add( "${gitCommand} add " + it.canonicalPath );
+				} else {
+					log "--No se hace add de la ruta \"${it.canonicalPath}\""
+				}
+				 
+				}
 		} else {
 			commands.add( "${gitCommand} add -A" )
 		}
@@ -54,7 +67,7 @@ class GitUploadCommand extends Loggable {
 		commands.add( "${gitCommand} push --force" )
 		// FIN - GDR - 18/11/2016
 		commands.each {
-			println "Se lanza el comando:\n ${it}\n Sobre el directorio:\n ${this.parentWorkspace}";
+			log "Se lanza el comando:\n ${it}\n Sobre el directorio:\n ${this.parentWorkspace}";
 			CommandLineHelper buildCommandLineHelper = new CommandLineHelper(it);
 			buildCommandLineHelper.initLogger(this);
 			def returnCode = buildCommandLineHelper.execute(new File("${this.parentWorkspace}"));
@@ -74,11 +87,11 @@ class GitUploadCommand extends Loggable {
 	 * (Pensar una forma más elegante usando Git)
 	 */
 	public void executeUploadToOtherBranch() {
-		println "Se sube el contenido al branch ${targetBranch}";
+		log "Se sube el contenido al branch ${targetBranch}";
 		gitCommand = (this.gitCommand == null) || (this.gitCommand.trim().equals("")) ? "git" : gitCommand;
 		String commandCloneTarget = "${gitCommand} clone ${gitUser}@${gitHost}:${gitPath} --branch ${this.targetBranch} \"${this.targetBranch}\"";
 
-		println "Se lanza el comando:\n ${commandCloneTarget}\n Sobre el directorio:\n ${this.parentWorkspace}";
+		log "Se lanza el comando:\n ${commandCloneTarget}\n Sobre el directorio:\n ${this.parentWorkspace}";
 		CommandLineHelper buildCommandLineHelper = new CommandLineHelper(commandCloneTarget);
 		buildCommandLineHelper.initLogger(this);
 		def returnCode = buildCommandLineHelper.execute(new File(this.parentWorkspace));		
@@ -87,7 +100,7 @@ class GitUploadCommand extends Loggable {
 		}
 		
 		// Se borran los archivos locales descargados del branch (excepto el directorio .git)
-		println "Borrando archivos de ${this.parentWorkspace}/${this.targetBranch} (excepto .git) ..."
+		log "Borrando archivos de ${this.parentWorkspace}/${this.targetBranch} (excepto .git) ..."
 		new AntBuilder().delete(includeemptydirs: true) {
 			fileset(
 				dir: "${this.parentWorkspace}/${this.targetBranch}",
@@ -97,7 +110,7 @@ class GitUploadCommand extends Loggable {
 		}
 
 		// Se copian los archivos de la rama de origen al directorio de la rama destino.
-		println "Copiando de ${this.parentWorkspace}/${this.originFolder} a ${this.parentWorkspace}/${this.targetBranch} ...";
+		log "Copiando de ${this.parentWorkspace}/${this.originFolder} a ${this.parentWorkspace}/${this.targetBranch} ...";
 		new AntBuilder().copy(
 				includeemptydirs: true,
 				todir:"${this.parentWorkspace}/${this.targetBranch}",
@@ -119,6 +132,7 @@ class GitUploadCommand extends Loggable {
 			File folder = new File("${this.parentWorkspace}")
 			folder.traverse (
 				type: groovy.io.FileType.FILES,
+				preDir : { if (it.name == 'node_modules') return groovy.io.FileVisitResult.SKIP_SUBTREE },
 				nameFilter: ~/${this.gitFilter}/
 				) { commands.add( "${gitCommand} add " + it.canonicalPath ) }
 		} else {
@@ -130,7 +144,7 @@ class GitUploadCommand extends Loggable {
 		commands.add( "${gitCommand} push --force" )
 		// FIN - GDR - 18/11/2016
 		commands.each {
-			println "Se lanza el comando:\n ${it}\n Sobre el directorio:\n ${this.parentWorkspace}/${this.targetBranch}";
+			log "Se lanza el comando:\n ${it}\n Sobre el directorio:\n ${this.parentWorkspace}/${this.targetBranch}";
 			CommandLineHelper buildCommandLineHelperCommit = new CommandLineHelper(it);
 			buildCommandLineHelperCommit.initLogger(this);
 			returnCode = buildCommandLineHelperCommit.execute(new File("${this.parentWorkspace}/${this.targetBranch}"));

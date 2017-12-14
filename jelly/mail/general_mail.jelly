@@ -206,6 +206,32 @@ p.fila {
 	background-color: #eee;
     text-transform: uppercase;
 }
+
+/* Estilos para ocultar campos */
+
+label p span:hover {
+	text-decoration: underline;
+	cursor:pointer;
+ }
+
+input {
+	position:absolute;
+	left:-999em
+}
+
+.hide {
+	max-height:99em;
+	opacity:1;
+	height:auto;
+	overflow:hidden;
+	transition:opacity 1.5s linear, max-height 1.5s linear;
+}
+
+input[type=checkbox]:checked + div {
+	opacity:0;
+	max-height:0;
+	border:none;
+}
 </style>
 </head>
 <body>
@@ -225,11 +251,14 @@ p.fila {
 		<j:set var="MAIL_SUBJECT" value="${build.buildVariableResolver.resolve('MAIL_SUBJECT')}" />
 		<j:set var="duration" value="${build.buildVariableResolver.resolve('duration')}" />
 		<j:set var="process" value="${build.buildVariableResolver.resolve('action').toUpperCase()}" />
+		<j:set var="buildType" value="${build.buildVariableResolver.resolve('buildType')}" />
+		<j:set var="buildResult" value="${build.buildVariableResolver.resolve('buildResult')}" />
 		<j:set var="stream" value="${build.buildVariableResolver.resolve('stream')}" />
 		<j:set var="streamTarget" value="${build.buildVariableResolver.resolve('streamTarget')}" />
 		<j:set var="component" value="${build.buildVariableResolver.resolve('component')}" />
 		<j:set var="urlCheckin" value="${build.buildVariableResolver.resolve('urlCheckin')}" />
 		<j:set var="version" value="${build.buildVariableResolver.resolve('version')}" />
+		<j:set var="instantanea" value="${build.buildVariableResolver.resolve('instantanea')}" />
 		<j:set var="statusHTML" value="${build.buildVariableResolver.resolve('statusHTML')}" />
 		<j:set var="resumenHTML" value="${build.buildVariableResolver.resolve('resumenHTML')}" />
 		<j:set var="resultadoTraducido" value="${build.buildVariableResolver.resolve('resultadoTraducido')}" />
@@ -237,114 +266,118 @@ p.fila {
 		<j:set var="penultimateBaseline" value="${build.buildVariableResolver.resolve('penultimateBaseline')}" />
 		<j:invokeStatic className="hudson.model.Hudson" method="getInstance" var="instanciaHudson"/>
 		<j:invoke on="${instanciaHudson}" var="pluginManager" method="getPluginManager"/>
-		<j:catch var="e">
-			<j:invokeStatic className="java.util.logging.LogManager" method="getLogManager"
-				var="logManager2"/>
-			<j:invoke on="${logManager2}" method="getLogger" var="logger2">
-				<j:arg type="java.lang.String" value="hudson.WebAppMain"/>
-			</j:invoke>
-			<!-- Changeset -->
-			<j:new className="java.io.File" var="changeLogFile">
-				<j:arg type="java.lang.String" value="${build.buildVariableResolver.resolve('rutaFicheroChangeLog')}"/>
-			</j:new>
-			<!-- Esto va al log de Jenkins -->
-				<j:invoke on="${logger2}" method="severe">
-					<j:arg type="java.lang.String" value="****rutaFicheroReleaseNotesLog: ${build.buildVariableResolver.resolve('rutaFicheroReleaseNotesLog')}"/>
+		<j:if test="${buildType=='component'}">
+			<j:catch var="e">
+				<j:invokeStatic className="java.util.logging.LogManager" method="getLogManager"
+					var="logManager2"/>
+				<j:invoke on="${logManager2}" method="getLogger" var="logger2">
+					<j:arg type="java.lang.String" value="hudson.WebAppMain"/>
 				</j:invoke>
-			<j:new className="com.deluan.jenkins.plugins.rtc.changelog.JazzChangeLogReader" var="changeLogReader"
-				classLoader="${pluginManager.uberClassLoader}" />
-			<j:invoke on="${changeLogReader}" var="changeSet" method="parse">
-				<j:arg type="hudson.model.AbstractBuild" value="${build}"/>
-				<j:arg type="java.io.File" value="${changeLogFile}"/>
-			</j:invoke>
-			<j:if test="${build.buildVariableResolver.resolve('rutaFicheroReleaseNotesLog') != null}">
-				<j:new className="java.io.File" var="releaseNotesLogFile">
-					<j:arg type="java.lang.String" value="${build.buildVariableResolver.resolve('rutaFicheroReleaseNotesLog')}"/>
+				<!-- Changeset -->
+				<j:new className="java.io.File" var="changeLogFile">
+					<j:arg type="java.lang.String" value="${build.buildVariableResolver.resolve('rutaFicheroChangeLog')}"/>
 				</j:new>
-				<j:invoke on="${releaseNotesLogFile}" var="existReleaseNotesLogFile" method="exists" />
-				<j:if test="${existReleaseNotesLogFile}">
-					
-					
-					<!-- Esto va al log de Jenkins -->
+				<!-- Esto va al log de Jenkins -->
 					<j:invoke on="${logger2}" method="severe">
-						<j:arg type="java.lang.String" value="****rutaFicheroReleaseNotesLog: Existe el fichero"/>
+						<j:arg type="java.lang.String" value="****rutaFicheroReleaseNotesLog: ${build.buildVariableResolver.resolve('rutaFicheroReleaseNotesLog')}"/>
 					</j:invoke>
-					
-					
-					<j:new className="com.deluan.jenkins.plugins.rtc.changelog.JazzChangeLogReader" var="releaseNotesLogReader"
-						classLoader="${pluginManager.uberClassLoader}" />
-					<j:invoke on="${releaseNotesLogReader}" var="releaseNotes" method="parse">
-						<j:arg type="hudson.model.AbstractBuild" value="${build}"/>
-						<j:arg type="java.io.File" value="${releaseNotesLogFile}"/>
-					</j:invoke>
-					<j:invoke on="${releaseNotesLogReader}" var="releaseNotes" method="parse">
-						<j:arg type="hudson.model.AbstractBuild" value="${build}"/>
-						<j:arg type="java.io.File" value="${releaseNotesLogFile}"/>
-					</j:invoke>
+				<j:new className="com.deluan.jenkins.plugins.rtc.changelog.JazzChangeLogReader" var="changeLogReader"
+					classLoader="${pluginManager.uberClassLoader}" />
+				<j:invoke on="${changeLogReader}" var="changeSet" method="parse">
+					<j:arg type="hudson.model.AbstractBuild" value="${build}"/>
+					<j:arg type="java.io.File" value="${changeLogFile}"/>
+				</j:invoke>
+				<j:if test="${build.buildVariableResolver.resolve('rutaFicheroReleaseNotesLog') != null}">
+					<j:new className="java.io.File" var="releaseNotesLogFile">
+						<j:arg type="java.lang.String" value="${build.buildVariableResolver.resolve('rutaFicheroReleaseNotesLog')}"/>
+					</j:new>
+					<j:invoke on="${releaseNotesLogFile}" var="existReleaseNotesLogFile" method="exists" />
+					<j:if test="${existReleaseNotesLogFile}">
+						
+						
+						<!-- Esto va al log de Jenkins -->
+						<j:invoke on="${logger2}" method="severe">
+							<j:arg type="java.lang.String" value="****rutaFicheroReleaseNotesLog: Existe el fichero"/>
+						</j:invoke>
+						
+						
+						<j:new className="com.deluan.jenkins.plugins.rtc.changelog.JazzChangeLogReader" var="releaseNotesLogReader"
+							classLoader="${pluginManager.uberClassLoader}" />
+						<j:invoke on="${releaseNotesLogReader}" var="releaseNotes" method="parse">
+							<j:arg type="hudson.model.AbstractBuild" value="${build}"/>
+							<j:arg type="java.io.File" value="${releaseNotesLogFile}"/>
+						</j:invoke>
+						<j:invoke on="${releaseNotesLogReader}" var="releaseNotes" method="parse">
+							<j:arg type="hudson.model.AbstractBuild" value="${build}"/>
+							<j:arg type="java.io.File" value="${releaseNotesLogFile}"/>
+						</j:invoke>
+					</j:if>
+				</j:if>
+				<!-- Determinar la causa -->
+				<j:invokeStatic className="java.lang.Class" method="forName"
+						var="claseUpstreamCause">
+					<j:arg type="java.lang.String" value="hudson.model.Cause$UpstreamCause" />
+				</j:invokeStatic>  
+				<!--<j:invoke on="${build}" method="getCauses" var="causas"/>
+				<j:forEach items="${causas}" var="causaTmp">
+					<j:invoke var="claseCausa" on="${causaTmp}" method="getClass"/>
+					<j:invoke var="nombreClaseCausa" on="${claseCausa}" method="getName"/>	
+					<j:if test="${ nombreClaseCausa == 'hudson.model.Cause$UpstreamCause' }">
+						<j:set var="causa" value="${causaTmp}"/>
+					</j:if>
+				</j:forEach>-->
+				<j:invoke on="${build}" method="getCause" var="causa">
+					<j:arg type="java.lang.Class" value="${claseUpstreamCause}" />
+				</j:invoke>
+				<!-- buildInvoker -->
+				<j:invoke on="${causa}" var="nombrePadre" method="getUpstreamProject"/>
+				<j:invoke on="${causa}" var="numeroPadre" method="getUpstreamBuild"/>
+				<j:invoke on="${instanciaHudson}" var="jobPadre" method="getJob">
+					<j:arg type="java.lang.String" value="${nombrePadre}" />
+				</j:invoke>
+				<j:invoke on="${jobPadre}" var="buildInvoker" method="getBuildByNumber">
+					<j:arg type="int" value="${numeroPadre}"/>
+				</j:invoke>
+				<!-- Acciones del buildInvoker -->
+				<j:invoke on="${buildInvoker}" method="getActions" var="actions"/>
+				<j:forEach items="${actions}" var="action">
+					<j:invoke var="claseAction" on="${action}" method="getClass"/>
+					<j:invoke var="nombreClaseAction" on="${claseAction}" method="getName"/>				
+					<!-- JUnit -->
+					<j:if test="${ nombreClaseAction == 'hudson.tasks.junit.TestResultAction' }">
+						<j:invoke on="${action}" method="getResult" var="packageResult"/>
+						<!--<j:invoke on="${junitResult}" method="getPassedTests" var="junitResultList"/>-->
+					</j:if>
+					<!-- Jacoco -->
+					<j:if test="${ nombreClaseAction == 'hudson.plugins.jacoco.JacocoBuildAction' }">
+						<j:set var="jacocoAction" value="${action}" />
+					</j:if>
+					<!-- Cobertura -->
+					<j:if test="${ nombreClaseAction == 'hudson.plugins.cobertura.CoberturaBuildAction' }">
+						<j:set var="coberturaAction" value="${action}" />
+					</j:if>
+				</j:forEach>
+			</j:catch>
+			<j:if test="${e != null}">
+				<j:new className="java.io.ByteArrayOutputStream" var="baos"/>
+				<j:new className="java.io.PrintStream" var="printStream">
+					<j:arg type="java.io.OutputStream" value="${baos}"/>
+				</j:new>
+				<j:invoke on="${e}" method="printStackTrace">
+					<j:arg type="java.io.PrintStream" value="${printStream}"/>
+				</j:invoke>
+				<j:invokeStatic className="java.util.logging.LogManager" method="getLogManager"
+					var="logManager"/>
+				<j:invoke on="${logManager}" method="getLogger" var="logger">
+					<j:arg type="java.lang.String" value="hudson.WebAppMain"/>
+				</j:invoke>
+				<j:if test="${logger != null}">
+					<!-- Esto va al log de Jenkins -->
+					<j:invoke on="${logger}" method="severe">
+						<j:arg type="java.lang.String" value="${baos.toString()}"/>
+					</j:invoke>			
 				</j:if>
 			</j:if>
-			<!-- Determinar la causa -->
-			<j:invokeStatic className="java.lang.Class" method="forName"
-					var="claseUpstreamCause">
-				<j:arg type="java.lang.String" value="hudson.model.Cause$UpstreamCause" />
-			</j:invokeStatic>  
-			<!--<j:invoke on="${build}" method="getCauses" var="causas"/>
-			<j:forEach items="${causas}" var="causaTmp">
-				<j:invoke var="claseCausa" on="${causaTmp}" method="getClass"/>
-				<j:invoke var="nombreClaseCausa" on="${claseCausa}" method="getName"/>	
-				<j:if test="${ nombreClaseCausa == 'hudson.model.Cause$UpstreamCause' }">
-					<j:set var="causa" value="${causaTmp}"/>
-				</j:if>
-			</j:forEach>-->
-			<j:invoke on="${build}" method="getCause" var="causa">
-				<j:arg type="java.lang.Class" value="${claseUpstreamCause}" />
-			</j:invoke>
-			<!-- buildInvoker -->
-			<j:invoke on="${causa}" var="nombrePadre" method="getUpstreamProject"/>
-			<j:invoke on="${causa}" var="numeroPadre" method="getUpstreamBuild"/>
-			<j:invoke on="${instanciaHudson}" var="jobPadre" method="getJob">
-				<j:arg type="java.lang.String" value="${nombrePadre}" />
-			</j:invoke>
-			<j:invoke on="${jobPadre}" var="buildInvoker" method="getBuildByNumber">
-				<j:arg type="int" value="${numeroPadre}"/>
-			</j:invoke>
-			<!-- Acciones del buildInvoker -->
-			<j:invoke on="${buildInvoker}" method="getActions" var="actions"/>
-			<j:forEach items="${actions}" var="action">
-				<j:invoke var="claseAction" on="${action}" method="getClass"/>
-				<j:invoke var="nombreClaseAction" on="${claseAction}" method="getName"/>				
-				<!-- JUnit -->
-				<j:if test="${ nombreClaseAction == 'hudson.tasks.junit.TestResultAction' }">
-					<j:invoke on="${action}" method="getResult" var="packageResult"/>
-					<!--<j:invoke on="${junitResult}" method="getPassedTests" var="junitResultList"/>-->
-				</j:if>
-				<!-- Jacoco -->
-				<j:if test="${ nombreClaseAction == 'hudson.plugins.jacoco.JacocoBuildAction' }">
-					<j:set var="jacocoAction" value="${action}" />
-				</j:if>
-				<!-- Cobertura -->
-				<j:if test="${ nombreClaseAction == 'hudson.plugins.cobertura.CoberturaBuildAction' }">
-					<j:set var="coberturaAction" value="${action}" />
-				</j:if>
-			</j:forEach>
-		</j:catch>
-		<j:if test="${e != null}">
-			<j:new className="java.io.ByteArrayOutputStream" var="baos"/>
-			<j:new className="java.io.PrintStream" var="printStream">
-				<j:arg type="java.io.OutputStream" value="${baos}"/>
-			</j:new>
-			<j:invoke on="${e}" method="printStackTrace">
-				<j:arg type="java.io.PrintStream" value="${printStream}"/>
-			</j:invoke>
-			<j:invokeStatic className="java.util.logging.LogManager" method="getLogManager"
-				var="logManager"/>
-			<j:invoke on="${logManager}" method="getLogger" var="logger">
-				<j:arg type="java.lang.String" value="hudson.WebAppMain"/>
-			</j:invoke>
-			<!-- Esto va al log de Jenkins -->
-			<j:invoke on="${logger}" method="severe">
-				<j:arg type="java.lang.String" value="${baos.toString()}"/>
-			</j:invoke>			
 		</j:if>
 		<br />
 		<div class="resumen">
@@ -353,15 +386,20 @@ p.fila {
 			<j:if test="${process=='RELEASE'}">
 				<p><span>Corriente RTC de destino:</span> ${streamTarget}</p>
 			</j:if>
-			<p><span>Componente RTC:</span> ${component}</p>
+			<j:if test="${buildType=='component'}">
+				<p><span>Componente RTC:</span> ${component}</p>
+			</j:if>
 			<j:if test="${version!=''}">
 				<p><span>Versión:</span> ${version}</p>
 			</j:if>
+			<j:if test="${instantanea!=null &amp;&amp; instantanea!=''}">
+				<p><span>Ficha de despliegue:</span> ${instantanea}</p>
+			</j:if>
 			<p><span>Fecha:</span> ${it.timestampString}</p>
-			<p class="B${build.result}"><span>Resultado final:</span> ${resultadoTraducido}</p>
+			<p class="B${buildResult}"><span>Resultado final:</span> ${resultadoTraducido}</p>
 			<p><span>Duración:</span> ${duration}</p>
 			<j:if test="${urlCheckin!=''}">
-				<p><span>Análisis de código estático:</span> <a href="${urlCheckin}">Consultar pizarras de usuario</a></p>
+				<p><span>Análisis de código estático:</span> <a href="${urlCheckin}">Acceder a Kiuwan</a></p>
 			</j:if>
 		</div>
 		<br /><br />
@@ -370,9 +408,10 @@ p.fila {
 			<br /><br />
 			${resumenHTML}
 			<br />
-			<p class="B${build.result}"><span>Resultado Final:</span> ${resultadoTraducido}</p>
+			<p class="B${buildResult}"><span>Resultado Final:</span> ${resultadoTraducido}</p>
 			<p class="normal"><span>Duración de la construcción:</span> ${duration}</p>
 		</div>
+		
 		<j:if test="${statusHTML!=null &amp;&amp; statusHTML!=''}">
 			<br />
 			<div class="datosProyecto">
@@ -393,119 +432,86 @@ p.fila {
 			</div>
 		</j:if>
 
-		<!-- changeset -->
-		<j:set var="spc" value="&amp;nbsp;&amp;nbsp;" />
-		<j:if test="${changeSet!=null &amp;&amp; !changeSet.isEmptySet() &amp;&amp; process!='RELEASE'}">
-			<j:set var="hadChanges" value="false" />
-			<div class="seccion">
-				<h2>CAMBIOS EN EL REPOSITORIO DE CÓDIGO FUENTE</h2>
-				<p class="normal">
-					<j:forEach var="cs" items="${changeSet.logs}" varStatus="loop">
-						<j:set var="hadChanges" value="true" />
-						<j:set var="aUser" value="${cs.hudsonUser}" />
-								${spc}Revisión <b>${cs.rev}</b> por
-						<b>
-							<j:choose>
-								<j:when test="${aUser!=null}">
-										${aUser.displayName}:
-		         					</j:when>
-								<j:otherwise>
-										${cs.user}:
-		         					</j:otherwise>
-							</j:choose>
-						</b>
-								${spc}${cs.getDateStr()}
-								<b> ${spc}(${cs.msg}) </b>
-						<br />
-		       					${spc}Ficheros:<br />
-						<j:forEach var="p" items="${cs.items}">
-									${spc}${spc}<b>${p.editType.name}</b>${spc}${p.path}<br />
-						</j:forEach>
-	    						${spc}WorkItems:<br />
-						<j:forEach var="wkIt" items="${cs.workItems}">
-									${spc}${spc}${wkIt}<br />
-						</j:forEach>
-						<br />
-					</j:forEach>
-					<j:if test="${!hadChanges}">
-							NO HA HABIDO CAMBIOS EN EL REPOSITORIO DE CÓDIGO FUENTE
-						</j:if>
-				</p>
-			</div>
-		</j:if>
-		
-		<!-- release notes -->
-		<j:set var="spc" value="&amp;nbsp;&amp;nbsp;" />
-		<j:if test="${releaseNotes!=null &amp;&amp; !releaseNotes.isEmptySet() &amp;&amp; process=='RELEASE'}">
-			<j:set var="hadChanges" value="false" />
-			<div class="seccion">
-				<h2>CAMBIOS INTRODUCIDOS EN LA VERSIÓN ${version}</h2>
-				<p class="normal">
-					<j:forEach var="cs" items="${releaseNotes.logs}" varStatus="loop">
-						<j:set var="hadChanges" value="true" />
-						<j:set var="aUser" value="${cs.hudsonUser}" />
-								${spc}Revisión <b>${cs.rev}</b> por
-						<b>
-							<j:choose>
-								<j:when test="${aUser!=null}">
-										${aUser.displayName}:
-		         					</j:when>
-								<j:otherwise>
-										${cs.user}:
-		         					</j:otherwise>
-							</j:choose>
-						</b>
-								${spc}${cs.getDateStr()}
-								<b> ${spc}(${cs.msg}) </b>
-						<br />
-						<!-- <br />
-		       					${spc}Ficheros:<br />
-						<j:forEach var="p" items="${cs.items}">
-									${spc}${spc}<b>${p.editType.name}</b>${spc}${p.path}<br />
-						</j:forEach>
-	    						${spc}WorkItems:<br />
-						<j:forEach var="wkIt" items="${cs.workItems}">
-									${spc}${spc}${wkIt}<br />
-						</j:forEach>
-						<br />-->
-					</j:forEach>
-					<j:if test="${!hadChanges}">
-							NO HA HABIDO CAMBIOS EN EL REPOSITORIO DE CÓDIGO FUENTE
-						</j:if>
-				</p>
-			</div>
-		</j:if>
-
-					<!-- ARTIFACTS -->
-			<j:set var="artifacts" value="${build.artifacts}" />
-			<j:if test="${artifacts!=null and artifacts.size()&gt;0}">
+		<j:if test="${buildType=='component'}">
+			<!-- changeset -->
+			<j:set var="spc" value="&amp;nbsp;&amp;nbsp;" />
+			<j:if test="${changeSet!=null &amp;&amp; !changeSet.isEmptySet() &amp;&amp; process!='RELEASE'}">
+				<j:set var="hadChanges" value="false" />
 				<div class="seccion">
-					<h2>COMPILE ARTIFACTS</h2>
+					<h2>CAMBIOS EN EL REPOSITORIO DE CÓDIGO FUENTE</h2>
 					<p class="normal">
-						<j:forEach var="f" items="${artifacts}">
-							<li><a href="#">${f}</a></li>
+						<j:forEach var="cs" items="${changeSet.logs}" varStatus="loop">
+							<j:set var="hadChanges" value="true" />
+							<j:set var="aUser" value="${cs.hudsonUser}" />
+									${spc}Revisión <b>${cs.rev}</b> por
+							<b>
+								<j:choose>
+									<j:when test="${aUser!=null}">
+											${aUser.displayName}:
+			         					</j:when>
+									<j:otherwise>
+											${cs.user}:
+			         					</j:otherwise>
+								</j:choose>
+							</b>
+									${spc}${cs.getDateStr()}
+									<b> ${spc}(${cs.msg}) </b>
+							<br />
+			       					${spc}Ficheros:<br />
+							<j:forEach var="p" items="${cs.items}">
+										${spc}${spc}<b>${p.editType.name}</b>${spc}${p.path}<br />
+							</j:forEach>
+		    						${spc}WorkItems:<br />
+							<j:forEach var="wkIt" items="${cs.workItems}">
+										${spc}${spc}${wkIt}<br />
+							</j:forEach>
+							<br />
 						</j:forEach>
+						<j:if test="${!hadChanges}">
+								NO HA HABIDO CAMBIOS EN EL REPOSITORIO DE CÓDIGO FUENTE
+							</j:if>
 					</p>
 				</div>
 			</j:if>
-
-			<!-- MAVEN ARTIFACTS -->
-			<j:set var="mbuilds" value="${build.moduleBuilds}" />
-			<j:if test="${mbuilds!=null}">
+			
+			<!-- release notes -->
+			<j:set var="spc" value="&amp;nbsp;&amp;nbsp;" />
+			<j:if test="${releaseNotes!=null &amp;&amp; !releaseNotes.isEmptySet() &amp;&amp; process=='RELEASE'}">
+				<j:set var="hadChanges" value="false" />
 				<div class="seccion">
-					<h2>COMPILACIÓN DE ARTEFACTOS</h2>
+					<h2>CAMBIOS INTRODUCIDOS EN LA VERSIÓN ${version}</h2>
 					<p class="normal">
-						<j:forEach var="m" items="${mbuilds}">
-							<b>${m.key.displayName}</b>
-							<j:forEach var="mvnbld" items="${m.value}">
-								<j:set var="artifacts" value="${mvnbld.artifacts}" />
-								<j:if test="${artifacts!=null and artifacts.size()&gt;0}">
-									<j:forEach var="f" items="${artifacts}">
-										<li><a href="#">${f}</a></li>
-									</j:forEach>
-								</j:if>
+						<j:forEach var="cs" items="${releaseNotes.logs}" varStatus="loop">
+							<j:set var="hadChanges" value="true" />
+							<j:set var="aUser" value="${cs.hudsonUser}" />
+									${spc}Revisión <b>${cs.rev}</b> por
+							<b>
+								<j:choose>
+									<j:when test="${aUser!=null}">
+											${aUser.displayName}:
+			         					</j:when>
+									<j:otherwise>
+											${cs.user}:
+			         					</j:otherwise>
+								</j:choose>
+							</b>
+									${spc}${cs.getDateStr()}
+									<b> ${spc}(${cs.msg}) </b>
+							<br />
+							<!-- <br />
+			       					${spc}Ficheros:<br />
+							<j:forEach var="p" items="${cs.items}">
+										${spc}${spc}<b>${p.editType.name}</b>${spc}${p.path}<br />
 							</j:forEach>
+		    						${spc}WorkItems:<br />
+							<j:forEach var="wkIt" items="${cs.workItems}">
+										${spc}${spc}${wkIt}<br />
+							</j:forEach>
+							<br />-->
 						</j:forEach>
+						<j:if test="${!hadChanges}">
+								NO HA HABIDO CAMBIOS EN EL REPOSITORIO DE CÓDIGO FUENTE
+							</j:if>
 					</p>
 				</div>
 			</j:if>
@@ -679,6 +685,7 @@ p.fila {
                 	</div>
 				</j:if>
 			</j:if>
+		</j:if>
 	</div>
 </body>
 </html>

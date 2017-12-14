@@ -1,3 +1,5 @@
+package checking
+
 import es.eci.utils.Stopwatch;
 import groovy.net.xmlrpc.*
 import java.util.concurrent.BlockingQueue

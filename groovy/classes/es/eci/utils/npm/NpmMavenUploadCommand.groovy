@@ -83,10 +83,10 @@ class NpmMavenUploadCommand extends VersionCommand {
 		
 	public void execute() {
 		
-		println "execute NPM Maven Upload Command"
+		log "execute NPM Maven Upload Command"
 
-		println "maven :${maven}"
-		println "distFolder :${distFolder}"
+		log "maven :${maven}"
+		log "distFolder :${distFolder}"
 		// find for version
 		def parentWorkspace = this.getParentWorkspace()
 		def hVersion = new NpmVersionHelper()
@@ -125,7 +125,7 @@ class NpmMavenUploadCommand extends VersionCommand {
 			throw new Exception("Error al ejecutar uploadToNexus . file not found!");
 		}
 			
-		println "filepath  : ${filepath}"
+		log "filepath  : ${filepath}"
 
 		def returnCode = NexusHelper.uploadToNexus(
 			maven, groupId, artifactId, version, 

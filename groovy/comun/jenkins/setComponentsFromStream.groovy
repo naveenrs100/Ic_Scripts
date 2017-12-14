@@ -1,3 +1,5 @@
+package jenkins
+
 /**
  * Versión que devuelve la lista de componentes y no la lista de jobs a partir
  * del stream.  Se usa expresamente para el wf nuevo de C, y contiene lógica para identificar
@@ -31,22 +33,19 @@ public class Artifact {
 	}
 }
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
-
 //---- SCRIPT ------------>
 
-def stream = resolver.resolve("stream")
-def streamTarget = resolver.resolve("streamTarget")
-def action = resolver.resolve("action")
-def onlyChanges = resolver.resolve("onlyChanges")
+def stream = build.buildVariableResolver.resolve("stream")
+def streamTarget = build.buildVariableResolver.resolve("streamTarget")
+def action = build.buildVariableResolver.resolve("action")
+def onlyChanges = build.buildVariableResolver.resolve("onlyChanges")
 // En algunos casos podemos especificar que se desea que, si hay cambios en cualquier 
 //	componente, se compile toda la corriente
-def todos_o_ninguno = resolver.resolve("todos_o_ninguno")
-def makeSnapshot = resolver.resolve("makeSnapshot")
-def retry = resolver.resolve("retry")
-def getOrdered = resolver.resolve("getOrdered")
-def workspaceRTC = resolver.resolve("workspaceRTC")
+def todos_o_ninguno = build.buildVariableResolver.resolve("todos_o_ninguno")
+def makeSnapshot = build.buildVariableResolver.resolve("makeSnapshot")
+def retry = build.buildVariableResolver.resolve("retry")
+def getOrdered = build.buildVariableResolver.resolve("getOrdered")
+def workspaceRTC = build.buildVariableResolver.resolve("workspaceRTC")
 def jenkinsHome	= build.getEnvironment(null).get("JENKINS_HOME")
 def componentsCompareFile = new File("${build.workspace}/componentsCompare.txt")
 
@@ -99,12 +98,12 @@ if (components==null || components.size()==0){
 }
 else {
 	//----- FUNCIONES ESPECÍFICAS DEL WF DE C SERVIDOR ------
-	def environmentCatalog = resolver.resolve("environmentCatalogC")
+	def environmentCatalog = build.buildVariableResolver.resolve("environmentCatalogC")
 	if (environmentCatalog != null && environmentCatalog.trim().length() > 0) {
 		// En la variable espero el nombre del componente de catálogo dentro de la corriente
 		def urlRTC = build.getEnvironment(null).get("urlRTC")
 		def userRTC= build.getEnvironment(null).get("userRTC") 
-		def pwdRTC = resolver.resolve("pwdRTC") 
+		def pwdRTC = build.buildVariableResolver.resolve("pwdRTC") 
 		// Bajar el componente del catálogo a un temporal
 		// Parsear ahí todos los ficheros .env
 		def envCat = new EnvironmentCatalog({ println it })
@@ -203,12 +202,11 @@ def getComponents(componentsCompareFile, onlyChanges, stream, todos_o_ninguno, b
 	def component = null
 	List<String> todosComponentes = []
 	List<String> componentesConCambios = []
-	def resolver = build.buildVariableResolver
 	
 	
 	def urlRTC = build.getEnvironment(null).get("urlRTC")
 	def userRTC= build.getEnvironment(null).get("userRTC") 
-	def pwdRTC = resolver.resolve("pwdRTC") 
+	def pwdRTC = build.buildVariableResolver.resolve("pwdRTC") 
 	
 	// Generar el listado de componentes
 	componentsCompareFile.eachLine { line ->

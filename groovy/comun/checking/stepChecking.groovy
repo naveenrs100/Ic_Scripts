@@ -1,3 +1,5 @@
+package checking
+
 import groovy.net.xmlrpc.XMLRPCServerProxy
 import hudson.model.*
 import java.text.DateFormat
@@ -5,30 +7,27 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
-
 //Obtiene parametros pasados al Job
 def urlChecking =  build.getEnvironment(null).get("urlChecking")
 def userChecking = build.getEnvironment(null).get("userChecking")
 def IHSurl = build.getEnvironment(null).get("IHS_URL")
 def IHSBaseDir =  build.getEnvironment(null).get("CHECKING_REPORTS_PATH")
-def pwdChecking	= resolver.resolve("pwdChecking")
+def pwdChecking	= build.buildVariableResolver.resolve("pwdChecking")
 //---------- Parametros pasados directamente
-def jobInvoker = resolver.resolve("jobInvoker")
-def workspaceRTC = resolver.resolve("workspaceRTC")
-def component = resolver.resolve("component")
-def stream = resolver.resolve("stream")
-def recrear = resolver.resolve("recrear")
-def parentWorkspace = resolver.resolve("parentWorkspace")
+def jobInvoker = build.buildVariableResolver.resolve("jobInvoker")
+def workspaceRTC = build.buildVariableResolver.resolve("workspaceRTC")
+def component = build.buildVariableResolver.resolve("component")
+def stream = build.buildVariableResolver.resolve("stream")
+def recrear = build.buildVariableResolver.resolve("recrear")
+def parentWorkspace = build.buildVariableResolver.resolve("parentWorkspace")
 if (parentWorkspace==null) parentWorkspace = build.getEnvironment(null).get("WORKSPACE")
-def template = resolver.resolve("template")
-def checkingModel = resolver.resolve("checkingModel")
-def cadenaChecking = resolver.resolve("cadenaChecking")
-def tecnology = resolver.resolve("tecnology")
-def retries = resolver.resolve("retries")
-def publishReportChecking = resolver.resolve("publishReportChecking")
-def compJobNumber = resolver.resolve("compJobNumber")
+def template = build.buildVariableResolver.resolve("template")
+def checkingModel = build.buildVariableResolver.resolve("checkingModel")
+def cadenaChecking = build.buildVariableResolver.resolve("cadenaChecking")
+def tecnology = build.buildVariableResolver.resolve("tecnology")
+def retries = build.buildVariableResolver.resolve("retries")
+def publishReportChecking = build.buildVariableResolver.resolve("publishReportChecking")
+def compJobNumber = build.buildVariableResolver.resolve("compJobNumber")
 
 /**
  * Obtiene una conexión contra el servicio RPC

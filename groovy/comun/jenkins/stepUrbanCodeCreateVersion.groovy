@@ -1,3 +1,5 @@
+package jenkins
+
 import es.eci.utils.Utiles;
 import hudson.model.*
 import urbanCode.*

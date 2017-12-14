@@ -290,6 +290,9 @@ class GitSetComponentsFromGroupCommand extends Loggable {
 		String lastUser = null;
 		TmpDir.tmp { File dir ->
 			GitCloneCommand cc = new GitCloneCommand();
+			cc.initLogger(this)
+			GitLogCommand lg = new GitLogCommand();
+			lg.initLogger(this)
 			try {
 				cc.setParentWorkspace(new File(dir.getAbsolutePath()));
 				cc.setGitBranch(branch);
@@ -301,7 +304,6 @@ class GitSetComponentsFromGroupCommand extends Loggable {
 				cc.setGitCommand(this.gitCommand);
 				cc.execute();
 	
-				GitLogCommand lg = new GitLogCommand();
 				lg.setResultsNumber("1");
 				lg.setParentWorkspace("${dir.getAbsolutePath()}/${component}");
 				lg.setGitCommand(this.gitCommand);
@@ -314,7 +316,8 @@ class GitSetComponentsFromGroupCommand extends Loggable {
 				}
 			}
 			catch (Exception e) {
-				if (cc.getLastReturnCode() == 128) {
+				if (cc.getLastReturnCode() == 128
+						|| lg.getLastReturnCode() == 128) {
 					// Repositorio no inicializado
 					log ("WARNING: repositorio $component no inicializado")
 				}
@@ -336,6 +339,8 @@ class GitSetComponentsFromGroupCommand extends Loggable {
 		TmpDir.tmp { File dir ->
 			GitCloneCommand cc = new GitCloneCommand();
 			cc.initLogger(this)
+			GitLogCommand lg = new GitLogCommand();
+			lg.initLogger(this)
 			try {
 				cc.setParentWorkspace(new File(dir.getAbsolutePath()));
 				cc.setGitBranch(branch);
@@ -347,8 +352,6 @@ class GitSetComponentsFromGroupCommand extends Loggable {
 				cc.setGitCommand(this.gitCommand);
 				cc.execute();
 	
-				GitLogCommand lg = new GitLogCommand();
-				lg.initLogger(this)
 				lg.setResultsNumber("1");
 				lg.setParentWorkspace("${dir.getAbsolutePath()}/${component}");
 				lg.setGitCommand(this.gitCommand);
@@ -361,7 +364,8 @@ class GitSetComponentsFromGroupCommand extends Loggable {
 				}
 			}
 			catch (Exception e) {
-				if (cc.getLastReturnCode() == 128) {
+				if (cc.getLastReturnCode() == 128
+					|| lg.getLastReturnCode() == 128) {
 					// Repositorio no inicializado
 					log ("WARNING: repositorio $component no inicializado")
 				}
@@ -381,6 +385,9 @@ class GitSetComponentsFromGroupCommand extends Loggable {
 		componentsArray.each { String component ->
 			TmpDir.tmp { File dir ->
 				GitCloneCommand cc = new GitCloneCommand();
+				cc.initLogger(this)
+				GitLogCommand lg = new GitLogCommand();
+				lg.initLogger(this)
 				try {
 					cc.setParentWorkspace(new File(dir.getAbsolutePath()));
 					cc.setGitBranch(branch);
@@ -392,7 +399,6 @@ class GitSetComponentsFromGroupCommand extends Loggable {
 					cc.setGitCommand(this.gitCommand);
 					cc.execute();
 	
-					GitLogCommand lg = new GitLogCommand();
 					lg.setResultsNumber("1");
 					lg.setParentWorkspace("${dir.getAbsolutePath()}/${component}");
 					lg.setGitCommand(this.gitCommand);
@@ -408,7 +414,8 @@ class GitSetComponentsFromGroupCommand extends Loggable {
 					commitLogFile.text = id;
 				}
 				catch (Exception e) {
-					if (cc.getLastReturnCode() == 128) {
+					if (cc.getLastReturnCode() == 128
+						 || lg.getLastReturnCode() == 128) {
 						// Repositorio no inicializado
 						log ("WARNING: repositorio $component no inicializado")
 					}

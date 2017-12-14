@@ -1,3 +1,5 @@
+package rtc
+
 // A partir de una stream, intenta obtener la project area correspondiente a partir 
 //	del fichero xml cacheado en el job de refresco periódico.
 
@@ -8,9 +10,7 @@ import hudson.model.*
 import jenkins.model.*
 import rtc.ProjectAreaCacheReader
 
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
-def stream = resolver.resolve("stream");
+def stream = build.buildVariableResolver.resolve("stream");
 def jenkinsHome	= build.getEnvironment(null).get("JENKINS_HOME");
 
 

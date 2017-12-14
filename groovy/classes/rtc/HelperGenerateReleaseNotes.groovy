@@ -5,8 +5,6 @@ import hudson.model.ParametersAction
 import hudson.model.StringParameterValue
 
 import java.io.File;
-import java.lang.ref.WeakReference
-import java.lang.reflect.Field
 
 import com.deluan.jenkins.plugins.rtc.changelog.JazzChangeLogWriter
 import com.deluan.jenkins.plugins.rtc.changelog.JazzChangeSet
@@ -98,12 +96,8 @@ class HelperGenerateReleaseNotes {
 				params.add(new StringParameterValue("rutaFicheroReleaseNotesLog","${buildInvoker.getRootDir()}/releaseNotesLog.xml"))
 				updateBuildParams(params,build)
 			}
-			// asigna el nuevo conjunto de cambios al build
-			Field campo = AbstractBuild.getDeclaredField("changeSet")
-			campo.setAccessible(true)
-			campo.set(buildInvoker, new WeakReference<JazzChangeSetList>(new JazzChangeSetList(buildInvoker,ret)));
-			log.log "buildInvoker: ${buildInvoker.getChangeSet()}"
-		}else{
+		}
+		else{
 			log.log "WARNING: NO ENCUENTRA FICHERO ${releaseNotesFile}"
 		}
 		//releaseNotesFile.delete()

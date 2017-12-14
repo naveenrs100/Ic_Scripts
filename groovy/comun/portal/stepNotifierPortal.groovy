@@ -1,3 +1,5 @@
+package portal
+
 /** 
  * Este script unifica la invocación a procesos de notificación de portal
  * 

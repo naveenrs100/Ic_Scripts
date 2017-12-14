@@ -1,3 +1,5 @@
+package jenkins
+
 import urbanCode.UrbanCodeSnapshot;
 import groovy.json.JsonOutput;
 import urbanCode.UrbanCodeApplicationProcess
@@ -9,30 +11,27 @@ import es.eci.utils.TmpDir;
 import es.eci.utils.NexusHelper;
 import es.eci.utils.ZipHelper;
 
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
-
-def application = resolver.resolve("application");
-def component = resolver.resolve("component");
-def componenteUrbanCode = resolver.resolve("componenteUrbanCode");
-def tag = resolver.resolve("tag");
-def parentWorkspace = resolver.resolve("parentWorkspace");
+def application = build.buildVariableResolver.resolve("application");
+def component = build.buildVariableResolver.resolve("component");
+def componenteUrbanCode = build.buildVariableResolver.resolve("componenteUrbanCode");
+def tag = build.buildVariableResolver.resolve("tag");
+def parentWorkspace = build.buildVariableResolver.resolve("parentWorkspace");
 
 def urlNexus = 	build.getEnvironment(null).get("NEXUS_FICHAS_DESPLIEGUE_URL");
-def urlNexusUser = resolver.resolve("DEPLOYMENT_USER"); println("urlNexusUser -> " + urlNexusUser);
-def nexusPass = resolver.resolve("DEPLOYMENT_PWD"); println("nexusPass -> " + nexusPass);
+def urlNexusUser = build.buildVariableResolver.resolve("DEPLOYMENT_USER"); println("urlNexusUser -> " + urlNexusUser);
+def nexusPass = build.buildVariableResolver.resolve("DEPLOYMENT_PWD"); println("nexusPass -> " + nexusPass);
 
 def gradleBin = build.getEnvironment(null).get("GRADLE_HOME") + "/bin/gradle";
 def cScriptsStore =	build.getEnvironment(null).get("C_SCRIPTS_HOME");
 def groupIdUrbanCode = build.getEnvironment(null).get("URBAN_GROUP_ID");
 
-def entornoUrban = resolver.resolve("entornoUrbanCode");
+def entornoUrban = build.buildVariableResolver.resolve("entornoUrbanCode");
 def udClientCommand = build.getEnvironment(null).get("UDCLIENT_COMMAND");
 def urlUrbanCode = build.getEnvironment(null).get("UDCLIENT_URL");
 def urbanUser = build.getEnvironment(null).get("UDCLIENT_USER");
-def urbanPassword = resolver.resolve("UDCLIENT_PASS");
+def urbanPassword = build.buildVariableResolver.resolve("UDCLIENT_PASS");
 def urbanConnect = build.getEnvironment(null).get("URBAN_CONNECTION");
-def urbanConnLocal = resolver.resolve("URBAN_CONNECTION");
+def urbanConnLocal = build.buildVariableResolver.resolve("URBAN_CONNECTION");
 urbanConnect = (urbanConnLocal == null || (urbanConnLocal != "true" && urbanConnLocal != "false")) ? urbanConnect : urbanConnLocal;
 
 try {	

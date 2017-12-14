@@ -1,3 +1,5 @@
+package jenkins.triggers
+
 def componentList = params["componentsStream"]
 if (componentList!=null && componentList.length()>0){
 	final List list = componentList.replaceAll("\\[","").replaceAll("\\]","").replaceAll(" ","").split(",");

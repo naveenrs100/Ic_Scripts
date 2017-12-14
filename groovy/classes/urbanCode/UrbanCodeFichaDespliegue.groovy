@@ -1,10 +1,4 @@
-/**
- * Esta clase genera la ficha para urban. Se encarga de dar de alta las versiones de los
- * componentes en Urban y posteriormente genera la ficha. Puede ser invocada durante una
- * construcción, en cuyo caso utilizará el descriptor de la misma, o a petición, en este
- * caso se descargará el descriptor de Nexus a partir del nombre de la instantánea y del
- * nombre de la aplicación en Urban.
- */
+
 package urbanCode
 
 import es.eci.utils.base.Loggable;
@@ -17,8 +11,18 @@ import es.eci.utils.ZipHelper
 import groovy.json.JsonSlurper
 
 /**
- * @author gdrodriguez
- *
+ * Esta clase genera la ficha para urban, a partir de un grupo de repositorios, o bien una
+ * corriente de RTC. Se encarga de dar de alta las versiones de los
+ * componentes en Urban y posteriormente genera la ficha. Puede ser invocada durante una
+ * construcción, en cuyo caso utilizará el descriptor de la misma, o a petición, en este
+ * caso se descargará el descriptor de Nexus a partir del nombre de la instantánea y del
+ * nombre de la aplicación en Urban.
+ * <br/>
+ * Notar que es <b>imprescindible</b> contar con una instalación local del cliente.  Se puede provisionar
+ * desde:<br/>
+ * <a href="http://nexus.elcorteingles.int/service/local/repositories/GC/content/ibm/urbanCode/udclient/6.1.0/udclient-6.1.0.zip">Cliente udclient en Nexus</a>
+ * <br/> 
+ * @see <a href="https://www-01.ibm.com/support/knowledgecenter/SS4GSP_6.1.2/com.ibm.udeploy.reference.doc/topics/cli_commands.html">Documentación del cliente udclient en IBM</a>
  */
 class UrbanCodeFichaDespliegue extends Loggable {
 	
@@ -37,14 +41,14 @@ class UrbanCodeFichaDespliegue extends Loggable {
 	private String descriptor;
 	// Cuando se invoca a petición, para generar una ficha concreta es necesario que la
 	// aplicación y la instantánea estén informados.
-	private String nombreAplicacionUrban;
+	private String nombreAplicacionUrban; 
 	private String instantaneaUrban;
 	// Componentes que no existen en UrbanCode
 	private List<String> errorComp = [];
-	// Identificar si el job se ha lanzado desde corriente o no
-	private boolean componentLauch;
 	// Si se ha lanzado desde componente es necesario conocer el entorno de despliegue
 	private String entornoUrban;
+	// Si el despliegue conlleva parada de servicio
+	private boolean serviceStop;
 	
 	//---------------------------------------------------------------
 	// Métodos de la clase
@@ -69,8 +73,9 @@ class UrbanCodeFichaDespliegue extends Loggable {
 					} else {
 						// Obtener el descriptor de Nexus
 						log "--- INFO: Obteniendo descriptor para [${instantaneaUrban}] de Nexus..."
-						MavenCoordinates coordenadasMaven = new MavenCoordinates("es.eci.fichas_urbancode",
-							nombreAplicacionUrban, instantaneaUrban)
+						String artifactId = nombreAplicacionUrban.replace(" - ", "_").replace(" -", "_").replace("- ", "_").replace(" ", "_");
+						MavenCoordinates coordenadasMaven = new MavenCoordinates("es.eci.fichas_urbancode", artifactId, 
+							instantaneaUrban)
 						coordenadasMaven.setRepository("fichas_despliegue")
 						coordenadasMaven.setPackaging("zip")
 						descriptor = loadDescriptorFromNexus (coordenadasMaven, tmpDir)
@@ -86,6 +91,7 @@ class UrbanCodeFichaDespliegue extends Loggable {
 					errorComp.each {
 						log "--- " + it
 					}
+					//throw new Exception("Error al ejecutar la ficha")
 				// Todos los componentes implicados existen en Urban
 				} else {
 				
@@ -98,12 +104,12 @@ class UrbanCodeFichaDespliegue extends Loggable {
 					
 					// Lanzamiento del deploy en Urban
 					long millis_three = Stopwatch.watch {
-						// ¿Hay entorno?
-						if ( isNull(entornoUrban) ) {
-							log "!!! WARNING: No se ha informado entornoUrbanCode, no se efectuara el despliegue"
+						// ¿Hay entorno? - Una # indica que no se desplegará
+						if ( isNull(entornoUrban) || entornoUrban.contains("#") ) {
+							log "--- INFO: No está activado el despliegue automático en entorno desde QUVE"
 						} else {
 							log "--- INFO: Se procede a lanzar el despliegue en Urban"
-							executeUrbanDeploy(descriptor);
+							executeUrbanDeploy(descriptor, isServiceStop());
 						}
 					}
 					
@@ -123,7 +129,7 @@ class UrbanCodeFichaDespliegue extends Loggable {
 	 * los componentes UrbanCode.
 	 * @return Devuelve los componentes de los que no ha podido informarse la version. 
 	 */	
-	private List<String> checkAndCreateComponentVersions (String desc) {
+	public List<String> checkAndCreateComponentVersions (String desc) {
 		
 		// Componentes que no existen en Urban
 		List<String> notVersioned = []
@@ -169,7 +175,7 @@ class UrbanCodeFichaDespliegue extends Loggable {
 		try {
 			// Llamada a Nexus para recuperar el fichero descriptor.json almacenado
 			NexusHelper nexusExecutor = new NexusHelper(urlNexus)
-			nexusExecutor.initLogger( { println it } )
+			nexusExecutor.initLogger(this)
 			
 			// Fichero descriptor.json de destino
 			File targetDescriptor = nexusExecutor.download(coords, dir)
@@ -194,17 +200,33 @@ class UrbanCodeFichaDespliegue extends Loggable {
 	private void executeUrbanSnapshot (String desc) {	
 		UrbanCodeExecutor urbanExecutor = new UrbanCodeExecutor(udClientCommand,
 			urlUrbanCode, urbanUser, urbanPassword);
-		log "--- INFO: Lanzando Snapshot contra UrbanCode..."
+		log "--- INFO: Creando Snapshot contra UrbanCode..."
+		
+		// En el descriptor esta toda la informacion del despliegue
+		def report = UrbanCodeSnapshot.parseJSON(desc)
+		
+		// Borramos la nightly anterior
+		if (report.name.contains("nightly")) {
+			try {
+				urbanExecutor.deleteSnapshot(report.application, report.name)
+				log "--- INFO URBANCODE: [" + report.name + "] del aplicativo [" + report.application + "] eliminada"
+			}
+			catch(Exception e) {
+				log "--- INFO: No se ha encontrado nightly anterior, por lo tanto, no se elimina"
+			}
+			
+		}
+		
 		// Parseo del descriptor a formato snapshot y lanzamiento en UrbanCode
-		try {	
+		try {
 			HashMap jsonResponse = urbanExecutor.createSnapshot(UrbanCodeSnapshot.parseJSON(desc))
 			log "--- INFO URBANCODE: OK - id de snapshot: " + jsonResponse.get("id");
 		} catch (Exception e) {
 			if (e.getMessage().contains("already exists for this application.")) {
 				log "--- INFO URBANCODE: La snapshot ya existe en UrbanCode"
 			} else if (e.getMessage().contains("Invalid UUID string:")) {
-				log "--- ERROR URBANCODE: La aplicacion [${UrbanCodeSnapshot.parseJSON(desc).application}] no existe en UrbanCode"
-				throw new Exception("Error al ejecutar la ficha")
+				log "### ERROR URBANCODE: La aplicacion [${UrbanCodeSnapshot.parseJSON(desc).application}] no existe en UrbanCode"
+				//throw new Exception("Error al ejecutar la ficha")
 			} else {
 				log "!!! WARNING URBANCODE: Error no controlado. ${e.getMessage()}"
 				throw new Exception("Error al ejecutar la ficha")
@@ -213,9 +235,11 @@ class UrbanCodeFichaDespliegue extends Loggable {
 	}
 	
 	/**
-	 * 
+	 * Ejecuta el despliegue en UrbanCode, si te trata de una versión nightly agrega el modificador de despliegue SNAPSHOT
+	 * @param desc Descriptor obtenido desde Nexus o de la propia construcción.
+	 * @param stop Indica si el despliegue provoca pérdida de servicio.
 	 */
-	private void executeUrbanDeploy (String desc) {
+	private void executeUrbanDeploy (String desc, boolean stop) {
 		
 		UrbanCodeExecutor urbanExecutor = new UrbanCodeExecutor(udClientCommand,
 			urlUrbanCode, urbanUser, urbanPassword);
@@ -224,13 +248,21 @@ class UrbanCodeFichaDespliegue extends Loggable {
 		def report = UrbanCodeSnapshot.parseJSON(desc)
 		
 		try {
+			
+			if(stop) {
+				log "--- INFO: El siguiente despliegue implica parada de servicio"
+			}
+			
 			UrbanCodeApplicationProcess process = new UrbanCodeApplicationProcess (
 				report.application,
-				Constants.DEPLOY_PROCESS,
+				stop?Constants.DEPLOY_PROCESS_STOP:Constants.DEPLOY_PROCESS,
 				entornoUrban,
 				true,
-				report.name
+				report.name,
+				report.name.contains("nightly")?["ETIQUETA":"-SNAPSHOT"]:[:]
 			);
+		
+			log "Comando a Urban: " + process.toJSON()
 			
 			// Recuperación de la respuesta del comando
 			HashMap jsonResponse = urbanExecutor.requestApplicationProcess(process)
@@ -239,9 +271,11 @@ class UrbanCodeFichaDespliegue extends Loggable {
 			
 		} catch (Exception e) {
 			if (e.getMessage().contains("The value given for \"environment\"")) {
-				log "--- ERROR URBANCODE: El entorno [${entornoUrban}] no existe en UrbanCode"
+				log "### ERROR URBANCODE: El entorno [${entornoUrban}] no existe en UrbanCode"
+				//throw new Exception("Error al ejecutar la ficha")
 			} else {
 				log "!!! WARNING URBANCODE: Error no controlado. ${e.getMessage()}"
+				throw new Exception("Error al ejecutar la ficha")
 			}
 		}
 	}
@@ -311,115 +345,117 @@ class UrbanCodeFichaDespliegue extends Loggable {
 	}
 	
 	/**
-	 * @return the instantaneaUrban
+	 * @return Nombre de la instantánea en Urban Code
 	 */
 	public String getInstantaneaUrban() {
 		return instantaneaUrban;
 	}
 	
 	/**
-	 * @param instantaneaUrban the instantaneaUrban to set
+	 * @param instantaneaUrban Nombre de la instantánea en Urban Code
 	 */
 	public void setInstantaneaUrban(String instantaneaUrban) {
 		this.instantaneaUrban = instantaneaUrban;
 	}
 
 	/**
-	 * @return the udClientCommand
+	 * @return Ruta completa del ejecutable del cliente udclient en disco duro
 	 */
 	public String getUdClientCommand() {
 		return udClientCommand;
 	}
 
 	/**
-	 * @param udClientCommand the udClientCommand to set
+	 * @param udClientCommand Ruta completa del ejecutable del cliente udclient en disco duro
 	 */
 	public void setUdClientCommand(String udClientCommand) {
 		this.udClientCommand = udClientCommand;
 	}
 
 	/**
-	 * @return the urlUrbanCode
+	 * @return URL de Urban Code
 	 */
 	public String getUrlUrbanCode() {
 		return urlUrbanCode;
 	}
 
 	/**
-	 * @param urlUrbanCode the urlUrbanCode to set
+	 * @param urlUrbanCode URL de Urban Code
 	 */
 	public void setUrlUrbanCode(String urlUrbanCode) {
 		this.urlUrbanCode = urlUrbanCode;
 	}
 	
 	/**
-	 * @return the urlNexus
+	 * @return URL de Nexus corporativo
 	 */
 	public String getUrlNexus() {
 		return urlNexus;
 	}
 
 	/**
-	 * @param urlNexus the urlNexus to set
+	 * @param urlNexus URL de Nexus corporativo
 	 */
 	public void setUrlNexus(String urlNexus) {
 		this.urlNexus = urlNexus;
 	}
 
 	/**
-	 * @return the urbanUser
+	 * @return Usuario Urban Code
 	 */
 	public String getUrbanUser() {
 		return urbanUser;
 	}
 
 	/**
-	 * @param urbanUser the urbanUser to set
+	 * @param urbanUser Usuario Urban Code
 	 */
 	public void setUrbanUser(String urbanUser) {
 		this.urbanUser = urbanUser;
 	}
 
 	/**
-	 * @return the urbanPassword
+	 * @return Contraseña de Urban Code
 	 */
 	public String getUrbanPassword() {
 		return urbanPassword;
 	}
 
 	/**
-	 * @param urbanPassword the urbanPassword to set
+	 * @param urbanPassword Contraseña de Urban Code
 	 */
 	public void setUrbanPassword(String urbanPassword) {
 		this.urbanPassword = urbanPassword;
 	}
 
 	/**
-	 * @return the componentLauch
-	 */
-	public boolean isComponentLauch() {
-		return componentLauch;
-	}
-
-	/**
-	 * @param componentLauch the componentLauch to set
-	 */
-	public void setComponentLauch(boolean componentLauch) {
-		this.componentLauch = componentLauch;
-	}
-
-	/**
-	 * @return the entornoUrban
+	 * @return Nombre lógico del entorno de despliegue, en caso de ir informado
 	 */
 	public String getEntornoUrban() {
 		return entornoUrban;
 	}
 
 	/**
-	 * @param entornoUrban the entornoUrban to set
+	 * @param entornoUrban Nombre lógico del entorno de despliegue, 
+	 * 	en caso de ir informado
 	 */
 	public void setEntornoUrban(String entornoUrban) {
 		this.entornoUrban = entornoUrban;
+	}
+
+	/**
+	 * @return Cierto si el despliegue conlleva parada de servicio
+	 */
+	public boolean isServiceStop() {
+		return serviceStop;
+	}
+
+	/**
+	 * @param serviceStop Cierto si el despliegue conlleva 
+	 * 	parada de servicio
+	 */
+	public void setServiceStop(boolean serviceStop) {
+		this.serviceStop = serviceStop;
 	}
 
 }

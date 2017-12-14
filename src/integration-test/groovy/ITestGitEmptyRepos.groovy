@@ -31,6 +31,8 @@ class ITestGitEmptyRepos extends BaseTest {
 			command.setUrlNexus(nexusURL);
 			command.setTechnology("maven");
 			
+			command.initLogger { println it }
+			
 
 			command.execute();
 			

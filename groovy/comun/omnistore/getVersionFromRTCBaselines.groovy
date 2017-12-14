@@ -1,25 +1,23 @@
+package omnistore
+
 import es.eci.utils.ComponentVersionHelper;
 import es.eci.utils.SystemPropertyBuilder;
 import es.eci.utils.ParamsHelper;
 import java.util.Map;
 import java.util.regex.*;
 
-
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
-
 SystemPropertyBuilder propBuilder = new SystemPropertyBuilder();
 def propertiesMap = propBuilder.getSystemParameters();
 
-def stream = resolver.resolve("stream"); println("stream = ${stream}")
-def component = resolver.resolve("component"); println("component = ${component}")
+def stream = build.buildVariableResolver.resolve("stream"); println("stream = ${stream}")
+def component = build.buildVariableResolver.resolve("component"); println("component = ${component}")
 def scmToolsHome = build.getEnvironment(null).get("SCMTOOLS_HOME"); println("scmToolsHome = ${scmToolsHome}")
 def user = build.getEnvironment(null).get("userRTC"); println("user = ${user}")
-def password = resolver.resolve("pwdRTC"); println("password = ${password}")
+def password = build.buildVariableResolver.resolve("pwdRTC"); println("password = ${password}")
 def repository = build.getEnvironment(null).get("urlRTC"); println("repository = ${repository}")
 
 // Obtenemos el parámetro "version" para contemplar el caso en el que éste se haya indicado directamente.
-def version = resolver.resolve("version");
+def version = build.buildVariableResolver.resolve("version");
 if(version == 'DESARROLLO' || version == 'RELEASE') {
 	println("El parámetro \"version\" viene informado como \"DESARROLLO\" o \"RELEASE\". Lo calculamos mediante la última baseline de RTC...");
 	ComponentVersionHelper componentVersionHelper = new ComponentVersionHelper(scmToolsHome);

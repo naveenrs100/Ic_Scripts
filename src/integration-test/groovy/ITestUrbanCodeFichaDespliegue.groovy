@@ -36,7 +36,7 @@ class ITestUrbanCodeFichaDespliegue {
 		exec.setUrbanUser(urbanUser)
 		exec.setUrbanPassword(urbanPassword)
 		exec.setUrlNexus(urlNexus)
-		
+
 		exec.execute()
 
 	}

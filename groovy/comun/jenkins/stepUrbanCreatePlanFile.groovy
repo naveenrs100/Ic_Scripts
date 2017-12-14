@@ -1,3 +1,5 @@
+package jenkins
+
 /**
  * Este script genera un fichero de despligue de Urban que posteriormente utilizará
  * el job de SCHEDULE_URBAN que corresponda.
@@ -10,6 +12,7 @@
  * 			  encuentre el fichero correcto.
  * version: Instantánea a planificar, o control por palabras clave para el job
  * 			de SCHEDULE_URBAN. El control puede ser DESARROLLO o RELEASE.
+ * stream: Nombre de corriente para diferenciar nightlys.
  */
 
 // --- Variables entrantes ---
@@ -18,6 +21,7 @@ def urbanCodeApp = args[0] // OBLIGATORIO
 def urbanCodeEnv = args[1] // OBLIGATORIO
 def productId = args[2] // OGLIGATORIO
 def version = args[3]
+def stream = args[4] // OBLIGATORIO
 def ficheroUrban = ""
 
 // --- Módulos ---
@@ -33,7 +37,7 @@ if ( !isNull(productId) && !isNull(urbanCodeEnv) && !isNull(urbanCodeApp) ) {
 	// Compobamos que hay version
 	if ( !isNull(version) ) {
 		// Update del fichero
-		ficheroUrban << "environment=${urbanCodeEnv}\naplicacionUrbanCode=${urbanCodeApp}\nversion=${version}"
+		ficheroUrban << "environment=${urbanCodeEnv}\naplicacionUrbanCode=${urbanCodeApp}\nversion=${version}\nstream=${stream}"
 	} else {
 		println "AVISO - Version vacia borrando fichero..."
 		ficheroUrban.delete();

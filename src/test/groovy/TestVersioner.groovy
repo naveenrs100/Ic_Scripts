@@ -92,19 +92,20 @@ class TestVersioner {
 			def artifactsJson = new File("src/test/resources/versioner/artifactsJson/01artifactsInicial.json");
 			PomXmlWriteOperations.fillVersion(dir,artifactsJson.getText(), null);
 
-			Document doc = XmlUtils.parseXml(new File(dir.getAbsolutePath() + "/pom.xml"));
-			Node mainVersionNode = XmlUtils.xpathNode(doc, "/project/properties/main-version");
-			Node lib1VersionNode = XmlUtils.xpathNode(doc, "/project/properties/lib1-version");
-			Node depVersionNode =  XmlUtils.xpathNode(doc, "/project/properties/dep-version");
-			Node otraDepVersionNode = XmlUtils.xpathNode(doc, "/project/properties/mas-otra-dep-version");
+			XmlUtils utils = new XmlUtils();
+			Document doc = utils.parseXml(new File(dir.getAbsolutePath() + "/pom.xml"));
+			Node mainVersionNode = utils.xpathNode(doc, "/project/properties/main-version");
+			Node lib1VersionNode = utils.xpathNode(doc, "/project/properties/lib1-version");
+			Node depVersionNode =  utils.xpathNode(doc, "/project/properties/dep-version");
+			Node otraDepVersionNode = utils.xpathNode(doc, "/project/properties/mas-otra-dep-version");
 
 			assertEquals("1.0.0.0-SNAPSHOT",mainVersionNode.getTextContent());
 			assertEquals("1.0.0.0-SNAPSHOT",lib1VersionNode.getTextContent());
 			assertEquals("1.0.0.0",depVersionNode.getTextContent());
 			assertEquals("2.0.0.0-SNAPSHOT", otraDepVersionNode.getTextContent());
 
-			Document doc2 = XmlUtils.parseXml(new File(dir.getAbsolutePath() + "/App2-WAR/pom.xml"));
-			Node propertyNode = XmlUtils.xpathNode(doc2, "/project/properties/mas-version-no-entra");
+			Document doc2 = utils.parseXml(new File(dir.getAbsolutePath() + "/App2-WAR/pom.xml"));
+			Node propertyNode = utils.xpathNode(doc2, "/project/properties/mas-version-no-entra");
 
 			assertEquals("2.0.0-SNAPSHOT",propertyNode.getTextContent());
 		}
@@ -123,14 +124,15 @@ class TestVersioner {
 			artifactsJson = new File("src/test/resources/versioner/artifactsJson/02artifacts-postFillVersion.json");
 			PomXmlWriteOperations.removeSnapshot(dir, artifactsJson.getText(), null);
 
-			Document docRaiz = 		XmlUtils.parseXml(new File(dir,"pom.xml"));
-			Document docApp2WAR = 	XmlUtils.parseXml(new File(dir,"App2-WAR/pom.xml"));
-			Document docApp2EAR = 	XmlUtils.parseXml(new File(dir,"App2-EAR/pom.xml"));
+			XmlUtils utils = new XmlUtils();
+			Document docRaiz = 		utils.parseXml(new File(dir,"pom.xml"));
+			Document docApp2WAR = 	utils.parseXml(new File(dir,"App2-WAR/pom.xml"));
+			Document docApp2EAR = 	utils.parseXml(new File(dir,"App2-EAR/pom.xml"));
 
-			def mainVersion = XmlUtils.xpathNode(docRaiz, "/project/properties/main-version").getTextContent();
-			def lib1Version = XmlUtils.xpathNode(docRaiz, "/project/properties/lib1-version").getTextContent();
-			def depVersion = XmlUtils.xpathNode(docRaiz, "/project/properties/dep-version").getTextContent();
-			def masDepVersion = XmlUtils.xpathNode(docRaiz, "/project/properties/mas-otra-dep-version").getTextContent();
+			def mainVersion = utils.xpathNode(docRaiz, "/project/properties/main-version").getTextContent();
+			def lib1Version = utils.xpathNode(docRaiz, "/project/properties/lib1-version").getTextContent();
+			def depVersion = utils.xpathNode(docRaiz, "/project/properties/dep-version").getTextContent();
+			def masDepVersion = utils.xpathNode(docRaiz, "/project/properties/mas-otra-dep-version").getTextContent();
 
 			assertEquals("1.0.0.0",mainVersion);
 			assertEquals("1.0.0.0",lib1Version);
@@ -153,17 +155,18 @@ class TestVersioner {
 			artifactsJson = new File("src/test/resources/versioner/artifactsJson/02artifacts-postFillVersion.json");
 			PomXmlWriteOperations.removeSnapshot(dir, artifactsJson.getText(), null);
 			artifactsJson = new File("src/test/resources/versioner/artifactsJson/03artifacts-postRemoveSnapshot.json");
-			PomXmlWriteOperations.increaseVersion(dir, 3, artifactsJson.getText(), null);
+			PomXmlWriteOperations.increaseVersion(dir, artifactsJson.getText(), null, "release", null);
 
-			Document docRaiz = XmlUtils.parseXml(new File(dir, "pom.xml"));
-			Document docWAR = XmlUtils.parseXml(new File(dir, "App2-WAR/pom.xml"));
+			XmlUtils utils = new XmlUtils();
+			Document docRaiz = utils.parseXml(new File(dir, "pom.xml"));
+			Document docWAR = utils.parseXml(new File(dir, "App2-WAR/pom.xml"));
 			
-			def mainVersion = XmlUtils.xpathNode(docRaiz, "/project/properties/main-version").getTextContent();
-			def lib1Version = XmlUtils.xpathNode(docRaiz, "/project/properties/lib1-version").getTextContent();
-			def depVersion = XmlUtils.xpathNode(docRaiz, "/project/properties/dep-version").getTextContent();
-			def masDepVersion = XmlUtils.xpathNode(docRaiz, "/project/properties/mas-otra-dep-version").getTextContent();
+			def mainVersion = utils.xpathNode(docRaiz, "/project/properties/main-version").getTextContent();
+			def lib1Version = utils.xpathNode(docRaiz, "/project/properties/lib1-version").getTextContent();
+			def depVersion = utils.xpathNode(docRaiz, "/project/properties/dep-version").getTextContent();
+			def masDepVersion = utils.xpathNode(docRaiz, "/project/properties/mas-otra-dep-version").getTextContent();
 			
-			def removeVersion = XmlUtils.xpathNode(docWAR, "/project/properties/remove-version").getTextContent();
+			def removeVersion = utils.xpathNode(docWAR, "/project/properties/remove-version").getTextContent();
 
 			assertEquals("1.0.1.0",mainVersion);
 			assertEquals("1.0.1.0",lib1Version);
@@ -183,13 +186,14 @@ class TestVersioner {
 
 			// Camino hasta el increaseVersion
 			def artifactsJson = new File("src/test/resources/versioner/artifactsJson/06artifacts-hotFix.json");
-			PomXmlWriteOperations.increaseVersion(dir, 5, artifactsJson.getText(), null);
+			PomXmlWriteOperations.increaseVersion(dir, artifactsJson.getText(), null, "addHotfix", null);
 			
-			Document docHijo = XmlUtils.parseXml(new File(dir, "App2-WAR/hijo/pom.xml"));
-			Document docWAR = XmlUtils.parseXml(new File(dir, "App2-WAR/pom.xml"));
+			XmlUtils utils = new XmlUtils();
+			Document docHijo = utils.parseXml(new File(dir, "App2-WAR/hijo/pom.xml"));
+			Document docWAR = utils.parseXml(new File(dir, "App2-WAR/pom.xml"));
 			
-			def hotFixNode1 = XmlUtils.xpathNodes(docHijo, "/project/dependencies//version")[5].getTextContent();
-			def hotFixNode2 = XmlUtils.xpathNode(docWAR, "/project/properties/mas-hotfixVersion").getTextContent();
+			def hotFixNode1 = utils.xpathNodes(docHijo, "/project/dependencies//version")[5].getTextContent();
+			def hotFixNode2 = utils.xpathNode(docWAR, "/project/properties/mas-hotfixVersion").getTextContent();
 			
 			assertEquals("1.0.0.0-1", hotFixNode1);
 			assertEquals("1.0.0.0-2", hotFixNode2);
@@ -229,21 +233,22 @@ class TestVersioner {
 			artifactsJson = new File("src/test/resources/versioner/artifactsJson/02artifacts-postFillVersion.json");
 			PomXmlWriteOperations.removeSnapshot(dir, artifactsJson.getText(), null);
 			artifactsJson = new File("src/test/resources/versioner/artifactsJson/03artifacts-postRemoveSnapshot.json");
-			PomXmlWriteOperations.increaseVersion(dir, 3, artifactsJson.getText(), null);
+			PomXmlWriteOperations.increaseVersion(dir, artifactsJson.getText(), null, "release", null);
 			artifactsJson = new File("src/test/resources/versioner/artifactsJson/04artifacts-postIncreaseVersion.json");
 			PomXmlWriteOperations.addSnapshot(dir, artifactsJson.getText(), null);
 			
-			Document docRaiz = XmlUtils.parseXml(new File(dir.getAbsolutePath() + "/pom.xml"));
-			Document docApp2WAR = XmlUtils.parseXml(new File(dir.getAbsolutePath() + "/App2-WAR/pom.xml"));
-			Document docApp2EAR = XmlUtils.parseXml(new File(dir.getAbsolutePath() + "/App2-EAR/pom.xml"));			
+			XmlUtils utils = new XmlUtils();
+			Document docRaiz = utils.parseXml(new File(dir.getAbsolutePath() + "/pom.xml"));
+			Document docApp2WAR = utils.parseXml(new File(dir.getAbsolutePath() + "/App2-WAR/pom.xml"));
+			Document docApp2EAR = utils.parseXml(new File(dir.getAbsolutePath() + "/App2-EAR/pom.xml"));			
 			
-			def mainVersion = XmlUtils.xpathNode(docRaiz, "/project/properties/main-version").getTextContent();
-			def lib1Version = XmlUtils.xpathNode(docRaiz, "/project/properties/lib1-version").getTextContent();
-			def depVersion = XmlUtils.xpathNode(docRaiz, "/project/properties/dep-version").getTextContent();
-			def masDepVersion = XmlUtils.xpathNode(docRaiz, "/project/properties/mas-otra-dep-version").getTextContent();
+			def mainVersion = utils.xpathNode(docRaiz, "/project/properties/main-version").getTextContent();
+			def lib1Version = utils.xpathNode(docRaiz, "/project/properties/lib1-version").getTextContent();
+			def depVersion = utils.xpathNode(docRaiz, "/project/properties/dep-version").getTextContent();
+			def masDepVersion = utils.xpathNode(docRaiz, "/project/properties/mas-otra-dep-version").getTextContent();
 			
-			def removeVersion = XmlUtils.xpathNode(docApp2WAR, "/project/properties/remove-version").getTextContent();
-			def dep2App2War = XmlUtils.xpathNode(docApp2EAR, "/project/dependencies/dependency/version").getTextContent();
+			def removeVersion = utils.xpathNode(docApp2WAR, "/project/properties/remove-version").getTextContent();
+			def dep2App2War = utils.xpathNode(docApp2EAR, "/project/dependencies/dependency/version").getTextContent();
 
 			assertEquals("1.0.1.0-SNAPSHOT",mainVersion);
 			assertEquals("1.0.1.0-SNAPSHOT",lib1Version);

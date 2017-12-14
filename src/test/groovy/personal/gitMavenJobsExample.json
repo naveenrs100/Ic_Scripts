@@ -1,0 +1,13 @@
+{
+    "ordermonitor": {        
+        "aplicacionUrbanCode": "",
+        "entornoUbanRelease": "",
+        "entornoUbanDeploy": "",
+        "components": {
+            "invoice-mandatory-microservice": {
+                "docker_template": "was",
+                "componenteUrbanCode": ""
+            }
+        }
+    }
+}

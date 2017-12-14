@@ -1,3 +1,5 @@
+package git
+
 import es.eci.utils.SystemPropertyBuilder;
 import git.commands.GitUploadCommand;
 

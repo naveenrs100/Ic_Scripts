@@ -21,17 +21,29 @@ abstract class VersionCommand extends Loggable {
 	protected String artifactId;
 	protected String groupId;
 	
-	String fileVersion = 'package.json'
 
-
-	
 	/**
-	 * Asigna el nombre del fichero de configuración si es distinto que el por defecto.
-	 * @param filename
+	 * Este método busca en el workspace los ficheros
+	 * 
+	 * package.json
+	 * npm-shrinkwrap.json
+	 * 
+	 * Por este orden, devolviendo el fichero que exista.
+	 * @return
 	 */
-	
-	public void setJsonVersionFileVersion(String filename) {
-		this.fileVersion = filename;
+	public String getFileVersion() {
+		String ret = null;
+		File p = new File(parentWorkspace, "package.json");
+		if (p.exists()) {
+			ret = p.getName();
+		}
+		else {
+			File s = new File(parentWorkspace, "npm-shrinkwrap.json");
+			if (s.exists()) {
+				ret = s.getName();
+			}
+		}
+		return ret;
 	}
 
 	/**

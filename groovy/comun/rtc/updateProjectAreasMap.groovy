@@ -1,3 +1,5 @@
+package rtc
+
 // Recopila desde RTC la información de corrientes y áreas de proyecto
 
 import hudson.model.*
@@ -6,7 +8,6 @@ import java.beans.XMLEncoder;
 
 import es.eci.utils.Stopwatch;
 import es.eci.utils.TmpDir;
-import rtc.*;
 
 // Devuelve un map similar al inicial, pero indexado por los nombres embellecidos
 //	de la corriente
@@ -19,13 +20,11 @@ def beautify(Map<String, List<String>> areas) {
 	return ret;
 }
 
-def build = Thread.currentThread().executable;
 def workspace = build.workspace;
-def resolver = build.buildVariableResolver;
 // Configuración de RTC
 def urlRTC = build.getEnvironment(null).get("urlRTC")
 def userRTC= build.getEnvironment(null).get("userRTC") 
-def pwdRTC = resolver.resolve("pwdRTC") 
+def pwdRTC = build.buildVariableResolver.resolve("pwdRTC") 
 def scmToolsHome = build.getEnvironment(null).get("SCMTOOLS_HOME")
 
 TmpDir.tmp { tmpDir ->

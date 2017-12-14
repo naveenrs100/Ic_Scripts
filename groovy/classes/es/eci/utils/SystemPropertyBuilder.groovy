@@ -45,7 +45,7 @@ class SystemPropertyBuilder extends Loggable {
 			def property = propertyEntry.key
 			def value = propertyEntry.value			
 			if (property.startsWith('param.')) {
-				println("Se incluye la property ${propertyEntry}");				
+				log("Se incluye la property ${propertyEntry}");				
 				ret.put(property.replaceAll("param\\.", "").trim(), 
 					System.getProperty(property).trim());
 			}

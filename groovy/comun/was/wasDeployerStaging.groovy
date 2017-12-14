@@ -1,3 +1,5 @@
+package was
+
 import es.eci.utils.SFTPUtility
 
 /**

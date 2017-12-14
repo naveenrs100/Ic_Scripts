@@ -27,6 +27,7 @@ class PomXmlWriteOperations {
 	 * @return
 	 */
 	public static removeSnapshot(File dir, String artifactsJson, String nexusUrl) {
+		XmlUtils utils = new XmlUtils();
 		def c1 = { nodeVersion, doc, file, artifacts, artifactId ->
 			// Si la version viene escrita se actualiza de forma normal en el pom.xml que la contiene.
 			def nodeVersionText = nodeVersion.getTextContent();
@@ -37,8 +38,8 @@ class PomXmlWriteOperations {
 
 		def c2 = { nodeVersionText, touchedProperties, thisDoc, pomRaiz, isDependency, doc, file, artifactId, artifacts ->
 			// Si la versión viene como variable se actualiza su valor en el pom.xml raíz, que es donde viene definida.
-			def treeNodesMap = XmlUtils.getTreeNodesMap(dir);
-			def finalPropNode = XmlUtils.getFinalPropNode(file, treeNodesMap, nodeVersionText, nexusUrl);
+			def treeNodesMap = utils.getTreeNodesMap(dir);
+			def finalPropNode = utils.getFinalPropNode(file, treeNodesMap, nodeVersionText, nexusUrl);
 			// Si la propiedad ya ha sido tocada no volver a tocarla.
 			if(!touchedProperties.contains(finalPropNode.getNode().getNodeName())) {
 				def newVersion = finalPropNode.getNode().getTextContent().split("-SNAPSHOT")[0];
@@ -67,6 +68,7 @@ class PomXmlWriteOperations {
 	 * @return
 	 */
 	public static addSnapshot(File dir, String artifactsJson, String nexusUrl) {
+		XmlUtils utils = new XmlUtils();
 		def c1 = { nodeVersion, doc, file, artifacts, artifactId ->
 			// Si la version viene escrita se actualiza de forma normal en el pom.xml que la contiene.
 			if(!nodeVersion.getTextContent().endsWith("-SNAPSHOT")) {
@@ -78,8 +80,8 @@ class PomXmlWriteOperations {
 
 		def c2 = { nodeVersionText, touchedProperties, thisDoc, pomRaiz, isDependency, doc, file, artifactId, artifacts ->
 			// Si la versión viene como variable se actualiza su valor en el pom.xml raíz, que es donde viene definida.
-			def treeNodesMap = XmlUtils.getTreeNodesMap(dir);
-			def finalNodeProp = XmlUtils.getFinalPropNode(file, treeNodesMap, nodeVersionText, nexusUrl);
+			def treeNodesMap = utils.getTreeNodesMap(dir);
+			def finalNodeProp = utils.getFinalPropNode(file, treeNodesMap, nodeVersionText, nexusUrl);
 			if(!touchedProperties.contains(finalNodeProp.getNode().getNodeName())) { // Si la propiedad ya ha sido tocada no volver a tocarla.
 				def isSnapshot = finalNodeProp.getNode().getTextContent().contains("-SNAPSHOT");
 				if(!isSnapshot) {
@@ -110,102 +112,31 @@ class PomXmlWriteOperations {
 	 * @param artifactsJsonFile
 	 * @return
 	 */
-	public static increaseVersion(File dir, int index, String artifactsJson, String nexusUrl) {
+	public static increaseVersion(File dir, String artifactsJson, String nexusUrl, String action, String releaseMantenimiento) {
+		XmlUtils utils = new XmlUtils();
 		def c1 = { nodeVersion, doc, file, artifacts, artifactId ->
 			// Si la version viene escrita se actualiza de forma normal en el pom.xml que la contiene.
 			def nodeVersionText = nodeVersion.getTextContent();
-			def isSnapshot = nodeVersionText.contains("-SNAPSHOT");
-			def version = nodeVersionText.split("-SNAPSHOT")[0];
-			ArrayList versionDigits = version.split("\\.");
-			boolean isHotfix = (index == 5);
+			def newVersion = utils.increaseVersionDigit(nodeVersionText, action, releaseMantenimiento);
+			
+			nodeVersion.setTextContent(newVersion);
+			XmlWriter.transformXml(doc, file);
 
-			if(isSnapshot && !isHotfix) {
-				def increasedDigit = versionDigits[index - 1].toInteger() + 1;
-				versionDigits.set(index - 1, increasedDigit);
-				if(index < versionDigits.size()) {
-					for(int i = index; i < versionDigits.size(); i++) {
-						versionDigits.set(i, 0);
-					}
-				}
-				def newVersion = versionDigits[0] + "." + versionDigits[1] + "." + versionDigits[2] + "." + versionDigits[3] + "-SNAPSHOT";
-				nodeVersion.setTextContent(newVersion);
-				XmlWriter.transformXml(doc, file);
-			}
-			else if(!isSnapshot && !isHotfix) {
-				def increasedDigit = versionDigits[index - 1].toInteger() + 1;
-				versionDigits.set(index - 1, increasedDigit);
-				if(index < versionDigits.size()) {
-					for(int i = index; i < versionDigits.size(); i++) {
-						versionDigits.set(i, 0);
-					}
-				}
-				def newVersion = versionDigits[0] + "." + versionDigits[1] + "." + versionDigits[2] + "." + versionDigits[3];
-				nodeVersion.setTextContent(newVersion);
-				XmlWriter.transformXml(doc, file);
-			}
-			else if(!isSnapshot && isHotfix) {
-				if(versionDigits[3].split("-").size() == 1) {
-					versionDigits.set(3, versionDigits[3] + "-1");
-					def newVersion = versionDigits[0] + "." + versionDigits[1] + "." + versionDigits[2] + "." + versionDigits[3];
-					nodeVersion.setTextContent(newVersion);
-					XmlWriter.transformXml(doc, file);
-				}
-				else if(versionDigits[3].split("-").size() == 2) {
-					def hotFixDigit = versionDigits[3].split("-")[1].toInteger() + 1;
-					versionDigits.set(3, versionDigits[3].split("-")[0] + "-" + hotFixDigit);
-					def newVersion = versionDigits[0] + "." + versionDigits[1] + "." + versionDigits[2] + "." + versionDigits[3];
-					nodeVersion.setTextContent(newVersion);
-					XmlWriter.transformXml(doc, file);
-				}
-			}
-			else if(isSnapshot || isHotFix) {
-				throw new NumberFormatException("Se está intentando convertir a hotFix una versión SNAPSHOT en pom ${file.getCanonicalPath()}.");
-			}
 		}
 
 		def c2 = { nodeVersionText, touchedProperties, thisDoc, pomRaiz, isDependency, doc, file, artifactId, artifacts ->
 			// Si la versión viene como variable se actualiza su valor en el pom.xml raíz, que es donde viene definida.
-			def treeNodesMap = XmlUtils.getTreeNodesMap(dir);
-			def finalPropNode = XmlUtils.getFinalPropNode(file, treeNodesMap, nodeVersionText, nexusUrl);
+			def treeNodesMap = utils.getTreeNodesMap(dir);
+			def finalPropNode = utils.getFinalPropNode(file, treeNodesMap, nodeVersionText, nexusUrl);
 			if(!touchedProperties.contains(finalPropNode.getNode().getNodeName())) { // Si la propiedad ya ha sido tocada no volver a tocarla.
-				def isSnapshot = finalPropNode.getNode().getTextContent().contains("-SNAPSHOT");
-				def version = finalPropNode.getNode().getTextContent().split("-SNAPSHOT")[0];
-				ArrayList versionDigits = version.split("\\.");
-				boolean isHotfix = (index == 5);
-
-				if(isSnapshot && !isHotfix) {
-					def increasedDigit = versionDigits[index - 1].toInteger() + 1;
-					versionDigits.set(index - 1, increasedDigit);
-					def newVersion = versionDigits[0] + "." + versionDigits[1] + "." + versionDigits[2] + "." + versionDigits[3] + "-SNAPSHOT";
-					finalPropNode.getNode().setTextContent(newVersion);
-				}
-				else if(!isSnapshot && !isHotfix) {
-					def increasedDigit = versionDigits[index - 1].toInteger() + 1;
-					versionDigits.set(index - 1, increasedDigit);
-					def newVersion = versionDigits[0] + "." + versionDigits[1] + "." + versionDigits[2] + "." + versionDigits[3];
-					finalPropNode.getNode().setTextContent(newVersion);
-				}
-				else if(!isSnapshot && isHotfix) {
-					println("Caso hotfix con versionDigits = ${versionDigits}");
-					if(versionDigits[3].split("-").size() == 1) {
-						versionDigits.set(3, versionDigits[3] + "-1");
-						def newVersion = versionDigits[0] + "." + versionDigits[1] + "." + versionDigits[2] + "." + versionDigits[3];
-						println("newVersion = ${newVersion}")
-						finalPropNode.getNode().setTextContent(newVersion);
-					}
-					else if(versionDigits[3].split("-").size() == 2) {
-						def hotFixDigit = versionDigits[3].split("-")[1].toInteger() + 1;
-						versionDigits.set(3, versionDigits[3].split("-")[0] + "-" + hotFixDigit);
-						def newVersion = versionDigits[0] + "." + versionDigits[1] + "." + versionDigits[2] + "." + versionDigits[3];
-						println("newVersion = ${newVersion}")
-						finalPropNode.getNode().setTextContent(newVersion);
-					}
-				}
-				else if(isSnapshot && isHotfix) {
-					throw new NumberFormatException("Se está intentando convertir a hotFix una versión SNAPSHOT en pom ${finalPropNode.getPomFile().getCanonicalPath()}.");
-				}
+				def finalNodeVersionText = finalPropNode.getNode().getTextContent();
+				def newVersion = utils.increaseVersionDigit(finalNodeVersionText, action, 
+					releaseMantenimiento);
+				finalPropNode.getNode().setTextContent(newVersion);
+								
 				XmlWriter.transformXml(finalPropNode.getDoc(), finalPropNode.getPomFile());
 				touchedProperties.add(finalPropNode.getNode().getNodeName());
+				
 			}
 			return touchedProperties;
 		}
@@ -227,6 +158,7 @@ class PomXmlWriteOperations {
 	 * @return
 	 */
 	public static fillVersion(File dir, String artifactsJson, String nexusUrl) {
+		XmlUtils utils = new XmlUtils();
 		def c1 = { nodeVersion, doc, file, artifacts, artifactId ->
 			// Si la versión viene escrita lo resolvemos en el propio pom.xml
 			def versionText = nodeVersion.getTextContent();
@@ -254,8 +186,8 @@ class PomXmlWriteOperations {
 
 		def c2 = { nodeVersionText, touchedProperties, thisDoc, pomRaiz, isDependency, doc, file, artifactId, artifacts ->
 			// Si la versión viene en formato de variable lo resolvemos recursivamente hasta el pom raiz
-			def treePomsMap = XmlUtils.getTreeNodesMap(dir);
-			NodeProps finalPropNode = XmlUtils.getFinalPropNode(file, treePomsMap, nodeVersionText, nexusUrl);
+			def treePomsMap = utils.getTreeNodesMap(dir);
+			NodeProps finalPropNode = utils.getFinalPropNode(file, treePomsMap, nodeVersionText, nexusUrl);
 
 			ArrayList numericPartArray = finalPropNode.getNode().getTextContent().split("-SNAPSHOT")[0].split("\\.")
 			if(numericPartArray.size() < 4) {

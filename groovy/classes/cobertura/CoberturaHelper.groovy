@@ -12,8 +12,6 @@ import groovy.io.FileVisitResult;
  * si es necesario o no pasar cobertura a dicho directorio.
  */
 class CoberturaHelper {
-
-	static def tecnologias = ["maven":"pom\\.xml","gradle":"build\\.gradle"]
 	
 	/**
 	 * Este método indica si existen fuentes para pruebas unitarias dentro de un
@@ -47,10 +45,13 @@ class CoberturaHelper {
 	 * @return Lista de ficheros de construcción dentro del directorio de proyecto
 	 */
 	private static List<File> findBuildFiles(File folder, String technology) {
+		def tecnologias = ["maven":"pom\\.xml","gradle":"build\\.gradle"]
 		List<File> ret = new LinkedList<File>();
 		folder.traverse(
 			type: groovy.io.FileType.FILES,
-			preDir: { if (it.name.startsWith(".") || it.name == 'target') return FileVisitResult.SKIP_SUBTREE},
+			preDir: { if (it.name.startsWith(".") || it.name == 'target') 
+				return FileVisitResult.SKIP_SUBTREE
+			},
 			nameFilter: ~/${tecnologias[technology]}/
 		){
 			ret << it

@@ -3,9 +3,15 @@ package urbanCode
 import es.eci.utils.NexusHelper
 import es.eci.utils.base.Loggable
 import es.eci.utils.pom.MavenCoordinates
+import es.eci.utils.StringUtil
 
 /**
- * Esta clase despliega componentes en versión -SNAPSHOT en un entorno 
+ * Esta clase despliega componentes en versión -SNAPSHOT en un entorno.<br/>
+ * Notar que es <b>imprescindible</b> contar con una instalación local del cliente.  Se puede provisionar
+ * desde:<br/>
+ * <a href="http://nexus.elcorteingles.int/service/local/repositories/GC/content/ibm/urbanCode/udclient/6.1.0/udclient-6.1.0.zip">Cliente udclient en Nexus</a>
+ * <br/> 
+ * @see <a href="https://www-01.ibm.com/support/knowledgecenter/SS4GSP_6.1.2/com.ibm.udeploy.reference.doc/topics/cli_commands.html">Documentación del cliente udclient en IBM</a>
  */
 class UrbanCodeSnapshotDeployer extends Loggable {
 
@@ -75,8 +81,18 @@ class UrbanCodeSnapshotDeployer extends Loggable {
 							nexusHelper.setNexus_user(nexus_user)
 							nexusHelper.setNexus_pass(nexus_pass)
 						}
-						String snapshotVersion = nexusHelper.resolveSnapshot(coords);
-						println "---> Resuelta versión SNAPSHOT: $componentUrbanCode <-- $snapshotVersion";
+						
+						String snapshotVersion = "";
+						
+						// Fix para cuando en Urban no existan los componentes
+						if ( StringUtil.isNull(coords.groupId) || StringUtil.isNull(coords.artifactId) ) {
+							snapshotVersion = coords.version;
+							log "---> Se utiliza versión SNAPSHOT sin resolver: $componentUrbanCode <-- $snapshotVersion";
+						} else {
+							snapshotVersion = nexusHelper.resolveSnapshot(coords);
+							log "---> Resuelta versión SNAPSHOT: $componentUrbanCode <-- $snapshotVersion";
+						}
+
 						compoMap.put(componentUrbanCode, snapshotVersion);
 					}
 				

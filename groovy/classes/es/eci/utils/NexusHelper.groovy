@@ -83,7 +83,7 @@ class NexusHelper extends Loggable {
 	 * @param tipo Tipo de fichero (jar/zip/tar/etc.)
 	 */
 	
-	public static int uploadToNexus(String maven, String groupId, String artifactId, String version, String rutaFichero, String pathNexus, String tipo, Closure log = null) {
+	public static int uploadToNexus(String maven, String groupId, String artifactId, String version, String rutaFichero, String pathNexus, String tipo, Closure log = null, String uDeployUser = null, String uDeployPass = null) {
 		String repo = pathNexus.split('/')[pathNexus.split('/').length - 1]
 		String local_folder = rutaFichero.substring(0,rutaFichero.lastIndexOf(System.getProperty("file.separator")) )
 		
@@ -99,6 +99,11 @@ class NexusHelper extends Loggable {
 			"-Durl=${pathNexus}",
 			"-DrepositoryId=${repo}"
 		]
+		
+		if ( (uDeployUser != null) && (uDeployPass != null) ) {
+			comando.add("-DDEPLOYMENT_USER=" + uDeployUser)
+			comando.add("-DDEPLOYMENT_PWD=" + uDeployPass)
+		}
 		
 		def exec_command = comando.join(" ")
 		
@@ -366,13 +371,43 @@ class NexusHelper extends Loggable {
 			ReadableByteChannel reader = getByteChannel(pathNexusFinal, repository);
 			target = new File(downloadPath, coordinates.getArtifactId() + fixExtension)
 			FileOutputStream fos = new FileOutputStream(target);
-			fos.getChannel().transferFrom(reader, 0, 1 << 24);
+			// 1 << 30 -> 1 gigabyte de límite
+			fos.getChannel().transferFrom(reader, 0, 1 << 30);
 		}
 		log "Descarga de artefacto -> $millis mseg."
 		log "Ruta de la descarga: " +
 			downloadPath.getCanonicalPath() + "/" + 
 			coordinates.getArtifactId() + fixExtension
 		return target;
+	}
+	
+	/**
+	 * Este método sube un fichero a nexus usando la API REST 
+	 * @param coordinates Coordenadas a subir
+	 * @param file Fichero a subir
+	 */
+	public void upload(MavenCoordinates coordinates, File file) {
+		long millis = Stopwatch.watch {
+			MultipartUtility mpu = new MultipartUtility(
+				"${nexusBaseURL}/service/local/artifact/maven/content",
+				'UTF-8', nexus_user, nexus_pass)
+			
+			mpu.addFormField('r', coordinates.getRepository())
+			mpu.addFormField('hasPom', 'false')
+			mpu.addFormField('g', coordinates.getGroupId())
+			mpu.addFormField('a', coordinates.getArtifactId())
+			mpu.addFormField('v', coordinates.getVersion())
+			if (StringUtil.notNull(coordinates.getClassifier())) {
+				mpu.addFormField('c', coordinates.getClassifier())
+			}
+			mpu.addFormField('e', coordinates.getPackaging())
+			mpu.addFormField('p', coordinates.getPackaging())
+			
+			mpu.addFilePart('file', file)
+			
+			log mpu.finish()
+		}
+		log "Subida de artefacto -> $millis mseg."
 	}
 	
 	// Obtiene un canal de datos asegurado con usuario y password si

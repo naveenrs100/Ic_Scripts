@@ -10,7 +10,7 @@ import es.eci.utils.pom.MavenCoordinates
 class ITestUrbanCode extends BaseTest {
 
 	
-	@Test
+	//@Test
 	public void testMavenCoordinates() {
 		
 		UrbanCodeExecutor exec = new UrbanCodeExecutor(
@@ -28,7 +28,7 @@ class ITestUrbanCode extends BaseTest {
 		Assert.assertEquals("ear", coords.packaging);
 	}
 	
-	@Test
+	//@Test
 	public void testMavenCoordinatesTemplate() {
 		
 		UrbanCodeExecutor exec = new UrbanCodeExecutor(

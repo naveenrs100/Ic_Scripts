@@ -1,3 +1,5 @@
+package version
+
 // listado de tecnologías soportadas
 // $JENKINS_HOME/jobs/ScriptsCore/workspace/groovy/comun/version/stepFileVersionerSystem.groovy
 /*
@@ -13,20 +15,17 @@ import groovy.json.*
 import groovy.io.FileVisitResult
 import es.eci.utils.*
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
-
 
 //---------------> Variables entrantes
-def tecnology = resolver.resolve("tecnology")
-def parentWorkspace = resolver.resolve("parentWorkspace")
-def action = resolver.resolve("action")
-def save = resolver.resolve("save")
-def checkSnapshot = resolver.resolve("checkSnapshot")
-def checkErrors = resolver.resolve("checkErrors")
-def homeStream = resolver.resolve("homeStream")
-def changeVersion = resolver.resolve("changeVersion")
-def exceptions = resolver.resolve("exceptions")
+def tecnology = build.buildVariableResolver.resolve("tecnology")
+def parentWorkspace = build.buildVariableResolver.resolve("parentWorkspace")
+def action = build.buildVariableResolver.resolve("action")
+def save = build.buildVariableResolver.resolve("save")
+def checkSnapshot = build.buildVariableResolver.resolve("checkSnapshot")
+def checkErrors = build.buildVariableResolver.resolve("checkErrors")
+def homeStream = build.buildVariableResolver.resolve("homeStream")
+def changeVersion = build.buildVariableResolver.resolve("changeVersion")
+def exceptions = build.buildVariableResolver.resolve("exceptions")
 
 
 //-------------------> Lógica

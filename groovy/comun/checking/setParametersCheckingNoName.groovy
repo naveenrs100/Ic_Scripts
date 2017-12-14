@@ -1,17 +1,16 @@
+package checking
+
 import hudson.model.*
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
-
 //Parametros
-def jobInvoker = resolver.resolve("jobInvoker")
-def compJobNumber = resolver.resolve("compJobNumber")
-def tool = resolver.resolve("tool")
-def stream = resolver.resolve("stream")
-def componente = resolver.resolve("component")
-def workspaceIC = resolver.resolve("workspaceChecking")
-def technology = resolver.resolve("technology")
-def publishReportChecking = resolver.resolve("publishReportChecking")
+def jobInvoker = build.buildVariableResolver.resolve("jobInvoker")
+def compJobNumber = build.buildVariableResolver.resolve("compJobNumber")
+def tool = build.buildVariableResolver.resolve("tool")
+def stream = build.buildVariableResolver.resolve("stream")
+def componente = build.buildVariableResolver.resolve("component")
+def workspaceIC = build.buildVariableResolver.resolve("workspaceChecking")
+def technology = build.buildVariableResolver.resolve("technology")
+def publishReportChecking = build.buildVariableResolver.resolve("publishReportChecking")
 if (technology == null || technology == ""){
 	technology = "java"
 }

@@ -1,11 +1,11 @@
 package buildtree
 
-import hudson.model.Result;
+import hudson.model.AbstractBuild
 
 /**
  * Esta clase modela la información de un build
  */
-class BuildBean {
+class BuildBean implements Comparable {
 	
 	//-------------------------------------------------------------------------
 	// Propiedades del bean
@@ -16,8 +16,12 @@ class BuildBean {
 	private String description;
 	// Identificador de la ejecución
 	private Integer buildNumber;
+	// Versión construida
+	private String builtVersion;
+	// Nombre del componente
+	private String component;
 	// Resultado de la ejecución
-	private Result result;
+	private String result;
 	// Medidor de profundidad (se ha calculado en una búsqueda en profundidad
 	//	que podríamos querer acotar en un momento dado)
 	private Integer depth;
@@ -25,6 +29,10 @@ class BuildBean {
 	private Long duration;
 	// Extracto del log
 	private List<String> logTail;
+	// Momento de la ejecución
+	private Long timestamp;
+	// Lista de hijos calculada para mostrarla en el correo
+	private List<BuildBean> children;
 
 	//-------------------------------------------------------------------------
 	// Métodos del bean
@@ -37,24 +45,42 @@ class BuildBean {
 	// Compara un build a otro: son iguales si coinciden nombre del job en jenkins
 	//	y número de ejecución.  Se utiliza para descartar duplicados en la lista debido
 	//	a logs un poco 'tramposos' que devuelvan un mismo job a distintas alturas. 
-	public boolean equals(Object obj) {
+	@Override public boolean equals(Object obj) {
 		BuildBean bb = (BuildBean) obj;
-		return this.name.equals(obj.name) && this.buildNumber.equals(obj.buildNumber);
+		return this.name.equals(bb.name) && this.buildNumber.equals(bb.buildNumber);
 	}
 
+	/**
+	 * Constructor con la información básica de un build de jenkins.
+	 * @param build Ejecución de un job en jenkins
+	 */
+	public BuildBean(AbstractBuild build) {
+		this(build.getParent().getName(), 
+			build.getNumber(), 
+			build.getTimestamp().getTimeInMillis(), 
+			build.getResult().toString())
+	}
+	
 	/**
 	 * Constructor con la información básica.
 	 * @param name Nombre del job en jenkins.
 	 * @param buildNumber Número de ejecución.
+	 * @param timestamp Instante del inicio del job en un ejecutor.
 	 * @param result Resultado de la ejecución.
 	 * @param depth Profundidad del bean en el árbol (depende del punto de
 	 * partida de la búsqueda en profundidad).
 	 */
-	public BuildBean(String name, Integer buildNumber, Result result, Integer depth = 0) {
+	public BuildBean(
+			String name, Integer buildNumber,
+			long timestamp,
+			String result, 
+			Integer depth = 0) {
 		this.name = new String(name.toString()).trim();
 		this.buildNumber = buildNumber;
+		this.timestamp = timestamp;
 		this.result = result;
 		this.depth = depth;
+		this.children = []
 	}
 
 	/**
@@ -67,7 +93,7 @@ class BuildBean {
 	/**
 	 * @return Resultado de la ejecución.
 	 */
-	public Result getResult() {
+	public String getResult() {
 		return result;
 	}
 
@@ -75,8 +101,8 @@ class BuildBean {
 	 * Asigna el resultado de la ejecución.
 	 * @param result Resultado de la ejecución.
 	 */
-	public void setResult(Result result) {
-		this.result = result;
+	public void setResult(String result) {
+		this.result = result.toString();
 	}
 
 	/**
@@ -150,5 +176,65 @@ class BuildBean {
 		this.logTail = logTail;
 	}
 	
+	/**
+	 * Asigna la versión construida de cada build
+	 * @param builtVersion Versión construida
+	 */
+	public void setBuiltVersion(String builtVersion) {
+		this.builtVersion = builtVersion;
+	}
+	
+	/**
+	 * @return Versión construida del job
+	 */
+	public String getBuiltVersion() {
+		return builtVersion;
+	}
+
+	/**
+	 * @return the component
+	 */
+	public String getComponent() {
+		return component;
+	}
+
+	/**
+	 * @param component the component to set
+	 */
+	public void setComponent(String component) {
+		this.component = component;
+	}
+
+	/**
+	 * @return the timestamp
+	 */
+	public Long getTimestamp() {
+		return timestamp;
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		return this.timestamp - o.timestamp;
+	}
+	
+	@Override
+	public int hashCode() {
+		String id = name + "#" + buildNumber;
+		return id.hashCode();
+	}
+
+	/**
+	 * @return the children
+	 */
+	public List<BuildBean> getChildren() {
+		return children;
+	}
+
+	/**
+	 * @param children the children to set
+	 */
+	public void setChildren(List<BuildBean> children) {
+		this.children = children;
+	}
 	
 }

@@ -1,3 +1,5 @@
+package jenkins
+
 import hudson.model.AbstractBuild
 import urbanCode.UrbanCodeExecutor
 import urbanCode.UrbanCodeSnapshotDeployer
@@ -20,8 +22,6 @@ import es.eci.utils.ParamsHelper
  * a Urban Code como instantánea 'nightly' para su despliegue
  * 
  */
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Contexto del script
@@ -31,21 +31,23 @@ String urlNexus = 			build.getEnvironment(null).get("ROOT_NEXUS_URL");
 String urbanCodeCommand = 	build.getEnvironment(null).get("UDCLIENT_COMMAND");
 String urlUrbanCode = 		build.getEnvironment(null).get("UDCLIENT_URL");
 String userUrbanCode = 		build.getEnvironment(null).get("UDCLIENT_USER");
-String pwdUrbanCode = 		resolver.resolve("UDCLIENT_PASS");
+String pwdUrbanCode = 		build.buildVariableResolver.resolve("UDCLIENT_PASS");
 // Aplicación y entorno para Urban Code
 String urbanCodeApp =		build.getEnvironment(null).get("aplicacionUrbanCode");
 String urbanCodeEnv =		build.getEnvironment(null).get("entornoUrbanCode");
 String urbanCodeComp =		build.getEnvironment(null).get("componenteUrbanCode");
 ///////////////////////////////////////////////////////////////////////////////
 
+//TODO: Agregar variables de gitGrouo y corriente para generar el nombre de la nightly
+
 def isNotNull = { String s ->
 	return s != null && s.trim().length() > 0;
 }
 
-JobRootFinder finder = new JobRootFinder(build);
+JobRootFinder finder = new JobRootFinder();
 finder.initLogger { println it }
 
-AbstractBuild ancestor = finder.getRoot();
+AbstractBuild ancestor = finder.getRootBuild(build);
 
 println "Identificado el ancestro: $ancestor"
 

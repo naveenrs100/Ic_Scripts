@@ -16,7 +16,7 @@ class MavenCoordinates {
 	private String artifactId;
 	private String version;
 	// Opcionales
-	private String packaging;
+	private String packaging = "jar";
 	private String classifier;
 	private String repository = "public";
 	
@@ -70,10 +70,31 @@ class MavenCoordinates {
 	 * @param theArtifactId A
 	 * @param theVersion V
 	 */
-	public MavenCoordinates(String theGroupId, String theArtifactId, String theVersion) {
+	public MavenCoordinates(
+			String theGroupId, 
+			String theArtifactId, 
+			String theVersion) {
 		groupId = theGroupId;
 		artifactId = theArtifactId;
 		version = theVersion;
+	}
+	
+	/**
+	 * Constructor con GAV y parámetros opcionales
+	 * @param theGroupId G
+	 * @param theArtifactId A
+	 * @param theVersion V
+	 * @param thePackaging Empaquetado
+	 */
+	public MavenCoordinates(
+			String theGroupId, 
+			String theArtifactId, 
+			String theVersion, 
+			String thePackaging) {
+		groupId = theGroupId;
+		artifactId = theArtifactId;
+		version = theVersion;
+		packaging = thePackaging;
 	}
 
 	/**
@@ -154,18 +175,6 @@ class MavenCoordinates {
 		}
 		if (packaging != null) {
 			ret += ":$packaging"
-		}
-		return ret;
-	}
-	
-	// Compara dos propiedades opcionales
-	private boolean compareOptional(String s1, String s2) {
-		boolean ret = false;
-		if (s1 == null && s2 == null) {
-			ret = true;
-		}
-		else {
-			
 		}
 		return ret;
 	}

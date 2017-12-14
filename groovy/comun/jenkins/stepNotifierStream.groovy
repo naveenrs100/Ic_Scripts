@@ -1,7 +1,7 @@
+package jenkins
+
 import hudson.model.*
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
 def causa = build.getCause(Cause.UpstreamCause)
 def jenkinsHome	= build.getEnvironment(null).get("JENKINS_HOME")
 
@@ -48,9 +48,9 @@ if (causa!=null){
 	def numeroPadre = causa.getUpstreamBuild()
 	def padre = Hudson.instance.getJob(nombrePadre).getBuildByNumber(Integer.valueOf(numeroPadre))
 	
-	def homeStream = resolver.resolve("homeStream")
-	def action = resolver.resolve("action")
-	def delDeploy = resolver.resolve("deleteDeploy")
+	def homeStream = build.buildVariableResolver.resolve("homeStream")
+	def action = build.buildVariableResolver.resolve("action")
+	def delDeploy = build.buildVariableResolver.resolve("deleteDeploy")
 	
 	if (padre.getResult() == Result.SUCCESS){
 		deleteJob(homeStream,nombrePadre)

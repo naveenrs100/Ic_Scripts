@@ -1,5 +1,7 @@
-@GrabResolver(name='nexuseci', root='http://nexus.elcorteingles.int/content/groups/public/')
-@Grab(group='com.ibm.icu', module='icu4j', version='57.1')
+package version.versioner
+
+//@GrabResolver(name='nexuseci', root='http://nexus.elcorteingles.int/content/groups/public/')
+//@Grab(group='com.ibm.icu', module='icu4j', version='57.1')
 
 import es.eci.utils.SystemPropertyBuilder
 import es.eci.utils.versioner.PomXmlOperations

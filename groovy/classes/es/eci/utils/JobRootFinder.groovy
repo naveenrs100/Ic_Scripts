@@ -10,10 +10,6 @@ import hudson.model.*;
 
 public class JobRootFinder extends Loggable {
 	
-	// Build padre (el de nivel más alto; normalmente, el frontal de corriente
-	//	o bien el frontal de componente)
-	private AbstractBuild root;
-
 	/**
 	 * Obtiene, a partir de una ejecución de un job en jenkins, la raíz del
 	 * árbol de llamadas de esa ejecución.  Por ejemplo, para un árbol:
@@ -40,6 +36,21 @@ public class JobRootFinder extends Loggable {
 		}
 		return list!=null && list.size() > 0?list[list.size()-1]:null
 	}
+	
+	/**
+	 * Obtiene, a partir de una ejecución de un job en jenkins, el job
+	 * que lo ha invocado, de haberlo.
+	 * @param run Ejecución actual.
+	 * @return Ejecución padre de la ejecución actual.
+	 */
+	public AbstractBuild getParentBuild(AbstractBuild run) {
+		AbstractBuild parent = null;
+		Cause cause = getCause(run);
+		if (cause != null) {
+			parent = getParentRun(cause);
+		}
+		return parent;
+	}
 
 	/**
 	 * Inmersión recursiva de la búsqueda del build padre.  Se limita a
@@ -48,7 +59,7 @@ public class JobRootFinder extends Loggable {
 	 * @param run Ejecución actual.
 	 * @param list Lista sobre la que se acumulan los resultados
 	 */
-	private static void getRootBuildI(AbstractBuild run, List<AbstractBuild> list) {
+	private void getRootBuildI(AbstractBuild run, List<AbstractBuild> list) {
 		def cause = getCause(run)
 		if (cause != null) {
 			def father = getParentRun(cause)
@@ -64,7 +75,7 @@ public class JobRootFinder extends Loggable {
 	 * @param run Ejecución cuya causa necesitamos obtener.
 	 * @return La causa de la ejecución si la tuviera, null en otro caso.
 	 */
-	private static Cause getCause(AbstractBuild run) {
+	private Cause getCause(AbstractBuild run) {
 		def cause = null;
 		cause = run.getCause(Cause.UpstreamCause);
 		if (cause == null) {
@@ -78,7 +89,7 @@ public class JobRootFinder extends Loggable {
 	 * @param cause Causa de una ejecución.
 	 * @return Ejecución que ha disparado dicha causa.
 	 */
-	private static AbstractBuild getParentRun(Cause cause) {
+	private AbstractBuild getParentRun(Cause cause) {
 		def run = null;
 		if (cause instanceof Cause.UpstreamCause) {
 			def name = ((Cause.UpstreamCause)cause).getUpstreamProject()
@@ -92,20 +103,11 @@ public class JobRootFinder extends Loggable {
 		return run;
 	}
 
-	/**
-	 * Construye un objeto de acceso a variables globales a partir de
-	 * la ejecución actual.
-	 * @param build Ejecución actual.
-	 */
-	public JobRootFinder(AbstractBuild build) {
-		root = getRootBuild(build);
-	}
-	
 	/** 
 	 * Devuelve el árbol completo de ejecución por encima del job indicado
 	 * @return Árbol completo de ejecución
 	 */
-	public static List getFullExecutionTree(AbstractBuild build) {
+	public List getFullExecutionTree(AbstractBuild build) {
 		List list = [];
 		getRootBuildI(build, list)
 		if (list == null || list.size() == 0) {
@@ -113,14 +115,6 @@ public class JobRootFinder extends Loggable {
 			list.add(build)
 		}
 		return list;
-	}
-	
-	/**
-	 * Devuelve la raíz del árbol de ejecución del job inicial.
-	 * @return Ancestro del job inicial.
-	 */
-	public AbstractBuild getRoot() {
-		return root;
 	}
 	
 }

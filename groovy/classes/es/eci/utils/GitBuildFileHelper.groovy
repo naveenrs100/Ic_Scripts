@@ -62,7 +62,7 @@ class GitBuildFileHelper extends Loggable {
 		List<String> ret = []
 		if (tecnologias.keySet().contains(technology)) {
 			if ("maven"==technology) {
-				println("Parsing ${buildFile}")
+				log("Parsing ${buildFile}")
 				def pom = new XmlSlurper(false, false).parse(buildFile)
 				if (pom.name != null && pom.name.text() != null && pom.name.text().trim() != '') {
 					// Igualar el atributo name al artifactId
@@ -334,7 +334,7 @@ class GitBuildFileHelper extends Loggable {
 	 */
 	public String validateReactor(File baseDir, String maven) {
 		// mvn validate
-		println("Se lanza el comando \"${maven} validate\" sobre el directorio \"${baseDir.getAbsolutePath()}\"")
+		log("Se lanza el comando \"${maven} validate\" sobre el directorio \"${baseDir.getAbsolutePath()}\"")
 		CommandLineHelper helper = new CommandLineHelper("${maven} validate");
 		helper.initLogger(this)
 		helper.execute(baseDir)
@@ -381,11 +381,18 @@ class GitBuildFileHelper extends Loggable {
 				directorioModulo.mkdirs();
 				gitCommand = (gitCommand == null) || (gitCommand.trim().equals("")) ? "git" : gitCommand;
 				String command = "${gitCommand} archive --remote=git@${gitHost}:${gitGroup}/${component}.git ${branch} ${modulo}${tecnologias[technology]} | tar xvf -";
+				String commandTarget = "${gitCommand} archive --remote=git@${gitHost}:${gitGroup}/${component}.git ${branch} ${modulo}target | tar xvf -";
 				CommandLineHelper buildCommandLineHelper = new CommandLineHelper(command);
+				CommandLineHelper targetCommandLineHelper = new CommandLineHelper(commandTarget);
 				buildCommandLineHelper.initLogger(this);
 				def returnCode = null;
 				try {
+					// Se intenta bajar el pom.xml
+					log("Intentando bajar el pom.xm...");
 					returnCode = buildCommandLineHelper.execute(dirComponente);
+					// Si ha ido bien la bajada del pom.xml se intenta bajar el posible directorio target asociado.
+					log("Intentando bajar el target...");
+					returnCode = targetCommandLineHelper.execute(dirComponente);
 				} catch (Exception e) {
 					logger.log("Error al ejecutar el comando ${command}. Código -> ${returnCode}");
 				}
@@ -398,7 +405,8 @@ class GitBuildFileHelper extends Loggable {
 				}
 			}
 		} else {
-			throw new Exception("Tecnología desconocida: ${technology}");
+			//throw new Exception("Tecnología desconocida: ${technology}");
+			log "Componente $component <-- Tecnología desconocida: ${technology}"
 		}
 		return dirComponente
 	}
@@ -432,7 +440,7 @@ class GitBuildFileHelper extends Loggable {
 		// Creación del artifacts.json
 		Map<String, List<File>> poms = new HashMap<String, List<File>>();
 		components.each { component->
-			println ("Incluyendo componente: " + component)
+			log ("Incluyendo componente: " + component)
 			poms.put(component, getPoms(new File(baseDirectory, component)))
 		}
 		processSnapshotMaven(action, poms, parentWorkspace, baseDirectory, finalComponentsList)

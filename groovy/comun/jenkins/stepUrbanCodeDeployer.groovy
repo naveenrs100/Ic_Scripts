@@ -1,3 +1,5 @@
+package jenkins
+
 import urbanCode.Constants
 import urbanCode.UrbanCodeApplicationProcess
 import urbanCode.UrbanCodeExecutor

@@ -21,18 +21,19 @@ class PomXmlOperations {
 	 * @return (ArrayList) Variables no resueltas 
 	 */
 	public static checkVariables(File dir, String nexusUrl) {
-		def treeNodesMap = XmlUtils.getTreeNodesMap(dir);
+		XmlUtils utils = new XmlUtils();
+		def treeNodesMap = utils.getTreeNodesMap(dir);
 		ArrayList<NodeProps> notResolvedVariables = [];
 		dir.eachFileRecurse { File file ->
 			if(VersionerComun.pathAllowed(file) && file.getName() == "pom.xml") {
-				Document doc = XmlUtils.parseXml(file);
-				def mainVersionNode = XmlUtils.xpathNode(doc, "/project/version");
+				Document doc = utils.parseXml(file);
+				def mainVersionNode = utils.xpathNode(doc, "/project/version");
 				if(mainVersionNode != null) {
 					def mainVersion = mainVersionNode.getTextContent();
 					if(mainVersion.contains("\$") && !mainVersion.contains("\${project.") && !mainVersion.contains("\${parent.")) {
 						try {
 							// Se intenta resolver la variable. Si da NumberFormatException se almacena para devolverla como error.
-							XmlUtils.getFinalPropNode(file, treeNodesMap, mainVersion, nexusUrl).getNode();
+							utils.getFinalPropNode(file, treeNodesMap, mainVersion, nexusUrl).getNode();
 						} catch(NumberFormatException e) {
 							NodeProps mainVersionNodeProps = new NodeProps(doc, mainVersionNode, file);
 							notResolvedVariables.add(mainVersionNodeProps);
@@ -42,14 +43,14 @@ class PomXmlOperations {
 				}
 
 				// Comprobamos ahora las posibles variables en dependencias.
-				def depNodes = XmlUtils.xpathNodes(doc, "/project/dependencies/dependency");
+				def depNodes = utils.xpathNodes(doc, "/project/dependencies/dependency");
 				depNodes.each { Node docDepNode ->
-					Node depVersionNode = XmlUtils.getChildNodes(docDepNode).find { it.getNodeName() == "version" }
+					Node depVersionNode = utils.getChildNodes(docDepNode).find { it.getNodeName() == "version" }
 					if(depVersionNode != null) {
 						def depVersion = depVersionNode.getTextContent();
 						if(depVersion.contains("\${") && !depVersion.contains("\${project.") && !depVersion.contains("\${parent.")) {
 							try {
-								XmlUtils.getFinalPropNode(file, treeNodesMap, depVersion, nexusUrl).getNode().getTextContent();
+								utils.getFinalPropNode(file, treeNodesMap, depVersion, nexusUrl).getNode().getTextContent();
 							} catch (NumberFormatException e) {
 								NodeProps depVersionNodeProps = new NodeProps(doc, depVersionNode, file);
 								notResolvedVariables.add(depVersionNodeProps);
@@ -71,14 +72,15 @@ class PomXmlOperations {
 	 * @param artifactsJson Json de artefactos que componen la release.
 	 */
 	public static checkOpenVersionAndDeps(File dir, String artifactsJson, String nexusUrl) {
-		def treeNodesMap = XmlUtils.getTreeNodesMap(dir);
-		ArrayList<ArtifactObject> artifacts = XmlUtils.getArtifactsMap(artifactsJson);
+		XmlUtils utils = new XmlUtils();
+		def treeNodesMap = utils.getTreeNodesMap(dir);
+		ArrayList<ArtifactObject> artifacts = utils.getArtifactsMap(artifactsJson);
 		dir.eachFileRecurse { File file ->
 			if(VersionerComun.pathAllowed(file) && file.getName() == "pom.xml") {
-				Document doc = XmlUtils.parseXml(file);
+				Document doc = utils.parseXml(file);
 				// Comprobamos que la versión principal del pom.xml está abierta.
-				def mainVersionNode = XmlUtils.xpathNode(doc, "/project/version");
-				def artifactId = XmlUtils.xpathNode(doc, "/project/artifactId").getTextContent();
+				def mainVersionNode = utils.xpathNode(doc, "/project/version");
+				def artifactId = utils.xpathNode(doc, "/project/artifactId").getTextContent();
 				if(mainVersionNode != null) {
 					def mainVersion = mainVersionNode.getTextContent();
 					if(!mainVersion.contains("\${")) {
@@ -86,7 +88,7 @@ class PomXmlOperations {
 							throw new NumberFormatException("La versión del pom.xml \"${file.getCanonicalPath()}\" debe estar en formato \"-SNAPSHOT\". Ahora mismo vale ${mainVersion}.");
 						}
 					} else if(!mainVersion.contains("\${project.") && !mainVersion.contains("\${parent.")) {
-						def finalNode = XmlUtils.getFinalPropNode(file, treeNodesMap, mainVersion, nexusUrl).getNode();
+						def finalNode = utils.getFinalPropNode(file, treeNodesMap, mainVersion, nexusUrl).getNode();
 						if(!finalNode.getTextContent().endsWith("-SNAPSHOT")) {
 							throw new NumberFormatException("La versión del pom.xml \"${file.getCanonicalPath()}\" debe estar en formato \"-SNAPSHOT\". Ahora mismo vale ${finalNode.getTextContent()}.");
 						}
@@ -94,11 +96,11 @@ class PomXmlOperations {
 				}
 
 				// Comprobamos las dependencias. Si las que no están en el artifactsJson están abiertas damos error.
-				def depNodes = XmlUtils.xpathNodes(doc, "/project/dependencies/dependency");
+				def depNodes = utils.xpathNodes(doc, "/project/dependencies/dependency");
 				depNodes.each { Node docDepNode ->
-					String depArtifactId = (XmlUtils.getChildNodes(docDepNode).find { it.getNodeName() == "artifactId" }).getTextContent();
-					Node depVersionNode = XmlUtils.getChildNodes(docDepNode).find { it.getNodeName() == "version" }
-					String depGroup = XmlUtils.getChildNodes(docDepNode).find { it.getNodeName() == "groupId" }.getTextContent();
+					String depArtifactId = (utils.getChildNodes(docDepNode).find { it.getNodeName() == "artifactId" }).getTextContent();
+					Node depVersionNode = utils.getChildNodes(docDepNode).find { it.getNodeName() == "version" }
+					String depGroup = utils.getChildNodes(docDepNode).find { it.getNodeName() == "groupId" }.getTextContent();
 
 					println("Mirando dependencia ${depArtifactId} del archivo ${file.getCanonicalPath()}")
 
@@ -107,7 +109,7 @@ class PomXmlOperations {
 						String depVersionText = depVersionNode.getTextContent();
 						def finalDepVersion;
 						if(depVersionText.contains("\${") && !depVersionText.contains("\${project.") && !depVersionText.contains("\${parent.")) {
-							finalDepVersion = XmlUtils.getFinalPropNode(file,treeNodesMap,depVersionText,nexusUrl).getNode().getTextContent();
+							finalDepVersion = utils.getFinalPropNode(file,treeNodesMap,depVersionText,nexusUrl).getNode().getTextContent();
 						}
 						else {
 							finalDepVersion = depVersionText;
@@ -131,7 +133,7 @@ class PomXmlOperations {
 							def depVersion = depVersionNode.getTextContent();
 							def resolvedDepVersionText;
 							if(depVersion.contains("\${") && !depVersion.contains("\${project.") && !depVersion.contains("\${parent.")) {
-								resolvedDepVersionText = XmlUtils.getFinalPropNode(file,treeNodesMap,depVersion,nexusUrl).getNode().getTextContent();
+								resolvedDepVersionText = utils.getFinalPropNode(file,treeNodesMap,depVersion,nexusUrl).getNode().getTextContent();
 							}
 							else {
 								resolvedDepVersionText = depVersion;
@@ -154,7 +156,7 @@ class PomXmlOperations {
 						}
 					}
 					else {
-						println("[WARNING] La dependencia \"${depArtifactId}\" del pom \"${depArtifactId}\" viene indicada sin la tag <version>!");
+						println("[WARNING] La dependencia \"${depArtifactId}\" del pom \"${file.getCanonicalPath()}\" viene indicada sin la tag <version>!");
 					}
 				}
 			}
@@ -167,12 +169,13 @@ class PomXmlOperations {
 	 * @return String version
 	 */
 	public static String createVersionFile(File dir) {
-		def pomMainFile = new File(dir.getCanonicalPath() + "/pom.xml");
+		def pomMainFile = new File(dir, "pom.xml");
 		if(pomMainFile.exists()) {
-			Document doc = XmlUtils.parseXml(pomMainFile);
+			XmlUtils utils = new XmlUtils();
+			Document doc = utils.parseXml(pomMainFile);
 
-			Node versionNode = XmlUtils.xpathNode(doc, "/project/version");
-			Node groupIdNode = XmlUtils.xpathNode(doc, "/project/groupId")
+			Node versionNode = utils.xpathNode(doc, "/project/version");
+			Node groupIdNode = utils.xpathNode(doc, "/project/groupId")
 
 			if(versionNode == null || groupIdNode == null) {
 				throw new NullPointerException(
@@ -183,9 +186,9 @@ class PomXmlOperations {
 			def version = versionNode.getTextContent();
 			def groupId = groupIdNode.getTextContent();
 
-			version = XmlUtils.solve(doc, version);
+			version = utils.solve(doc, version);
 
-			def versionFile = new File(dir.getCanonicalPath() + "/version.txt");
+			def versionFile = new File(dir, "version.txt");
 			versionFile.text = "";
 			versionFile.append("version=\"${version}\"\n");
 			versionFile.append("groupId=\"${groupId}\"");
@@ -200,17 +203,21 @@ class PomXmlOperations {
 	 * @param dir Directorio de origen de los pom.xml
 	 */
 	public static void checkOpenVersion(File dir, String nexusUrl) {
-		def treeNodesMap = XmlUtils.getTreeNodesMap(dir);
+		XmlUtils utils = new XmlUtils();
+		def treeNodesMap = utils.getTreeNodesMap(dir);
 		dir.eachFileRecurse { File file ->
 			if(VersionerComun.pathAllowed(file) && file.getName() == "pom.xml") {
-				Document doc = XmlUtils.parseXml(file);
-				Node mainVersionNode = XmlUtils.xpathNode(doc, "/project/version");
-				String artifactId = XmlUtils.xpathNode(doc, "/project/artifactId").getTextContent();
+				Document doc = utils.parseXml(file);
+				Node mainVersionNode = utils.xpathNode(doc, "/project/version");
+				String artifactId = utils.xpathNode(doc, "/project/artifactId").getTextContent();
 				if(mainVersionNode != null) {
 					def mainVersion = mainVersionNode.getTextContent();
-					def resolvedMainVersion = mainVersion.contains("\${") ? XmlUtils.getFinalPropNode(file, treeNodesMap, mainVersion,nexusUrl).getNode().getTextContent() : mainVersion;
+					def resolvedMainVersion = mainVersion.contains("\${") ? 
+						utils.getFinalPropNode(file, treeNodesMap, mainVersion,nexusUrl).
+							getNode().getTextContent() : mainVersion;
 					if(!resolvedMainVersion.trim().endsWith("-SNAPSHOT")) {
-						throw new NumberFormatException("La versión del pom \"${file.getCanonicalPath()}\" debe estar abierta. Ahora mismo es ${mainVersion}");
+						throw new NumberFormatException(
+							"La versión del pom \"${file.getCanonicalPath()}\" debe estar abierta. Ahora mismo es ${mainVersion}");
 					}
 				}
 			}
@@ -225,17 +232,19 @@ class PomXmlOperations {
 	public static void checkAllClosedVersions(File dir) {
 		def pomRaiz = new File(dir.getCanonicalPath() + "/pom.xml")
 		if(pomRaiz != null) {
-			def docRaiz = XmlUtils.parseXml(pomRaiz);
+			XmlUtils utils = new XmlUtils();
+			def docRaiz = utils.parseXml(pomRaiz);
 			dir.eachFileRecurse { File file ->
 				if(VersionerComun.pathAllowed(file) && file.getName() == "pom.xml") {
-					Document doc = XmlUtils.parseXml(file);
-					Node mainVersionNode = XmlUtils.xpathNode(doc, "/project/version");
+					Document doc = utils.parseXml(file);
+					Node mainVersionNode = utils.xpathNode(doc, "/project/version");
 					if(mainVersionNode != null) {
 						if(mainVersionNode.getNodeType() == Node.ELEMENT_NODE) {
-							def version = XmlUtils.solveRecursive(dir, doc, mainVersionNode.getTextContent(), file);
+							def version = utils.solveRecursive(dir, doc, 
+								mainVersionNode.getTextContent(), file);
 	
 							if(version != null) {
-								version = XmlUtils.solve(docRaiz, version);
+								version = utils.solve(docRaiz, version);
 								if(version.trim().endsWith("-SNAPSHOT")) {
 									throw new NumberFormatException(
 									"[${file.getCanonicalPath()}]: La versión del pom.xml NO debe acabar en -SNAPSHOT.");
@@ -243,12 +252,12 @@ class PomXmlOperations {
 							}
 						}
 					}
-					Node[] dependencies = XmlUtils.xpathNodes(doc, "/dependencies/dependency");
+					Node[] dependencies = utils.xpathNodes(doc, "/dependencies/dependency");
 					dependencies.each { Node dependency ->
 						if (dependency.getNodeType() == Node.ELEMENT_NODE) {
-							def version = XmlUtils.solve(docRaiz, mainVersionNode.getTextContent())
+							def version = utils.solve(docRaiz, mainVersionNode.getTextContent())
 							if (version != null) {
-								version = XmlUtils.solve(docRaiz, version);
+								version = utils.solve(docRaiz, version);
 								if(version.trim().endsWith("-SNAPSHOT")) {
 									throw new NumberFormatException(
 									"[${file.getCanonicalPath()}]: La versión de las dependencias NO debe acabar en -SNAPSHOT.");
@@ -270,26 +279,27 @@ class PomXmlOperations {
 	 */
 	@Deprecated
 	public static void checkClosedVersion(File dir, String nexusUrl) {
-		def treeMap = XmlUtils.getTreeNodesMap(dir);
+		XmlUtils utils = new XmlUtils();
+		def treeMap = utils.getTreeNodesMap(dir);
 		dir.eachFileRecurse { File file ->
 			if(VersionerComun.pathAllowed(file) && file.getName() == "pom.xml") {
 				println("Analizamos ${file.getCanonicalPath()}...")
-				def doc = XmlUtils.parseXml(file);
+				def doc = utils.parseXml(file);
 				// Comprobamos que la version del pom.xml esté cerrada.
-				def nodeVersion = XmlUtils.xpathNode(doc, "/project/version");
+				def nodeVersion = utils.xpathNode(doc, "/project/version");
 				if(nodeVersion != null) {
 					def nodeVersionText = nodeVersion.getTextContent();
-					def resolvedNode = XmlUtils.getFinalPropNode(file, treeMap, nodeVersionText, nexusUrl);
+					def resolvedNode = utils.getFinalPropNode(file, treeMap, nodeVersionText, nexusUrl);
 					if(resolvedNode.getNode().getTextContent().contains("-SNAPSHOT")) {
 						throw new NumberFormatException("La versión del pom.xml ${file.getCanonicalPath()} no está cerrada.");
 					}
 				}
 
 				// Comprobamos que las versiones de las dependencias estén cerradas.
-				Node[] depVersionNodes = XmlUtils.xpathNodes(doc, "/project/dependencies//version");
+				Node[] depVersionNodes = utils.xpathNodes(doc, "/project/dependencies//version");
 				depVersionNodes.each { Node depVersionNode ->
 					def depVersionNodeText = depVersionNode.getTextContent();
-					def resolvedNode = XmlUtils.getFinalPropNode(file, treeMap, depVersionNodeText);
+					def resolvedNode = utils.getFinalPropNode(file, treeMap, depVersionNodeText);
 					if(resolvedNode.getNode().getTextContent().contains("-SNAPSHOT")) {
 						throw new NumberFormatException("El pom.xml ${file.getCanonicalPath()} tiene dependencias sin cerrar.");
 					}

@@ -121,15 +121,28 @@ public class GitCloneCommand extends Loggable {
 	 * @param dir
 	 */
 	private void deleteCloneDir(File dir) {
-		if(dir.exists()) {
-			dir.eachFile { File file ->
-				if(file.isDirectory()) {
-					file.deleteDir();
-				} else {
-					file.delete();
+		if(this.localFolderName == null || this.localFolderName.size() < 1) {
+			if(dir.exists()) {
+				dir.eachFile { File file ->
+					if(file.isDirectory()) {
+						file.deleteDir();
+					} else {
+						file.delete();
+					}
 				}
 			}
-		}
+		} else {
+			File folderDir = new File(dir,localFolderName);
+			if(folderDir.exists()) {
+				folderDir.eachFile { File file ->
+					if(file.isDirectory()) {
+						file.deleteDir();
+					} else {
+						file.delete();
+					}
+				}
+			}
+		}		
 	}
 
 	/**

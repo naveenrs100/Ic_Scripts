@@ -1,3 +1,5 @@
+package git
+
 @Grab(group='org.apache.httpcomponents', module='httpclient', version='4.4')
 
 /**

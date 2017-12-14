@@ -1,3 +1,5 @@
+package vstudio
+
 import hudson.model.*
 import jenkins.model.*
 
@@ -12,9 +14,6 @@ import es.eci.utils.ParamsHelper
  * fichero XML descriptor.
  * SALIDA DEL SCRIPT: variable de entorno ${environmentComponent}
  */
- 
-def build = Thread.currentThread().executable
-
 
 def workspace = build.getEnvironment().get("WORKSPACE")
 def comps = new File(workspace + "/componentsCompare.txt");

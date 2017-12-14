@@ -59,12 +59,15 @@ class GitlabHelper extends Loggable {
 			else {
 				obj.each { def user ->
 					if (user["state"] != "blocked") {
-						ret << 
-						  new GitlabUser(
+						GitlabUser tmp = new GitlabUser(
 							user["id"], 
 							user["username"], 
 							user["name"], 
-							user["email"]);
+							user["email"]) 
+						ret << tmp;
+						tmp.setCreationDate(GitUtils.parseDate(user["created_at"]));
+						tmp.setLastSignIn(GitUtils.parseDate(user["last_sign_in_at"]));
+						tmp.setCurrentSignIn(GitUtils.parseDate(user["current_sign_in_at"]));
 					}
 				}
 			}

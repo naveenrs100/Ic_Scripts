@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat
 
 import es.eci.utils.ParameterValidator
 import es.eci.utils.base.Loggable
+import git.GitUtils;
 import git.GitlabClient
 import git.GitlabHelper
 import git.beans.GitlabUser
@@ -24,17 +25,14 @@ class GitDisableInactiveUsersCommand extends Loggable {
 	//--------------------------------------------------
 	// Constantes del comando
 	
-	// Paginación de usuarios
-	
-	/** Formato de último sign in */
-	private static final DateFormat GITLAB_DATE_FORMAT = 
-		new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 	/** Eventos reconocidos como actividad */
 	private static final List<String> ACTIVITY_EVENTS = [ 'push', 'tag_push' ];
 	/** Días de inactividad tolerados por defecto. */
 	private static final long INACTIVITY_DAYS = 30l;
 	/** Umbral de inactividad, expresado en milisegundos */
 	private static final long THRESHOLD = 24l * 60l * 60l * 1000l;
+	/** Formato de fechas */
+	private static final DateFormat DF = new SimpleDateFormat("dd/MM/yyyy")
 	
 	//--------------------------------------------------
 	// Propiedades del comando
@@ -52,6 +50,8 @@ class GitDisableInactiveUsersCommand extends Loggable {
 	private String urlNexus;
 	// Días de inactividad
 	private Long days = INACTIVITY_DAYS; 
+	// Excepciones
+	private String gitUserExceptions;
 	
 	// Cliente git
 	private GitlabClient client = null;
@@ -71,6 +71,15 @@ class GitDisableInactiveUsersCommand extends Loggable {
 	 */
 	public GitDisableInactiveUsersCommand() {
 		this (false);
+	}
+	
+	// Formatea una fecha al formato deseado
+	private String formatDate(Date d) {
+		String ret = " - ";
+		if (d != null) {
+			ret = DF.format(d);
+		}
+		return ret;
 	}
 	
 	/**
@@ -126,66 +135,51 @@ class GitDisableInactiveUsersCommand extends Loggable {
 	}
 	
 	/**
+	 * @param gitUserExceptions the gitUserExceptions to set
+	 */
+	public void setGitUserExceptions(String gitUserExceptions) {
+		this.gitUserExceptions = gitUserExceptions;
+	}	
+	
+	/**
 	 * @param days the days to set
 	 */
 	public void setDays(Long days) {
 		this.days = days;
 	}
 
-	// Aplica a una cadena el formato de gitlab
-	private Date parseDate(String s) {
-		Date ret = null;
-		if (s != null) {
-			ret = GITLAB_DATE_FORMAT.parse(s);
-		}
-		return ret;
-	}
 	
-	// Devuelve la fecha más reciente entre dos fechas
-	private Date mostRecentDate(Date a, Date b) {
-		Date ret = null;
-		if (a != null || b != null) {
-			if (a == null) {
-				ret = b;
-			}
-			else if (b == null) {
-				ret = a;
-			}
-			else {
-				ret = a.compareTo(b) < 0?b:a;
-			}
-		}
-		return ret;
-	}
 	
 	// Este método devuelve la fecha de la última actividad de usuario en gitlab
 	// Definimos última actividad como la fecha más reciente de entre:
 	//	- Último login a la aplicación web
 	//	- Último evento push
-	private Date getLastActivity(long userId) {
+	private Date getLastActivity(GitlabUser user) {
 		// Último login en la web
-		String userJson = client.get("users/${userId}", [:])
-		def userObject = new JsonSlurper().parseText(userJson);
-		String lastSignIn = userObject["last_sign_in_at"];
-		Date lastSignInDate = parseDate(lastSignIn);
+		Date lastSignInDate = user.getLastSignIn();
+		Date currentSignInDate = user.getCurrentSignIn();
+		Date creationDate = user.getCreationDate();
 		// Última contribución 
-		String userEventsJson = client.get("users/${userId}/events", [:])
+		String userEventsJson = client.get("users/${user.userId}/events", [:])
 		def userEventsObject = new JsonSlurper().parseText(userEventsJson);
 		Date lastEventDate = null;
 		userEventsObject?.each { def event ->
 			if (event.data != null) {
 	 			if (ACTIVITY_EVENTS.contains(event.data["object_kind"])) {
-					Date tmp = parseDate(event["created_at"]);
-					lastEventDate = mostRecentDate(lastEventDate, tmp);
+					Date tmp = GitUtils.parseDate(event["created_at"]);
+					lastEventDate = GitUtils.mostRecentDate(lastEventDate, tmp);
 				}
 			}
 		}
-		log "Usuario $userId : "
-		log "\tÚltimo login: $lastSignInDate"
-		log "\tÚltima contribución: $lastEventDate"
+		log "Usuario ${user.userName} [${user.userId}] : "
+		log "\tFecha de creación: ${formatDate(creationDate)}"
+		log "\tÚltimo login: ${formatDate(lastSignInDate)}"
+		log "\tLogin actual: ${formatDate(currentSignInDate)}"
+		log "\tÚltima contribución: ${formatDate(lastEventDate)}"
 		// La más reciente entre el último login y la última contribución
-		Date lastActivity = mostRecentDate(lastSignInDate, lastEventDate);
-		log "\tÚltima actividad: $lastActivity"
+		Date lastActivity = GitUtils.mostRecentDate(
+			currentSignInDate, lastSignInDate, lastEventDate, creationDate);
+		log "\t--> Última actividad: ${formatDate(lastActivity)}"
 		return lastActivity;
 	}
 	
@@ -204,9 +198,15 @@ class GitDisableInactiveUsersCommand extends Loggable {
 			log "WARNING ---> dry run - No se harán cambios sobre gitlab"
 		}
 			
-		client = new GitlabClient(urlGitlab, privateGitLabToken)
+		client = new GitlabClient(urlGitlab, privateGitLabToken, keystoreVersion, urlNexus)
 		client.initLogger(this);
 		List<GitlabUser> users = new GitlabHelper(client).getAllUsers();
+		
+		// Usuarios administradores de gitlab, mantenidos como usuarios locales de gitlab
+		List<String> userExceptions = []
+		if (gitUserExceptions != null) {
+			userExceptions = Arrays.asList(gitUserExceptions.split(","));
+		} 
 		
 		// Para cada usuario, obtener la información relativa a último login
 		//	y última contribución a repositorio
@@ -217,14 +217,29 @@ class GitDisableInactiveUsersCommand extends Loggable {
 		List<GitlabUser> candidates = []
 		
 		for(GitlabUser user: users) {
-			Date lastUserActivity = getLastActivity(user.getUserId());
-			lastActivity.put(user.getUserId(), lastUserActivity);
-			log "${user.getUserId()} -> ${lastUserActivity}"
-			if (lastUserActivity == null ||
-				(today - lastUserActivity.getTime()) > 
-					days * THRESHOLD) {
-				log "WARNING: ${user.getUserName()} es candidato a bloqueo"
-				candidates << user 
+			if (!userExceptions.contains(user.getUserName())) {				
+				// Verificar que al menos haya pasado el periodo de días desde
+				//	que el usuario fue creado
+				if (today - user.getCreationDate().getTime() > 
+						days * THRESHOLD) {
+					Date lastUserActivity = getLastActivity(user);
+					//Date creationDate = 
+					lastActivity.put(user.getUserId(), lastUserActivity);
+					log "${user.getUserId()} -> ${lastUserActivity}"
+					if (lastUserActivity == null ||
+						(today - lastUserActivity.getTime()) > 
+							days * THRESHOLD) {
+						log "WARNING: ${user.getUserName()} es candidato a bloqueo"
+						candidates << user 
+						user.setLastActivity(lastUserActivity)
+					}
+				}
+				else {
+					log "Omitiendo ${user.userName} debido a que ha sido dado de alta recientemente"
+				}
+			}
+			else {
+				log "Omitiendo ${user.userName} debido a que figura en la lista de excepciones"
 			}
 		} 
 		
@@ -235,7 +250,7 @@ class GitDisableInactiveUsersCommand extends Loggable {
 			log "Lista de usuarios bloqueados [${candidates.size()}]:"
 			log "==================================="
 			candidates.each { GitlabUser candidate ->
-				log(candidate.getUserName())
+				log("${candidate.getUserName()} - ${candidate.getUserDisplayName()} - ${formatDate(candidate.getLastActivity())}")
 			}
 		}
 		else {
@@ -251,5 +266,11 @@ class GitDisableInactiveUsersCommand extends Loggable {
 				}				
 			}
 		}
+		
+		if (candidates != null && candidates.size() > 0) {
+			// Se considera error para disparar el correo con el informe
+			throw new Exception()
+		}
 	}
+
 }

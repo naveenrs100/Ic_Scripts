@@ -1,3 +1,5 @@
+package version
+
 // listado de tecnologías soportadas
 // $JENKINS_HOME/jobs/ScriptsCore/workspace/groovy/comun/version/stepFileVersioner.groovy
 import groovy.json.*

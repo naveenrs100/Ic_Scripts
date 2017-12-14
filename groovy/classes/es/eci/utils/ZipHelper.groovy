@@ -92,13 +92,18 @@ class ZipHelper {
 	/**
 	 * Creación de un zip a partir de un directorio adaptada de javacodegeeks.com
 	 * @param srcDir Directorio de origen 
+	 * @param destino Fichero de destino
 	 * @return Zip del directorio de origen
 	 */
-	public static File addDirToArchive(File srcDir) {
-		File destino = null
+	public static File addDirToArchive(File srcDir, File destino = null) {		
 		if (srcDir != null && srcDir.exists() && srcDir.isDirectory()) {
 			try {
-				destino = File.createTempFile("nexus", ".zip") 
+				if (destino == null) {
+					destino = File.createTempFile("nexus", ".zip")
+				} 
+				else if (!destino.exists()) {
+					destino.createNewFile();
+				}
 	            FileOutputStream fos = new FileOutputStream(destino);
 	            ZipOutputStream zos = null
 				try {

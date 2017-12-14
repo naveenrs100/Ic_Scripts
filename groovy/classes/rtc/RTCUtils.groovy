@@ -277,4 +277,38 @@ class RTCUtils extends Loggable {
 		}
 		return uuid;
 	}
+	
+	
+	/**
+	 * Devuelve la uuid del nombre de una baseline. Si hubiese más de una baseline
+	 * con el mismo nombre obtiene la más reciente.
+	 * @param componentName
+	 * @param baselineName
+	 * @param userRTC
+	 * @param pwdRTC
+	 * @param urlRTC
+	 * @param scmToolsHome
+	 * @return (String) baselineUuid
+	 */
+	public String getBaselineUuid(String componentName, String baselineName, String userRTC, String pwdRTC, String urlRTC, String scmToolsHome) {
+		// Para evitar posible duplicidad en los nombres de baseline que corresponden a cada versión, buscaremos la última
+		// uuid correspondiente a esa baseline y será la que se use a partir de ahora.
+		String baselineUuid;
+		TmpDir.tmp { File demonsConfigDir ->
+			ScmCommand command = new ScmCommand(true, scmToolsHome, demonsConfigDir.getCanonicalPath());
+			command.initLogger { println it };
+			String jsonBaselines = command.ejecutarComando("list baselines -C \"${componentName}\" -m 1000 -j", userRTC, pwdRTC, urlRTC, demonsConfigDir);
+			def baselinesList = new JsonSlurper().parseText(jsonBaselines);
+			def baselinesObjects = baselinesList[0].baselines
+			baselinesObjects.each { baselineObject ->
+				if(baselineObject.name == "${baselineName}")	{
+					if(baselineUuid == null) {
+						baselineUuid = baselineObject.uuid;
+					}
+				}
+			}
+
+		}
+		return baselineUuid;
+	}
 }

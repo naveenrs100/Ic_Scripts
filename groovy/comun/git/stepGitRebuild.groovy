@@ -1,16 +1,14 @@
+package git
+
 import es.eci.utils.GlobalVars
 import es.eci.utils.SystemPropertyBuilder;
 import git.commands.GitLogCommand;
 
-
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
-
 SystemPropertyBuilder propertyBuilder = new SystemPropertyBuilder();
 
 GitLogCommand command = new GitLogCommand();
-command.setResultsNumber(resolver.resolve("resultsNumber"));
-command.setParentWorkspace(resolver.resolve("parentWorkspace"));
+command.setResultsNumber(build.buildVariableResolver.resolve("resultsNumber"));
+command.setParentWorkspace(build.buildVariableResolver.resolve("parentWorkspace"));
 
 def gitLog = command.execute();
 
@@ -23,13 +21,13 @@ gitLog.eachLine { line ->
 
 println("Mail del autor: ${authorMail}");
 
-GlobalVars gVars = new GlobalVars(build);
+GlobalVars gVars = new GlobalVars();
 if(authorMail.equals("david.castrojimenez@gexterno.es")) {
 	// No se hace rebuild.
-	gVars.put("rebuild", "false");	
+	gVars.put(build, "rebuild", "false");	
 } else {
 	// Se hace rebuild.
-	gVars.put("rebuild", "true");
+	gVars.put(build, "rebuild", "true");
 }
 
 

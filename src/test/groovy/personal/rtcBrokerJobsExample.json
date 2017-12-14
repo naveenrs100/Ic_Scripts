@@ -1,0 +1,14 @@
+{
+    "PROYECTO BROKER": {        
+        "aplicacionUrbanCode": "GIS - Servicios e Integraciones WMB",
+        "workitem": "11111111111111",
+        "entornoUbanRelease": "",
+        "entornoUbanDeploy": "",
+		"streamCargaInicial": "BROKER - CARGA INICIAL URBAN",
+        "components": {
+            "COMPO_PRUEBA_BROKER": {                
+                "componenteUrbanCode": "COMPO_PRUEBA_BROKER"
+            }
+        }
+    }
+}

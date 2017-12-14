@@ -152,7 +152,7 @@ class ComponentVersionHelper extends Loggable {
 		return ret;
 	}
 	
-			/**
+	/**
 	 * Devuelve la versión de un componente definida como su última línea base
 	 * @param component Nombre del componente RTC
 	 * @param stream Nombre de la corriente o workspace RTC

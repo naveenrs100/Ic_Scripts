@@ -1,7 +1,6 @@
-import es.eci.utils.ParamsHelper;
+package git
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
+import es.eci.utils.ParamsHelper;
 
 def parentWorkspaceDir = new File("${build.workspace}");
 def commitsIds = "";

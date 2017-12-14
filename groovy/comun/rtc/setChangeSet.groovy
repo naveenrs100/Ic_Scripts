@@ -1,3 +1,5 @@
+package rtc
+
 // detecta cambios del componente y genera ficheros de changeSet para Jenkins y el RTC en la carpeta
 // $JENKINS_HOME/jobs/ScriptsCore/workspace/groovy/comun/rtc/setChangeSet.groovy
 import hudson.scm.*
@@ -7,17 +9,13 @@ import com.deluan.jenkins.plugins.rtc.*
 import com.deluan.jenkins.plugins.rtc.commands.*
 import com.deluan.jenkins.plugins.rtc.commands.accept.*
 import com.deluan.jenkins.plugins.rtc.changelog.*
-import java.lang.reflect.Field
-import java.lang.ref.WeakReference
 import java.io.InputStreamReader
 import java.io.FileInputStream
 import java.io.BufferedReader
 
 import components.*
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
-def invokerName = resolver.resolve("jobInvoker")
+def invokerName = build.buildVariableResolver.resolve("jobInvoker")
 def invoker = Hudson.instance.getJob(invokerName)
 def buildInvoker = null
 if (invoker!=null)
@@ -63,11 +61,7 @@ if (compareFile!=null && compareFile.exists()){
 		writer.write (ret , new OutputStreamWriter(new FileOutputStream("${buildInvoker.getRootDir()}/changelog.xml"), "UTF-8"))
 	}
 
-	// asigna el nuevo conjunto de cambios al build
-	Field campo = AbstractBuild.getDeclaredField("changeSet")
-	campo.setAccessible(true)
-	campo.set(buildInvoker, new WeakReference<JazzChangeSetList>(new JazzChangeSetList(buildInvoker,ret)));
-	println "buildInvoker: ${buildInvoker.getChangeSet()}"
-}else{
+}
+else{
 	println "WARNING: NO ENCUENTRA FICHERO ${compareFile}"
 }

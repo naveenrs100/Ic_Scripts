@@ -9,8 +9,6 @@ import org.w3c.dom.Document
 
 class ArtifactsJsonUtils extends Loggable {
 	
-	private static VersionUtils vUtils = new VersionUtils();
-
 	public static processSnapshotMaven(Map<String, List<File>> poms, File home){
 		Map<String,List<ArtifactBeanLight>> artifactsComp = getArtifactsMaven(poms,home)
 				
@@ -55,7 +53,8 @@ class ArtifactsJsonUtils extends Loggable {
 			pomFileList.each { File pomFile ->
 				println("Intentando leer ${pomFile} ...")
 				try {					
-					Document doc = XmlUtils.parseXml(pomFile);
+					XmlUtils utils = new XmlUtils();
+					Document doc = utils.parseXml(pomFile);
 					ArtifactBeanLight artifactBean = getArtifactMaven(doc, baseDirectory, pomFile);
 					list.add(artifactBean);
 				}
@@ -81,33 +80,34 @@ class ArtifactsJsonUtils extends Loggable {
 	 */
 	public static ArtifactBeanLight getArtifactMaven(Document doc, File baseDirectory, File file){
 		ArtifactBeanLight artifact = new ArtifactBeanLight()
-		def treeMapNode = XmlUtils.getTreeNodesMap(baseDirectory);
+		XmlUtils utils = new XmlUtils();
+		def treeMapNode = utils.getTreeNodesMap(baseDirectory);
 		//artifact.version = pom.version.text()			
-		def docVersionNode = XmlUtils.xpathNode(doc, "/project/version")
+		def docVersionNode = utils.xpathNode(doc, "/project/version")
 		if(docVersionNode != null && docVersionNode.getTextContent().length() > 0) {			
 			if(!docVersionNode.getTextContent().contains("\${")) {
 				artifact.version = docVersionNode.getTextContent();
 			} else if(!docVersionNode.getTextContent().contains("\${project.") && !docVersionNode.getTextContent().contains("\${parent.")) {
-				artifact.version = XmlUtils.getFinalPropNode(file, treeMapNode, docVersionNode.getTextContent()).getNode().getTextContent();				
+				artifact.version = utils.getFinalPropNode(file, treeMapNode, docVersionNode.getTextContent()).getNode().getTextContent();				
 			}
 						
 		} else {
-			def docParentVersionNode = XmlUtils.xpathNode(doc, "/project/parent/version")
+			def docParentVersionNode = utils.xpathNode(doc, "/project/parent/version")
 			if(!docParentVersionNode.getTextContent().contains("\${")) {
 				artifact.version = docParentVersionNode.getTextContent();
 			} else if(!docParentVersionNode.getTextContent().contains("\${project.") && !docParentVersionNode.getTextContent().contains("\${parent.")) {
-				artifact.version = XmlUtils.getFinalPropNode(file, treeMapNode, docParentVersionNode.getTextContent()).getNode().getTextContent();				
+				artifact.version = utils.getFinalPropNode(file, treeMapNode, docParentVersionNode.getTextContent()).getNode().getTextContent();				
 			}
 		}
 	
 		println("Calculada artifact.version: ${artifact.version} para el pom.xml \"${file.getCanonicalPath()}\"")
 		// Resolver la versión contra una propiedad si fuera necesario
-		artifact.artifactId = XmlUtils.xpathNode(doc, "/project/artifactId").getTextContent()
-		def docGroupIdNode = XmlUtils.xpathNode(doc, "/project/groupId");
+		artifact.artifactId = utils.xpathNode(doc, "/project/artifactId").getTextContent()
+		def docGroupIdNode = utils.xpathNode(doc, "/project/groupId");
 		if(docGroupIdNode != null) {
 			artifact.groupId = 	docGroupIdNode.getTextContent();
 		} else {
-			artifact.groupId = XmlUtils.xpathNode(doc, "/project/parent/groupId").getTextContent();			
+			artifact.groupId = utils.xpathNode(doc, "/project/parent/groupId").getTextContent();			
 		}
 		
 		return artifact

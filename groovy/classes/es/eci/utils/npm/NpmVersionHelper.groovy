@@ -172,7 +172,7 @@ class NpmVersionHelper {
 		if(occurrence==0)
 			throw new Exception("Version : ${version} format incorrect")
 		
-		if(occurrence==2)
+		if( (occurrence==2)||(occurrence==3) )
 			return version
 			
 		def sversion = version.tokenize( '-' )

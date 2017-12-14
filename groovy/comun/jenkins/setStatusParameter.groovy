@@ -1,11 +1,10 @@
+package jenkins
+
 /**
  * Función que introduce como variable status el estado de la ejecución del job padre.
  * Util para mostrar resultados en terceras herramientas, como RTC, de los jobs de jenkins.
  */
 import hudson.model.*
-
-def build = Thread.currentThread().executable
-def causa = build.getCause(Cause.UpstreamCause)
 
 //----- Funciones
 def setParams(build,params){

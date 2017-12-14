@@ -1,3 +1,5 @@
+package version.versioner
+
 @GrabResolver(name='nexuseci', root='http://nexus.elcorteingles.int/content/groups/public/')
 @Grab(group='com.ibm.icu', module='icu4j', version='57.1')
 
@@ -14,7 +16,8 @@ def parentWorkspaceFile = new File(".")
 //def component = params["component"];
 def component = "";
 def action = params["action"];
+def releaseMantenimiento = params["releaseMantenimiento"];
 
 def artifactsJson = ArtifactsJsonUtils.getArtifactsJson(params, component, parentWorkspaceFile, action);
 
-PomXmlWriteOperations.increaseVersion(parentWorkspaceFile, index, artifactsJson, params["nexusUrl"]);
+PomXmlWriteOperations.increaseVersion(parentWorkspaceFile, artifactsJson, params["nexusUrl"], action, releaseMantenimiento);

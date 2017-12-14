@@ -37,12 +37,27 @@ class Loggable {
 	}
 	
 	/**
-	 * Si el log está configurado, lo utiliza para imprimir el mensaje
+	 * Si el log está configurado, lo utiliza para imprimir el mensaje.
 	 * @param message Mensaje a imprimir
 	 */
 	protected void log(String message) {
 		if (logger != null) {
 			logger.log(message)
+		}
+	}
+	
+	/**
+	 * Si el log está configurado, se utiliza para escribir la salida de una excepcion.
+	 * @param message Mensaje a imprimir
+	 */
+	protected void logException(Throwable t) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(baos, true, "utf-8");
+		t.printStackTrace(ps);
+		println "Stack trace completa:"
+		String stackTrace = new String(baos.toByteArray(), "utf-8")
+		if (logger != null) {
+			logger.log(stackTrace)
 		}
 	}
 	

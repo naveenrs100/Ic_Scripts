@@ -1,0 +1,274 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>El procedimiento de hotfix: &#xd;
+&#xd;
++ Descarga el código de los repositorios del grupo, desde la rama de MANTENIMIENTO &#xd;
++ Aumenta el dí­gito tras el 4º, separándolo con un guion &#xd;
++ Construye, pasa unitarias &#xd;
++ Despliega en PRE (si es oportuno) &#xd;
++ Pasa calidad &#xd;
++ Sube entregable con versión cerrada a Nexus &#xd;
++ Entrega los cambios y crea lí­nea base en rama de MANTENIMIENTO</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>31</daysToKeep>
+        <numToKeep>-1</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>gitGroup</name>
+          <description>[OBLIGATORIO] - Grupo de repositorios</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>originBranch</name>
+          <description>[OBLIGATORIO] - Rama de origen del código</description>
+          <defaultValue>MANTENIMIENTO</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>action</name>
+          <description>[OBLIGATORIO] - Acción a ejecutar (build/deploy/release/addFix/addHotfix)</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>addHotfix</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>onlyChanges</name>
+          <description></description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>getOrdered</name>
+          <description>Resuelve el orden de los componentes</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>executionUuid</name>
+          <description>[OPCIONAL][QUVE] - Este parámetro lo informa QUVE y sirve para encaminar de vuelta las notificaciones al portal</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>technology</name>
+          <description></description>
+          <defaultValue>maven</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>lastUserIC</name>
+          <description></description>
+          <defaultValue>ecici</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>aplicacionUrbanCode</name>
+          <description>[OPCIONAL][DESPLIEGUE URBAN] - Nombre de aplicación utilizado por UrbanCode.  Dejar vacío para que no se genere instantánea de despliegue en Urban Code.</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>entornoUrbanCode</name>
+          <description>[OPCIONAL][DESPLIEGUE URBAN] - Dejar vacío para que no se intente el despliegue en Urban Code al crear la instantánea.</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>componentesRelease</name>
+          <description>[OPCIONAL] - Lista de componentes que intervienen en el proceso, separados por comas.</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <org.bstick12.jenkinsci.plugins.leastload.LeastLoadDisabledProperty plugin="leastload@1.0.3">
+      <leastLoadDisabled>false</leastLoadDisabled>
+    </org.bstick12.jenkinsci.plugins.leastload.LeastLoadDisabledProperty>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
+      <autoRebuild>false</autoRebuild>
+      <rebuildDisabled>false</rebuildDisabled>
+    </com.sonyericsson.rebuild.RebuildSettings>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>triggers</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>true</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <jdk>JDK8_IBM</jdk>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <customWorkspace>/jenkins/workspace/${gitGroup}-${action}</customWorkspace>
+  <builders>
+    <hudson.plugins.groovy.SystemGroovy plugin="groovy@1.29">
+      <scriptSource class="hudson.plugins.groovy.FileScriptSource">
+        <scriptFile>/jenkins/jobs/ScriptsCore/workspace/groovy/comun/clarive/connectSWC02Script.groovy</scriptFile>
+      </scriptSource>
+      <bindings></bindings>
+      <classpath>/jenkins/jobs/ScriptsCore/workspace/groovy/classes</classpath>
+    </hudson.plugins.groovy.SystemGroovy>
+    <hudson.plugins.groovy.Groovy plugin="groovy@1.29">
+      <scriptSource class="hudson.plugins.groovy.FileScriptSource">
+        <scriptFile>$JENKINS_HOME/jobs/ScriptsCore/workspace/groovy/comun/jenkins/checkSnapshots.groovy</scriptFile>
+      </scriptSource>
+      <groovyName>Groovy-1.8.7</groovyName>
+      <parameters></parameters>
+      <scriptParameters></scriptParameters>
+      <properties>param.application=${aplicacionUrbanCode}
+param.instantanea=${instantanea}
+param.stream=${stream}
+param.streamTarget=${streamTarget}
+param.rtcUrl=${urlRTC}
+param.rtcUser=${userRTC}
+param.rtcPass=${pwdRTC}
+param.udClientCommand=${UDCLIENT_COMMAND}
+param.urlUdeploy=${UDCLIENT_URL}
+param.userUdclient=${UDCLIENT_USER}
+param.pwdUdclient=${UDCLIENT_PASS}
+param.componentsUrban=${componentsUrban}
+param.urbanCodeConnection=${URBAN_CONNECTION}</properties>
+      <javaOpts></javaOpts>
+      <classPath>/jenkins/jobs/ScriptsCore/workspace/groovy/classes</classPath>
+    </hudson.plugins.groovy.Groovy>
+    <hudson.plugins.groovy.Groovy plugin="groovy@1.29">
+      <scriptSource class="hudson.plugins.groovy.FileScriptSource">
+        <scriptFile>/jenkins/jobs/ScriptsCore/workspace/groovy/comun/git/getComponentsFromGit.groovy</scriptFile>
+      </scriptSource>
+      <groovyName>Groovy-1.8.7</groovyName>
+      <parameters></parameters>
+      <scriptParameters></scriptParameters>
+      <properties>param.branch=${originBranch}
+param.gitGroup=${gitGroup}
+param.keystoreVersion=${GITLAB_KEYSTORE_VERSION}
+param.parentWorkspace=${WORKSPACE}
+param.privateGitLabToken=${GITLAB_PRIVATE_TOKEN}
+param.urlGitlab=${GIT_URL}
+param.urlNexus=${MAVEN_REPOSITORY}
+http.proxyHost=${ECI_PROXY_URL}
+http.proxyPort=${ECI_PROXY_PORT}
+http.nonProxyHosts=nexus.elcorteingles.int
+http.proxyUser=${ECI_PROXY_USER}
+http.proxyPassword=${ECI_PROXY_PWD}
+https.proxyHost=${ECI_PROXY_URL}
+https.proxyPort=${ECI_PROXY_PORT}
+https.nonProxyHosts=nexus.elcorteingles.int
+https.proxyUser=${ECI_PROXY_USER}
+https.proxyPassword=${ECI_PROXY_PWD}</properties>
+      <javaOpts></javaOpts>
+      <classPath>/jenkins/jobs/ScriptsCore/workspace/groovy/classes</classPath>
+    </hudson.plugins.groovy.Groovy>
+    <hudson.plugins.groovy.SystemGroovy plugin="groovy@1.29">
+      <scriptSource class="hudson.plugins.groovy.FileScriptSource">
+        <scriptFile>/jenkins/jobs/ScriptsCore/workspace/groovy/comun/jenkins/setJobsFromStream.groovy</scriptFile>
+      </scriptSource>
+      <bindings></bindings>
+      <classpath>/jenkins/jobs/ScriptsCore/workspace/groovy/classes</classpath>
+    </hudson.plugins.groovy.SystemGroovy>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.3.5">
+      <condition class="org.jenkins_ci.plugins.run_condition.contributed.ShellCondition" plugin="run-condition@1.0">
+        <command>if [ &quot;${jobs}&quot; = &quot;&quot; ] || [ &quot;${BUILD_RESULT}&quot; = &quot;NOT_BUILT&quot; ];
+then 
+exit -1 
+fi</command>
+      </condition>
+      <buildStep class="hudson.plugins.parameterizedtrigger.TriggerBuilder" plugin="parameterized-trigger@2.33">
+        <configs>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.CurrentBuildParameters/>
+              <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+                <properties>jobInvokerType=streams
+create=true
+parentWorkspace=${WORKSPACE}</properties>
+              </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+            </configs>
+            <projects>stepNotifierPortalCreatePlugin</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <block/>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+        </configs>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.0"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.3.5">
+      <condition class="org.jenkins_ci.plugins.run_condition.contributed.ShellCondition" plugin="run-condition@1.0">
+        <command>if [ &quot;${jobs}&quot; = &quot;&quot; ]; then
+exit -1
+fi</command>
+      </condition>
+      <buildStep class="hudson.plugins.parameterizedtrigger.TriggerBuilder" plugin="parameterized-trigger@2.33">
+        <configs>
+          <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.CurrentBuildParameters/>
+            </configs>
+            <projects>Trigger_groups</projects>
+            <condition>ALWAYS</condition>
+            <triggerWithNoParameters>false</triggerWithNoParameters>
+            <triggerFromChildProjects>false</triggerFromChildProjects>
+            <block>
+              <buildStepFailureThreshold>
+                <name>FAILURE</name>
+                <ordinal>2</ordinal>
+                <color>RED</color>
+                <completeBuild>true</completeBuild>
+              </buildStepFailureThreshold>
+              <unstableThreshold>
+                <name>UNSTABLE</name>
+                <ordinal>1</ordinal>
+                <color>YELLOW</color>
+                <completeBuild>true</completeBuild>
+              </unstableThreshold>
+              <failureThreshold>
+                <name>FAILURE</name>
+                <ordinal>2</ordinal>
+                <color>RED</color>
+                <completeBuild>true</completeBuild>
+              </failureThreshold>
+            </block>
+            <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+          </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+        </configs>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.0"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+  </builders>
+  <publishers>
+    <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.33">
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+          <configs>
+            <hudson.plugins.parameterizedtrigger.CurrentBuildParameters/>
+            <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+              <properties>jobInvokerType=streams
+parentWorkspace=${WORKSPACE}
+service=SWC03
+tipo_proceso=${action}
+subproducto=${stream}
+componentName=${component}
+MAIL_SUBJECT=$JOB_NAME
+managersMail=JorgeBauGracia@gexterno.es</properties>
+            </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+          </configs>
+          <projects>stepNotifierPortalPlugin,stepNotifierClariveSWC03,stepUrbanCodeFichaDespliegueProvider,stepNotifierMail</projects>
+          <condition>ALWAYS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+          <triggerFromChildProjects>false</triggerFromChildProjects>
+        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.BuildTrigger>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.33">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+    <com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper/>
+  </buildWrappers>
+</project>

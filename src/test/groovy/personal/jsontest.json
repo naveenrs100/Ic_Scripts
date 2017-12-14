@@ -1,0 +1,9 @@
+{
+    "url": "http://jenkins01.elcorteingles.int/jenkins",
+    "user": "X78482CA",
+    "token": "50702b321442f3c0adff3b652d55c616",
+    "pipelineDirectory": "C:\\Users\\dcastro.jimenez\\Desktop\\Jobs a Modificar\\JOBS_INT",
+    "encoding": "UTF-8",
+    "connection": "jenkins_int.json",
+    "auth": "WDc4NDgyQ0E6NTA3MDJiMzIxNDQyZjNjMGFkZmYzYjY1MmQ1NWM2MTY="
+}

@@ -150,14 +150,22 @@ class C_VS_Component {
 			ret.setGroupId(xml.groupId?.text())
 			ret.setId(xml.cfgId?.text())
 			ret.setRuta(xml.ruta?.text())
-			ret.setIde(xml.ide?.text())
+			ret.setIde(xml.ide.text() != ''?xml.ide.text() : 'vc60')
 			Boolean debug = Boolean.FALSE;
 			if (xml.debug != null) {
 				debug = Boolean.valueOf(xml.debug.text())
 			}
 			ret.setDebug(debug)
-			xml.platforms?.platform.each { platform ->
-				ret.addPlatform(parsePlatform(platform))
+			if (xml.platforms?.size() == 0) {
+				C_VS_Platform plt = new C_VS_Platform()
+				plt.setPlatId('win32')
+				plt.setPlatSubId('')
+				plt.setRutatar('')
+				ret.addPlatform(plt)
+			} else {
+				xml.platforms?.platform.each { platform ->
+					ret.addPlatform(parsePlatform(platform))
+				}
 			}
 			xml.dlls?.dll.each { dll ->
 				C_VS_DLL objDll = new C_VS_DLL()
@@ -192,7 +200,7 @@ class C_VS_Component {
 	 */
 	private C_VS_Platform parsePlatform(platform) {
 		C_VS_Platform pl = new C_VS_Platform()
-		pl.setPlatId(platform.platId.text())
+		pl.setPlatId(platform.platId?.text())
 		pl.setPlatSubId(platform.platSubId?.text())
 		pl.setRutatar(platform.rutatar.text())
 		return (pl)

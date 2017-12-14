@@ -1,3 +1,5 @@
+package sonar
+
 /**
  * 
  * Este script se lanza como System Groovy Script.
@@ -14,16 +16,13 @@ import git.GitUtils
 import hudson.model.*;
 import rtc.RTCUtils;
 
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
-
-def componentName = resolver.resolve("component");
-def stream = resolver.resolve("stream");
-def pwdRTC = resolver.resolve("pwdRTC");
+def componentName = build.buildVariableResolver.resolve("component");
+def stream = build.buildVariableResolver.resolve("stream");
+def pwdRTC = build.buildVariableResolver.resolve("pwdRTC");
 def userRTC = build.getEnvironment(null).get("userRTC");
 def urlRTC = build.getEnvironment(null).get("urlRTC");
-def productId = resolver.resolve("productId");
-def gitGroup = resolver.resolve("gitGroup");
+def productId = build.buildVariableResolver.resolve("productId");
+def gitGroup = build.buildVariableResolver.resolve("gitGroup");
 
 if(stream != null && stream.trim().size() > 0) {	
    // Identificador de AP

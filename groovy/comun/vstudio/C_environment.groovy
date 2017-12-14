@@ -1,3 +1,5 @@
+package vstudio
+
 import jenkins.model.*
 import vs.*
 
@@ -27,7 +29,6 @@ import hudson.model.*
  * SALIDA DEL SCRIPT: variable de entorno ${groupId} que marca el groupId del entregable
  * SALIDA DEL SCRIPT: variable de entorno ${artifactId} que marca el artifactId del entregable
  */
-def build = Thread.currentThread().executable
 
 def action = build.getEnvironment().get("action")
 println "action <- ${action}"
@@ -40,10 +41,9 @@ def environmentComponent = build.getEnvironment().get("environmentComponent")
 def environmentComponentDir = new File(workspace + "/${environmentComponent}");
 def environment = searchEnvironmentCatalog(environmentComponentDir);
 
-def resolver = build.getBuildVariableResolver()
 def urlRTC = build.getEnvironment().get("urlRTC")
 def userRTC= build.getEnvironment().get("userRTC") 
-def pwdRTC = resolver.resolve("pwdRTC") 
+def pwdRTC = build.buildVariableResolver.resolve("pwdRTC") 
 
 /**
  * Busca el elemento de biblioteca correspondiente al solicitado y lo cierra sobre el fichero
@@ -137,7 +137,7 @@ def entorno = xmlEnv.entornoEjecucion
 def groupId = ""
 if (entorno != null) {
 	println "Valorando el entorno de ejecución..."
-	params.add(new StringParameterValue("groupId", entorno.groupId.text()))
+	params.put("groupId", entorno.groupId.text())
 	// Valor por defecto para el groupId
 	groupId = entorno.groupId.text()
 	println "groupId <- ${groupId}"
@@ -154,20 +154,20 @@ if (entorno != null) {
 		Utiles.creaVersionTxt(version, groupId, workspace); 
 	}
 	println "version <- ${version}"
-	params.add(new StringParameterValue("version", version))
+	params.put("version", version)
 	def artifactId = entorno.artifactId.text()
-	params.add(new StringParameterValue("artifactId", artifactId))
+	params.put("artifactId", artifactId)
 	println "artifactId <- ${artifactId}"
 }
 
 // Generar un workflow de cada tipo para cada uno según sea su tipo y versión
 // Si está marcado onlyChanges y el componente no tiene cambios, no se programa su ejecución
-def componente = '$stream -COMP-';
+def componente = "$stream -COMP-";
 def pasoEntornoComilacion = 'stepUpdateVSlib'
 
 listaComps.each { comp ->
 	// Para cada componente
-	if (bibliotecas.find { it.artifactId == comp.nombre } == null && !environmentComponent.equals(comp.nombre)) {
+	if (bibliotecas.find { it.artifactId == comp.nombre } == null) {
 		// Aplicación
 		C_VS_aplicacion app = new C_VS_aplicacion();
 		app.setArtifactId(comp.nombre)
@@ -269,7 +269,7 @@ def resultado = lista.join('\n')
 def resultadoEntornoCompilacion = listaEntornoCompilacion.join('\n')
 
 
-params.add (new StringParameterValue("lista", resultado))
-params.add (new StringParameterValue("listaEntornoCompilacion", resultadoEntornoCompilacion))
+params.put ("lista", resultado)
+params.put ("listaEntornoCompilacion", resultadoEntornoCompilacion)
 
 ParamsHelper.addParams(build, params)

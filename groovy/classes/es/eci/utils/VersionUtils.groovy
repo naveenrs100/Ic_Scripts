@@ -1140,34 +1140,34 @@ class VersionUtils {
 	 * @param home
 	 * @return
 	 */
-	def writeJsonArtifactsMaven(artifactsComp, File home, String fileName, List<String> componentsFilter) {
-		def file = new File("${home.canonicalPath}/${fileName}")
-		file.delete()
-		file << "["
-		
-		if(componentsFilter == null || componentsFilter.size() == 0) {
-			componentsFilter = [];
-			artifactsComp.keySet().each { String compo ->
-				componentsFilter.add(compo);
-			}
-		}		
-		StringBuilder buffer_components = new StringBuilder()
-		artifactsComp.each { artsComp ->
-			if(componentsFilter.contains(artsComp.key.trim())) {
-				def component = artsComp.key
-				def artifacts = artsComp.value
-				StringBuilder buffer_artifacts = new StringBuilder()
-				if (artifacts.size() > 0) {
-					artifacts.each { artifact ->
-						buffer_artifacts.append("{\"version\":\"${artifact.version}\",\"component\":\"${component}\",\"groupId\":\"${artifact.groupId}\",\"artifactId\":\"${artifact.artifactId}\"},")
+	def writeJsonArtifactsMaven(artifactsComp, File home, String fileName, List<String> componentsFilter) {		
+			def file = new File("${home.canonicalPath}/${fileName}")
+			file.delete()
+			file << "["
+			
+			if(componentsFilter == null || componentsFilter.size() == 0) {
+				componentsFilter = [];
+				artifactsComp.keySet().each { String compo ->
+					componentsFilter.add(compo);
+				}
+			}		
+			StringBuilder buffer_components = new StringBuilder()
+			artifactsComp.each { artsComp ->
+				if(componentsFilter.contains(artsComp.key.trim())) {
+					def component = artsComp.key
+					def artifacts = artsComp.value
+					StringBuilder buffer_artifacts = new StringBuilder()
+					if (artifacts.size() > 0) {
+						artifacts.each { artifact ->
+							buffer_artifacts.append("{\"version\":\"${artifact.version}\",\"component\":\"${component}\",\"groupId\":\"${artifact.groupId}\",\"artifactId\":\"${artifact.artifactId}\"},")
+						}
+						buffer_components.append(buffer_artifacts.substring(0, buffer_artifacts.length() - 1))
+						buffer_components.append(",")
 					}
-					buffer_components.append(buffer_artifacts.substring(0, buffer_artifacts.length() - 1))
-					buffer_components.append(",")
 				}
 			}
-		}
-
-		file << buffer_components.substring(0, buffer_components.length() - 1)
-		file << "]"
-	}
+	
+			file << buffer_components.substring(0, buffer_components.length() - 1)
+			file << "]"
+		} 
 }

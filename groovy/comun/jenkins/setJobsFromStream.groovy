@@ -1,51 +1,59 @@
+package jenkins
+
+import components.MavenComponent;
+import es.eci.utils.StringUtil
 import es.eci.utils.jenkins.GetJobsUtils
 import es.eci.utils.jenkins.RTCWorkspaceHelper
 import groovy.io.*
 import groovy.json.*
 import hudson.model.*
-
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
+import es.eci.utils.TargetFoundException
 
 // Por defecto se arrastran dependencias.
-def arrastrarDepParam = resolver.resolve("arrastrarDependencias");
+def arrastrarDepParam = build.buildVariableResolver.resolve("arrastrarDependencias");
 def arrastrarDependencias = (arrastrarDepParam == null || arrastrarDepParam.trim().equals("")) ? "true" : arrastrarDepParam;
 
 // Se determina si es un proyecto Git o RTC
-def stream = resolver.resolve("stream");
-def streamTarget = resolver.resolve("streamTarget");
-def gitGroup = resolver.resolve("gitGroup");
-def streamCargaInicial = resolver.resolve("streamCargaInicial");
-def action = resolver.resolve("action");
-def onlyChanges = resolver.resolve("onlyChanges");
-def todos_o_ninguno = resolver.resolve("todos_o_ninguno");
+def stream = build.buildVariableResolver.resolve("stream");
+def jobsFromPlugin = build.buildVariableResolver.resolve("jobs");
+def streamTarget = build.buildVariableResolver.resolve("streamTarget");
+def gitGroup = build.buildVariableResolver.resolve("gitGroup");
+def streamCargaInicial = build.buildVariableResolver.resolve("streamCargaInicial");
+def action = build.buildVariableResolver.resolve("action");
+def onlyChanges = build.buildVariableResolver.resolve("onlyChanges");
+def todos_o_ninguno = build.buildVariableResolver.resolve("todos_o_ninguno");
 def workspaceRTC = RTCWorkspaceHelper.getWorkspaceRTC(action, stream);
 def jenkinsHome	= build.getEnvironment(null).get("JENKINS_HOME");
 def scmToolsHome = build.getEnvironment(null).get("SCMTOOLS_HOME");
 def daemonsConfigDir = build.getEnvironment(null).get("DAEMONS_HOME");
 def userRTC = build.getEnvironment(null).get("userRTC");
-def pwdRTC = resolver.resolve("pwdRTC");
+def pwdRTC = build.buildVariableResolver.resolve("pwdRTC");
 def urlRTC = build.getEnvironment(null).get("urlRTC");
 def parentWorkspace = build.workspace.toString();
-String componentesRelease = resolver.resolve("componentesRelease");
-def getOrdered = (resolver.resolve("getOrdered") != null) && (!resolver.resolve("getOrdered").trim().equals("")) ? resolver.resolve("getOrdered") : "false";
+String componentesRelease = build.buildVariableResolver.resolve("componentesRelease");
+def getOrdered = 
+	(build.buildVariableResolver.resolve("getOrdered") != null) && (!build.buildVariableResolver.resolve("getOrdered").trim().equals("")) ? build.buildVariableResolver.resolve("getOrdered") : "false";
 
 // Parámetros que viene de Git. Ir limp
-def branch = resolver.resolve("originBranch");
-def commitsId = resolver.resolve("commitsId");
+def branch = build.buildVariableResolver.resolve("originBranch");
+def commitsId = build.buildVariableResolver.resolve("commitsId");
 def gitHost = build.getEnvironment(null).get("GIT_HOST");
 def keystoreVersion = build.getEnvironment(null).get("GITLAB_KEYSTORE_VERSION");
 def privateGitLabToken = build.getEnvironment(null).get("GITLAB_PRIVATE_TOKEN");
-def technology = resolver.resolve("technology");
+def technology = build.buildVariableResolver.resolve("technology");
 def urlGitlab = build.getEnvironment(null).get("GIT_URL");
 def urlNexus = build.getEnvironment(null).get("MAVEN_REPOSITORY");
 def lastUserIC = build.getEnvironment(null).get("userGit");
 def gitCommand = build.getEnvironment(null).get("GIT_SH_COMMAND");
 def mavenHome = build.getEnvironment(null).get("MAVEN_HOME");
 
+// Parámetros que pueden venir del plugin DetectChanges
+def paramScmComponentsList = build.buildVariableResolver.resolve("scmComponentsList");
+def paramFinalComponentsList = build.buildVariableResolver.resolve("finalComponentsList");
+
 // True si se desea que los jobs se lancen secuencialmente. "jobs" ha de ser entonces
 // una lista de sublistas con un solo job por sublista.
-def forzarSecuencial = resolver.resolve("forzarSecuencial");
+def forzarSecuencial = build.buildVariableResolver.resolve("forzarSecuencial");
 
 // Naturaleza del SCM del proyecto
 def projectNature;
@@ -55,7 +63,7 @@ if(gitGroup != null && !gitGroup.trim().equals("")) {
 	projectNature = "rtc";
 }
 
-GetJobsUtils gju = new GetJobsUtils(build, projectNature, action, onlyChanges,
+GetJobsUtils gju = new GetJobsUtils(projectNature, action, onlyChanges,
 									workspaceRTC, jenkinsHome, scmToolsHome,
 									daemonsConfigDir, userRTC, pwdRTC, urlRTC,
 									parentWorkspace, commitsId, gitHost, keystoreVersion,
@@ -67,31 +75,97 @@ GetJobsUtils gju = new GetJobsUtils(build, projectNature, action, onlyChanges,
 
 gju.initLogger { println it };
 
+// Revisar si las variables finalComponentsList y scmComponentsList están informadas
+
 /** CÁLCULO DE COMPONENTES INTRODUCIDOS A MANO **/
 List<String> listaComponentesRelease = gju.getComponentsReleaseList();
 println("\nlistaComponentesRelease -> ${listaComponentesRelease}\n")
 
+
+// Si scmComponentsList está informada, se salta la lectura de los componetes del SCM
+
 /** CÁLCULO DE COMPONENTES TOTALES QUE CUELGAN DEL GRUPO ADECUADO EN EL SCM (stream ó gitGroup) **/
-List<String> scmComponentsList = gju.getScmComponentsList();
-println("\nscmComponentsList -> ${scmComponentsList}\n")
+List<String> scmComponentsList = []
+
+if (StringUtil.notNull(paramScmComponentsList)) {
+	scmComponentsList = paramScmComponentsList.split(",");
+	println("\nYa viene informado desde plugin: scmComponentsList -> ${scmComponentsList}\n");
+}
+else {
+	scmComponentsList = gju.getScmComponentsList();
+	println("\nscmComponentsList -> ${scmComponentsList}\n");
+}
+
+
+// Si finalComponentsList viene informada, se salta la construcción de la lista final de componentes
 
 /** CÁLCULO DE COMPONENTES SI HAY CAMBIOS **/
-List<String> finalComponentsList = gju.getFinalComponentList(scmComponentsList,listaComponentesRelease);
-println("\nfinalComponentsList -> ${finalComponentsList}\n")
+List<String> finalComponentsList = [];
+if (StringUtil.notNull(paramFinalComponentsList)) {
+	finalComponentsList = paramFinalComponentsList.split(",");
+	println("\nYa viene informado desde plugin: finalComponentsList -> ${finalComponentsList}\n");
+}
+else {
+	finalComponentsList = gju.getFinalComponentList(scmComponentsList,listaComponentesRelease);
+	println("\nfinalComponentsList -> ${finalComponentsList}\n");
+}
+
 
 /** CÁLCULO DEL ORDEN DE LOS COMPONENTES (SI ES NECESARIO) Y DE SUS COMPONENTES ARRASTRADOS POR DEPENDENCIAS **/
-List<List<String>> sortedMavenCompoGroups = gju.getOrderedList(finalComponentsList, scmComponentsList);
-println("\nsortedMavenCompoGroups -> ${sortedMavenCompoGroups}\n")
+List<List<String>> jobs = new ArrayList<ArrayList<String>>();
+if(jobsFromPlugin == null || jobsFromPlugin.trim().equals("")) { 		
+	List<List<MavenComponent>> sortedMavenCompoGroups = gju.getOrderedList(build, finalComponentsList, scmComponentsList);
+	println("\nsortedMavenCompoGroups -> ${sortedMavenCompoGroups}\n")
+	jobs = gju.getJobsList(finalComponentsList, sortedMavenCompoGroups);
+}
+else {
+	println("El parámetro \"jobs\" ya viene indicado desde el plugin de ordenación.");
+	def jobsObject = new JsonSlurper().parseText(jobsFromPlugin);
+	jobsObject.each { thisJobsList ->
+		ArrayList<String> tmpList = new ArrayList<String>();
+		thisJobsList.each { String thisJob ->
+			tmpList.add(thisJob);
+		}
+		jobs.add(tmpList);
+	}		
+}
 
-/** CÁLCULO DE LA LISTA DE LISTAS DE JOBS SEGÚN EL REQUERIMIENTO DE ORDENACIÓN **/
-List<List<String>> jobs = gju.getJobsList(finalComponentsList, sortedMavenCompoGroups);
+/** COMPROBACIÓN DE QUE NO EXISTEN DIRECTORIOS TARGET DE POR MEDIO **/
+if(getOrdered == "true") {
+	File parentWorkspaceDir = new File(build.workspace.toString());
+	def notEmptyTargets = [];
+	parentWorkspaceDir.eachFileRecurse { File file ->
+		if(file.getName() == "pom.xml") {
+			def targetFile = new File(file.getParentFile().getCanonicalPath(),"target")
+			if(targetFile.exists()) {
+				println(targetFile.getCanonicalPath());
+				if(targetFile.list().length > 0) {
+					targetFile.deleteDir();
+					notEmptyTargets.add(targetFile);
+				}
+			}
+		}
+	}
+	
+	if(notEmptyTargets.size() > 0) {
+		String directories = "";
+		for(String dir : notEmptyTargets) {
+			directories = directories + "\t - ${dir}\n";
+		}
+		throw new TargetFoundException("\n\n------ [ERROR] Hay directorios target no vacíos subidos a RTC o Git. Límpielos antes de ejecutar otra construcción. " +
+										"Son los siguientes:\n ${directories}");
+	} else {
+		println("##### No se han detectado directorios target con contenido en la descarga.")
+	}
+}
+
 
 /** CÁLCULO DE LA LISTA DE JOBS SI SE DESEA FORZAR UN LANZAMIENTO SECUENCIAL **/
 if(forzarSecuencial != null && forzarSecuencial.trim().equals("true")) {
 	jobs = gju.getSequentialJobs(jobs);	
 }
 
-println("\njobs -> ${jobs}\n")
+
 if (jobs!=null) {
 	def params = []
 	

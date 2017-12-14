@@ -1,3 +1,5 @@
+package jenkins
+
 import es.eci.utils.NexusHelper;
 import es.eci.utils.TmpDir;
 import urbanCode.UrbanCodeExecutor
@@ -17,9 +19,6 @@ import urbanCode.UrbanCodeSnapshot
  * urlNexus - URL de nexus 
  */
 
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
-
 def udClientCommand = 	build.getEnvironment(null).get("UDCLIENT_COMMAND"); 			println("udClientCommand -> " + udClientCommand);
 def urlUrbanCode = 		build.getEnvironment(null).get("UDCLIENT_URL"); 				println("urlUrbanCode -> " + urlUrbanCode);
 def user = 				build.getEnvironment(null).get("UDCLIENT_USER"); 				println("user -> " + user);
@@ -28,12 +27,12 @@ def urlNexus = 			build.getEnvironment(null).get("NEXUS_FICHAS_DESPLIEGUE_URL");
 def cScriptsStore = 	build.getEnvironment(null).get("C_SCRIPTS_HOME"); 				println("cScriptsStore -> " + cScriptsStore);
 def gradleBin =		    build.getEnvironment(null).get("GRADLE_HOME") + "/bin/gradle"; 	println("gradleHome -> " + gradleBin);
 
-def application = 		resolver.resolve("aplicacionUrbanCode"); 		println("application -> " + application);
-def password = 			resolver.resolve("UDCLIENT_PASS"); 				println("password -> " + password);
-def instantanea = 		resolver.resolve("instantanea"); 				println("instantanea -> " + instantanea);
-def descriptor = 		resolver.resolve("descriptor"); 				println("descriptor -> " + descriptor);
-def nexusUser = 		resolver.resolve("DEPLOYMENT_USER"); 			println("nexusUser -> " + nexusUser);
-def nexusPass = 		resolver.resolve("DEPLOYMENT_PWD"); 			println("nexusPass -> " + nexusPass);
+def application = 		build.buildVariableResolver.resolve("aplicacionUrbanCode"); 		println("application -> " + application);
+def password = 			build.buildVariableResolver.resolve("UDCLIENT_PASS"); 				println("password -> " + password);
+def instantanea = 		build.buildVariableResolver.resolve("instantanea"); 				println("instantanea -> " + instantanea);
+def descriptor = 		build.buildVariableResolver.resolve("descriptor"); 				println("descriptor -> " + descriptor);
+def nexusUser = 		build.buildVariableResolver.resolve("DEPLOYMENT_USER"); 			println("nexusUser -> " + nexusUser);
+def nexusPass = 		build.buildVariableResolver.resolve("DEPLOYMENT_PWD"); 			println("nexusPass -> " + nexusPass);
 
 try {
 	UrbanCodeExecutor exe = new UrbanCodeExecutor(udClientCommand, urlUrbanCode, user, password);

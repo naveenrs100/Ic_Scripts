@@ -1,3 +1,5 @@
+package jenkins
+
 /**
  * Este script determina si existen tests unitarios en el proyecto.
  * 

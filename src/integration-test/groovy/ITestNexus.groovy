@@ -4,8 +4,10 @@ import java.security.MessageDigest
 import org.junit.Assert
 import org.junit.Test
 
+import es.eci.utils.MultipartUtility
 import es.eci.utils.NexusHelper
 import es.eci.utils.TmpDir
+import es.eci.utils.ZipHelper
 import es.eci.utils.pom.MavenCoordinates
 
 class ITestNexus extends BaseTest {
@@ -59,6 +61,33 @@ class ITestNexus extends BaseTest {
 		coords.setPackaging("zip");
 		coords.setClassifier("myclassifier")
 		checkDownload(coords, "b55f6a285da6dd464757e8cd49da488f");
+	}
+	
+	@Test
+	public void testNexusUploadWithClassifier() {
+		TmpDir.tmp { File dir ->
+			File data = new File(dir, "data");
+			data.mkdirs();
+			
+			File dataFile = new File(data, "textFile.txt");
+			dataFile.createNewFile();
+			dataFile.text = "askldjasldfkjasdlfksdf"
+			
+			File zipFile = ZipHelper.addDirToArchive(data);
+			
+			MavenCoordinates coords = 
+				new MavenCoordinates('grupo.pruebas.wso2', 'prueba-wso', '0.0.1');
+			coords.setClassifier("api")
+			coords.setPackaging("zip")
+			coords.setRepository("eci");
+			
+			def helper = new NexusHelper(nexusURL)
+			helper.setNexus_user(nexusUser)
+			helper.setNexus_pass(nexusPwd)
+			helper.upload(coords, zipFile)
+			
+			zipFile.delete();
+		}
 	}
 	
 	@Test

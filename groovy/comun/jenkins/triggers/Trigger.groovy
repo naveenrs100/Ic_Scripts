@@ -1,3 +1,5 @@
+package jenkins.triggers
+
 def listaJobs = params["jobs"]
 
 if (listaJobs !=null && listaJobs.length()>0){

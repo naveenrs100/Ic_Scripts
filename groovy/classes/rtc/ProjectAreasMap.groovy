@@ -64,8 +64,6 @@ class ProjectAreasMap {
 		}
 		projectAreaName = Normalizer.normalize(projectAreaName, Normalizer.Form.NFD).
 			replaceAll("[^\\p{ASCII}]", "");
-		projectAreaName = projectAreaName.replace("(", "-");
-		projectAreaName = projectAreaName.replace(")", "-");
 		// Eliminar el identificador de área
 		// Si queda algún guion, eliminar hasta el guion
 		int index = projectAreaName.indexOf("-");

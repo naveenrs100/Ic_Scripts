@@ -1,17 +1,14 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.atsistemas.jenkins</groupId>
   <artifactId>dic-scripts</artifactId>
-  <version>8.0.193.0-SNAPSHOT</version>
+  <version>8.0.345.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>dic-scripts</name>
-  <!-- áéíóú -->  
   <developers>
   	<developer>
-  		<id>áéíóú</id>
-  		<name>áéíóú</name>
-  		<organization>áéíóú</organization>
-  		<email>áéíóú@hotmail.com</email>
+  		<organization>ECI</organization>
+  		<email>soporteplataformaic@elcorteingles.es</email>
   	</developer>
   </developers>
   <parent>
@@ -24,8 +21,10 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <gmavenVersion>1.4</gmavenVersion>
     <gmavenProviderSelection>2.0</gmavenProviderSelection>
-    <groovyVersion>2.3.10</groovyVersion>
+    <groovyVersion>2.3.0</groovyVersion>
     <ivy-version>2.4.0</ivy-version>
+    <tests-report-aggregator-version>1.0.0</tests-report-aggregator-version>
+    <job-executors-version>2.7.0</job-executors-version>
   </properties>
   <build>
     <plugins>
@@ -191,24 +190,7 @@
             <configuration>
               <sources>
                 <source>groovy/classes</source>
-                <source>groovy/comun/broker</source>
-                <source>groovy/comun/checking</source>
-                <source>groovy/comun/sonar</source>
-                <source>groovy/comun/clarive</source>
-                <source>groovy/comun/ftp</source>
-                <source>groovy/comun/git</source>
-                <source>groovy/comun/jenkins</source>
-                <source>groovy/comun/mail</source>
-                <source>groovy/comun/portal</source>
-                <source>groovy/comun/rtc</source>
-                <source>groovy/comun/tpv</source>
-                <source>groovy/comun/version</source>
-                <source>groovy/comun/was</source>
-                <source>groovy/comun/rpm</source>
-                <source>groovy/maven/was</source>
-                <source>groovy/comun/npm</source>
-                <source>groovy/comun/omnistore</source>
-                <source>groovy/comun/vstudio</source>
+                <source>groovy/comun</source>         
               </sources>
             </configuration>
           </execution>
@@ -344,6 +326,11 @@
       <version>3.10.1</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>3.10.1</version>
+    </dependency>
+    <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-xmlrpc</artifactId>
       <version>0.8</version>
@@ -368,6 +355,18 @@
       <groupId>org.apache.ivy</groupId>
       <artifactId>ivy</artifactId>
       <version>${ivy-version}</version>
+    </dependency>
+    <!-- Para los informes de cobertura / junit -->
+    <dependency>
+      <groupId>es.elcorteingles.jenkins.plugins</groupId>
+      <artifactId>tests-report-aggregator</artifactId>
+      <version>${tests-report-aggregator-version}</version>
+    </dependency>
+    <!-- Para la informaci�n de cambios -->
+    <dependency>
+      <groupId>es.elcorteingles.jenkins.plugins</groupId>
+      <artifactId>job-executors</artifactId>
+      <version>${job-executors-version}</version>
     </dependency>
   </dependencies>
   <profiles>

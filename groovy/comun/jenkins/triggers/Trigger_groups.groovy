@@ -1,3 +1,5 @@
+package jenkins.triggers
+
 import groovy.json.JsonSlurper
 
 def getOrdered = params["getOrdered"].toString();

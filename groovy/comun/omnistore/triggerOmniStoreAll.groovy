@@ -1,10 +1,9 @@
+package omnistore
+
 import es.eci.utils.ParamsHelper;
 import es.eci.utils.ComponentVersionHelper;
 import java.util.Map;
 import java.util.regex.*;
-
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
 
 def component = "aQT0 - OmniStore - Desarrollo";
 
@@ -13,13 +12,14 @@ def component = "aQT0 - OmniStore - Desarrollo";
 //def scmToolsHome = build.getEnvironment(null).get("SCMTOOLS_HOME"); println("scmToolsHome = ${scmToolsHome}")
 def scmToolsHome = "/jenkins/buildtools/scmtools5/eclipse";  println("scmToolsHome = ${scmToolsHome}");
 def user = build.getEnvironment(null).get("userRTC"); println("user = ${user}")
-def password = resolver.resolve("pwdRTC"); println("password = ${password}")
+def password = build.buildVariableResolver.resolve("pwdRTC"); println("password = ${password}")
 def repository = build.getEnvironment(null).get("urlRTC"); println("repository = ${repository}")
-def version = resolver.resolve("version"); println("version = ${version}")
+def version = build.buildVariableResolver.resolve("version"); println("version = ${version}")
 
 
 // Calcula la versión a partir de las últimas baselines.
 def calculaVersion(versionType, scmToolsHome, user, password, repository, component, stream) {
+	println("stream = ${stream}")
 	ComponentVersionHelper componentVersionHelper = new ComponentVersionHelper(scmToolsHome);
 	def listaBaselines = componentVersionHelper.getBaselines(component, stream, user, password, repository);
 	def listaBaselinesSnapshot = [];

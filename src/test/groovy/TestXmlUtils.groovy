@@ -28,7 +28,8 @@ class TestXmlUtils {
 			def pomFile = new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-WAR/pom.xml");
 			def originalEncoding = EncodingUtils.getEncodingName(pomFile);
 
-			Document doc = XmlUtils.parseXml(pomFile);
+			XmlUtils utils = new XmlUtils();
+			Document doc = utils.parseXml(pomFile);
 			XmlWriter.transformXml(doc, pomFile);
 			def finalEncoding = EncodingUtils.getEncodingName(pomFile);
 
@@ -56,16 +57,17 @@ class TestXmlUtils {
 		TmpDir.tmp { File tmpDir ->
 			println("##### testParseXml:");
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath())
-			Document doc = XmlUtils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-WAR/pom.xml"));
+			XmlUtils utils = new XmlUtils();
+			Document doc = utils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-WAR/pom.xml"));
 			assertNotNull(doc);
 
-			def artifactId = XmlUtils.xpathNode(doc, "/project/artifactId").getTextContent()
+			def artifactId = utils.xpathNode(doc, "/project/artifactId").getTextContent()
 			assertEquals("App2-WAR",artifactId);
 
-			def dependencies = XmlUtils.xpathNodes(doc,"/project/dependencies/dependency");
+			def dependencies = utils.xpathNodes(doc,"/project/dependencies/dependency");
 			assertEquals(4,dependencies.size());
 
-			def plugins = XmlUtils.xpathNodes(doc,"/project/build/plugins/plugin");
+			def plugins = utils.xpathNodes(doc,"/project/build/plugins/plugin");
 			assertEquals(2,plugins.size());
 		}
 	}
@@ -74,10 +76,11 @@ class TestXmlUtils {
 	public void testXpathNode() {
 		println("##### testXpathNode:");
 		TmpDir.tmp { File tmpDir ->
+			XmlUtils utils = new XmlUtils();
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath())
-			Document doc = XmlUtils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-WAR/pom.xml"));
+			Document doc = utils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-WAR/pom.xml"));
 
-			def node = XmlUtils.xpathNode(doc, "/project/artifactId")
+			def node = utils.xpathNode(doc, "/project/artifactId")
 			assertTrue(node instanceof org.w3c.dom.Node);
 
 			assertEquals("App2-WAR",node.getTextContent());
@@ -89,8 +92,9 @@ class TestXmlUtils {
 		println("##### testXpathNodes:");
 		TmpDir.tmp { File tmpDir ->
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath())
-			Document doc = XmlUtils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/pom.xml"));
-			def nodes = XmlUtils.xpathNodes(doc, "/project/modules/module")
+			XmlUtils utils = new XmlUtils();
+			Document doc = utils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/pom.xml"));
+			def nodes = utils.xpathNodes(doc, "/project/modules/module")
 
 			assertTrue(nodes instanceof org.w3c.dom.Node[]);
 			assertEquals("App2-WAR",nodes[0].getTextContent());
@@ -103,9 +107,10 @@ class TestXmlUtils {
 		println("##### testLookupProperty:");
 		TmpDir.tmp { File tmpDir ->
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath())
-			Document doc = XmlUtils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-EAR/pom.xml"));
-			def propValue = XmlUtils.lookupProperty(doc, "plugin_was_version");
-			def nullValue = XmlUtils.lookupProperty(doc, "no_existe_prop");
+			XmlUtils utils = new XmlUtils();
+			Document doc = utils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-EAR/pom.xml"));
+			def propValue = utils.lookupProperty(doc, "plugin_was_version");
+			def nullValue = utils.lookupProperty(doc, "no_existe_prop");
 
 			assertNotNull(propValue);
 			assertNull(nullValue);
@@ -118,12 +123,13 @@ class TestXmlUtils {
 		println("##### testConvertToArray:");
 		TmpDir.tmp { File tmpDir ->
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath())
-			Document doc = XmlUtils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/pom.xml"));
+			XmlUtils utils = new XmlUtils();
+			Document doc = utils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/pom.xml"));
 
 			XPath xPath = XPathFactory.newInstance().newXPath();
 			NodeList nodeList = xPath.evaluate("/project/modules/module", doc.getDocumentElement(), XPathConstants.NODESET);
 
-			def nodes = XmlUtils.convertToArray(nodeList);
+			def nodes = utils.convertToArray(nodeList);
 
 			assertTrue(nodes instanceof org.w3c.dom.Node[]);
 			assertEquals(2,nodes.size());
@@ -135,9 +141,10 @@ class TestXmlUtils {
 		println("##### testSolve:");
 		TmpDir.tmp { File tmpDir ->
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath())
-			Document doc = XmlUtils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-EAR/pom.xml"));
-			def direct = XmlUtils.solve(doc, "plugin_was_version");
-			def variable = XmlUtils.solve(doc, '${plugin_was_version}');
+			XmlUtils utils = new XmlUtils();
+			Document doc = utils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-EAR/pom.xml"));
+			def direct = utils.solve(doc, "plugin_was_version");
+			def variable = utils.solve(doc, '${plugin_was_version}');
 			
 			assertEquals("plugin_was_version",direct);
 			assertEquals("1.0.5.0",variable);
@@ -150,10 +157,11 @@ class TestXmlUtils {
 		TmpDir.tmp { File tmpDir ->
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath())
 			File file = new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-WAR/hijo/pom.xml");
-			Document doc = XmlUtils.parseXml(file);
-			def version = XmlUtils.xpathNode(doc, "/project/dependencies/dependency/version").getTextContent();
+			XmlUtils utils = new XmlUtils();
+			Document doc = utils.parseXml(file);
+			def version = utils.xpathNode(doc, "/project/dependencies/dependency/version").getTextContent();
 			
-			String valor = XmlUtils.solveRecursive(new File(tmpDir.getCanonicalPath() + "/PruebaRelease-App-2"), doc, version, file);
+			String valor = utils.solveRecursive(new File(tmpDir.getCanonicalPath() + "/PruebaRelease-App-2"), doc, version, file);
 			
 			assertEquals("1.0.0.0-SNAPSHOT", valor);
 		}
@@ -164,12 +172,13 @@ class TestXmlUtils {
 		println("##### testSetProperty:");
 		TmpDir.tmp { File tmpDir ->
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath())
-			Document doc = XmlUtils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-EAR/pom.xml"));
-			XmlUtils.setProperty(doc, "plugin_was_version", "CAMBIADA");
+			XmlUtils utils = new XmlUtils();
+			Document doc = utils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-EAR/pom.xml"));
+			utils.setProperty(doc, "plugin_was_version", "CAMBIADA");
 			XmlWriter.transformXml(doc, new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-EAR/pom.xml"));
 			
-			doc = XmlUtils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-EAR/pom.xml"));
-			def newProNode = XmlUtils.xpathNode(doc, "/project/properties/plugin_was_version");
+			doc = utils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-EAR/pom.xml"));
+			def newProNode = utils.xpathNode(doc, "/project/properties/plugin_was_version");
 			
 			assertEquals("CAMBIADA",newProNode.getTextContent());
 		}
@@ -178,16 +187,17 @@ class TestXmlUtils {
 	@Test
 	public void testParse() {
 		println("##### testParse:");
-		String[] result1 = XmlUtils.parse('aaa');
+		XmlUtils utils = new XmlUtils();
+		String[] result1 = utils.parse('aaa');
 		String[] expected1 = ['aaa'];
 		
-		String[] result2 = XmlUtils.parse('asldkf${pom-variable}B');
+		String[] result2 = utils.parse('asldkf${pom-variable}B');
 		String[] expected2 = ['asldkf', '${pom-variable}', 'B'];
 		
-		String[] result3 = XmlUtils.parse('${pom-variable-1}-${pom-variable2}-${pom-variable3}');
+		String[] result3 = utils.parse('${pom-variable-1}-${pom-variable2}-${pom-variable3}');
 		String[] expected3 = ['${pom-variable-1}', '-', '${pom-variable2}', '-', '${pom-variable3}'];
 		
-		String[] result4 = XmlUtils.parse('${pom-variable}-SNAPSHOT');
+		String[] result4 = utils.parse('${pom-variable}-SNAPSHOT');
 		String[] expected4 = ['${pom-variable}', '-SNAPSHOT'];
 		
 		assertArrayEquals(expected1, result1);
@@ -201,8 +211,9 @@ class TestXmlUtils {
 		println("##### testXpathGetChildNodes:");
 		TmpDir.tmp { File tmpDir ->
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath())
-			Document doc = XmlUtils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/pom.xml"));			
-			Node[] childNodes = XmlUtils.xpathGetChildNodes(doc, "/project/modules");
+			XmlUtils utils = new XmlUtils();
+			Document doc = utils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/pom.xml"));			
+			Node[] childNodes = utils.xpathGetChildNodes(doc, "/project/modules");
 			
 			assertEquals(2,childNodes.size());
 			
@@ -219,9 +230,10 @@ class TestXmlUtils {
 		println("##### testgetChildNodes:");
 		TmpDir.tmp { File tmpDir ->
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath())
-			Document doc = XmlUtils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/pom.xml"));
-			Node node = XmlUtils.xpathNode(doc, "/project/modules");
-			Node[] childNodes = XmlUtils.getChildNodes(node);
+			XmlUtils utils = new XmlUtils();
+			Document doc = utils.parseXml(new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/pom.xml"));
+			Node node = utils.xpathNode(doc, "/project/modules");
+			Node[] childNodes = utils.getChildNodes(node);
 			
 			assertEquals(2,childNodes.size());
 			
@@ -237,7 +249,8 @@ class TestXmlUtils {
 	public void testGetArtifactsMap() {
 		println("##### testGetArtifactsStream:");
 		File artifactsFile = new File("src/test/resources/versioner/artifactsJson/01artifactsInicial.json");		
-		ArrayList<ArtifactObject> artifacts = XmlUtils.getArtifactsMap(artifactsFile.getText());
+		XmlUtils utils = new XmlUtils();
+		ArrayList<ArtifactObject> artifacts = utils.getArtifactsMap(artifactsFile.getText());
 		
 		assertEquals(8,artifacts.size());
 		assertEquals("App1-EAR",artifacts[0].getArtifactId());
@@ -256,18 +269,41 @@ class TestXmlUtils {
 		TmpDir.tmp { File tmpDir ->
 			unzipTestsZip(resourceZipPath, tmpDir.getAbsolutePath());
 			File pomFile = new File(tmpDir.getAbsolutePath() + "/PruebaRelease-App-2/App2-WAR/hijo/pom.xml");
-			def treeNodes = XmlUtils.getTreeNodesMap(new File(tmpDir,"PruebaRelease-App-2"));
-			NodeProps result = XmlUtils.getFinalPropNode(pomFile, treeNodes, '${version-no-entra}');
+			XmlUtils utils = new XmlUtils();
+			def treeNodes = utils.getTreeNodesMap(new File(tmpDir,"PruebaRelease-App-2"));
+			NodeProps result = utils.getFinalPropNode(pomFile, treeNodes, '${version-no-entra}');
 			
 			assertEquals("2.0.0-SNAPSHOT",result.getNode().getTextContent())
 						
 			result.getNode().setTextContent("CAMBIADO");
 			XmlWriter.transformXml(result.getDoc(), result.getPomFile());
 			println result.getPomFile().getText()
-			Document newDoc = XmlUtils.parseXml(result.getPomFile());
-			Node finalNode = XmlUtils.xpathNode(newDoc, "/project/properties/mas-version-no-entra")
+			Document newDoc = utils.parseXml(result.getPomFile());
+			Node finalNode = utils.xpathNode(newDoc, "/project/properties/mas-version-no-entra")
 			
 			assertEquals("CAMBIADO",finalNode.getTextContent());
+			
+		}
+	}
+	
+	@Test
+	public void testIncreaseVersionDigit() {
+		println("##### testIncreaseVersionDigit:");
+		def version1 = "1.2.3.4.5"		
+		def version2 = "1.2.3.4.5-7"
+		def version3 = "1.2.3.4.5-SNAPSHOT"
+		
+		TmpDir.tmp { File tmpDir ->						
+			XmlUtils utils = new XmlUtils();
+			assertEquals("1.2.3.5.0", utils.increaseVersionDigit(version1, "release", "false"));
+			assertEquals("1.2.3.4.6", utils.increaseVersionDigit(version1, "addFix", "false"));
+			assertEquals("1.2.3.4.5-1", utils.increaseVersionDigit(version1, "addHotfix", "false"));
+			
+			assertEquals("1.2.3.5.0", utils.increaseVersionDigit(version2, "release", "false"));
+			assertEquals("1.2.3.4.6", utils.increaseVersionDigit(version2, "addFix", "false"));
+			assertEquals("1.2.3.4.5-8", utils.increaseVersionDigit(version2, "addHotfix", "false"));
+			
+			assertEquals("1.2.3.5.0-SNAPSHOT", utils.increaseVersionDigit(version3, "release", "false"));
 			
 		}
 	}

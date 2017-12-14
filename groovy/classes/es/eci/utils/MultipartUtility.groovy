@@ -15,6 +15,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.DatatypeConverter;
+
 /**
  * This utility class provides an abstraction layer for sending multipart HTTP
  * POST requests to a web server.
@@ -22,13 +24,20 @@ import java.util.List;
  *
  */
 public class MultipartUtility {
+	
+	//-------------------------------------------------------------------------
+	// Propiedades de la clase
+	
 	private final String boundary;
 	private static final String LINE_FEED = "\r\n";
 	private HttpURLConnection httpConn;
 	private String charset;
 	private OutputStream outputStream;
 	private PrintWriter writer;
-
+	
+	//-------------------------------------------------------------------------
+	// Métodos de la clase
+	
 	/**
 	 * This constructor initializes a new HTTP POST request with content type
 	 * is set to multipart/form-data
@@ -38,25 +47,44 @@ public class MultipartUtility {
 	 */
 	public MultipartUtility(String requestURL, String charset)
 	throws IOException {
+		this(requestURL, charset, null, null)
+	}
+	
+	/**
+	 * This constructor initializes a new HTTP POST request with content type
+	 * is set to multipart/form-data
+	 * @param requestURL
+	 * @param charset
+	 * @param user Usuario para autenticación
+	 * @param password Clave para autenticación
+	 * @throws IOException
+	 */
+	public MultipartUtility(String requestURL, String charset, String user, String password)
+	throws IOException {
 		this.charset = charset;
 
 		// creates a unique boundary based on time stamp
-		boundary = "===" + System.currentTimeMillis() + "===";
+		boundary = "---" + System.currentTimeMillis() + "---";
 
 		URL url = new URL(requestURL);
 		httpConn = (HttpURLConnection) url.openConnection();
+		if (StringUtil.notNull(user) && StringUtil.notNull(password)) {
+			String authString = user + ":" + password;
+			String authStringEnc = toBase64Encoding(authString);
+			httpConn.setRequestProperty("Authorization", "Basic " + authStringEnc);
+		}
 		httpConn.setUseCaches(false);
 		httpConn.setDoOutput(true); // indicates POST method
 		httpConn.setDoInput(true);
 		httpConn.setRequestProperty("Content-Type",
 				"multipart/form-data; boundary=" + boundary);
 		httpConn.setRequestProperty("User-Agent", "CodeJava Agent");
-		httpConn.setRequestProperty("Test", "Bonjour");
+//		httpConn.setRequestProperty("Test", "Bonjour");
 		outputStream = httpConn.getOutputStream();
 		writer = new PrintWriter(new OutputStreamWriter(outputStream, charset),
 				true);
 	}
-
+	
 	/**
 	 * Adds a form field to the request
 	 * @param name field name
@@ -117,6 +145,15 @@ public class MultipartUtility {
 		writer.append(name + ": " + value).append(LINE_FEED);
 		writer.flush();
 	}
+	
+	/**
+	 * Encode in base64
+	 * @param value - value to encode
+	 */
+	private String toBase64Encoding(String value) {
+		byte[] message = value.getBytes("UTF-8")
+		return DatatypeConverter.printBase64Binary(message)
+	}
 
 	/**
 	 * Completes the request and receives response from the server.
@@ -129,11 +166,13 @@ public class MultipartUtility {
 
 		writer.append(LINE_FEED).flush();
 		writer.append("--" + boundary + "--").append(LINE_FEED);
+		
 		writer.close();
 
 		// checks server's status code first
 		int status = httpConn.getResponseCode();
-		if (status == HttpURLConnection.HTTP_OK) {
+		if (status == HttpURLConnection.HTTP_OK 
+				|| status == HttpURLConnection.HTTP_CREATED) {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					httpConn.getInputStream()));
 			String line = null;

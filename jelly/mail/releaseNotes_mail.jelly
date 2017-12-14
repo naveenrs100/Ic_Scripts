@@ -218,8 +218,9 @@ p.fila {
 		<j:set var="duration" value="${build.buildVariableResolver.resolve('duration')}" />
 		<j:set var="streamTarget" value="${build.buildVariableResolver.resolve('streamTarget')}" />
 		<j:set var="component" value="${build.buildVariableResolver.resolve('component')}" />
-		<j:set var="lastBaseline" value="${build.buildVariableResolver.resolve('lastBaseline')}" />
-		<j:set var="penultimateBaseline" value="${build.buildVariableResolver.resolve('penultimateBaseline')}" />
+		<j:set var="instantanea1" value="${build.buildVariableResolver.resolve('instantanea1')}" />
+		<j:set var="instantanea2" value="${build.buildVariableResolver.resolve('instantanea2')}" />
+		<j:set var="aplicacionUrbanCode" value="${build.buildVariableResolver.resolve('aplicacionUrbanCode')}" />
 		<j:invokeStatic className="hudson.model.Hudson" method="getInstance" var="instanciaHudson"/>
 		<j:invoke on="${instanciaHudson}" var="pluginManager" method="getPluginManager"/>
 		<j:catch var="e">
@@ -261,12 +262,11 @@ p.fila {
 		</j:if>
 		<br />
 		<div class="resumen">
-			<p><span>RTC Stream Target:</span> ${streamTarget}</p>
-			<p><span>RTC Component:</span> ${component}</p>
-			<p><span>COMPARANDO:</span>[${lastBaseline}] - [${penultimateBaseline}]</p>
+			<p><span>Aplicacion:</span> ${aplicacionUrbanCode}</p>			
+			<p><span>COMPARANDO:</span>[${instantanea1}] - [${instantanea2}]</p>
 			<p><span>Date:</span> ${it.timestampString}</p>
 			<p class="B${build.result}"><span>Final Result:</span> ${build.result}</p>
-			<p><span>Duration:</span> ${duration}</p>
+			<!-- <p><span>Duration:</span> ${duration}</p> -->
 		</div>
 		<br /><br />
 		

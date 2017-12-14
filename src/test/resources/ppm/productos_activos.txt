@@ -1,0 +1,390 @@
+PD00000001;Seguimiento y Control de Abonos
+PD00000002;Analítica de Venta
+PD00000003;Gestión de Ópticas
+PD00000004;CAJA Y TARJETAS RAP
+PD00000005;Facturación de Mercancías
+PD00000006;Facturación de Servicios
+PD00000007;Reserva de Libros de Texto
+PD00000008;Servicios Comunes
+PD00000009;Contabilidad Analítica de Compras
+PD00000011;Contabilidad de Proveedores
+PD00000012;Contabilidad General
+PD00000013;SIE
+PD00000014;Auditoría de Ventas
+PD00000015;Cobro de Servicios
+PD00000016;Colaboraciones Conjuntas Actuales
+PD00000017;Colaboraciones Conjuntas
+PD00000018;Formación
+PD00000019;Gestión de Pedidos DVD
+PD00000020;Portal B2B
+PD00000021;Ciclo de vida de Producto (PLM)
+PD00000022;Servicio de Asistencia Técnica ( SAT )
+PD00000023;Servicio Médico
+PD00000024;Venta en Proceso
+PD00000025;VPR
+PD00000026;GDS
+PD00000027;SIMEC
+PD00000028;EDI
+PD00000029;Envío de SMS's
+PD00000030;IODH
+PD00000031;Gestión Centros Oportunidades
+PD00000032;Seguimiento de Proveedores
+PD00000033;Gestión de Materiales
+PD00000034;Compras CCG
+PD00000035;Compras. Pedidos
+PD00000036;Compras. Surtido
+PD00000037;Mantenimiento de Edificios (Maximo)
+PD00000038;MPL
+PD00000039;Comercio Internacional. Exportación
+PD00000040;Gestión de Stock DVD
+PD00000041;Administración de Personal
+PD00000042;Gestión de Personal
+PD00000043;Expediente profesional Sfera Internacional
+PD00000044;Expediente Personal
+PD00000045;Nómina
+PD00000046;Recursos Humanos Empresas Tecnologías
+PD00000047;Prevención
+PD00000048;SIGAM
+PD00000049;Contratación  Facturación y Cobro Telecor
+PD00000050;Activación y Recargas
+PD00000051;Gestión de Proyectos IECISA
+PD00000052;Liquidación Gastos de Viajes y Kilometrajes
+PD00000053;Web Telecor intranet
+PD00000054;Cuadre de Envíos
+PD00000055;Expedición
+PD00000056;Peletería
+PD00000057;Inter3D
+PD00000058;Gestplan
+PD00000059;Web Uniformidad División Empresas
+PD00000060;Estados Económicos Hiper y Supercor
+PD00000061;Estudios de Mercado (Backoffice)
+PD00000062;Expediciones
+PD00000063;Financiera
+PD00000064;Gestión de Clientes DVD
+PD00000065;Gestión de Datos Maestros
+PD00000066;Gestión de Envíos DVD
+PD00000067;Gestión de la Venta
+PD00000068;Gestión de Mercancías y control unitario
+PD00000069;Gestión de Pagos
+PD00000070;Gestión del Reaprovisionamiento
+PD00000071;Compras IECISA
+PD00000072;Gestión Uniformidad
+PD00000073;Indicadores Económicos y Logísticos
+PD00000074;Recuentos e inventario
+PD00000076;Log de Surtido
+PD00000077;Maestro de Proveedores
+PD00000079;Oficina de servicios
+PD00000081;Peticiones de Mercancía
+PD00000082;Planificación de Mercancías
+PD00000083;Presupuestos de Venta
+PD00000084;Registro de Operaciones
+PD00000085;Punto Verde
+PD00000087;Recepción
+PD00000086;Administración y Seguridad
+PD00000089;Recepción Perecederos
+PD00000090;Gestión y Facturación Tarifas Telefónicas a Empresas
+PD00000091;Reposición Tienda
+PD00000088;Asesoría Jurídica
+PD00000092;Reservas Multicanalidad
+PD00000095;Selección de Personal
+PD00000096;Modelos Fiscales
+PD00000097;Plataforma de Diseño de cocinas
+PD00000098;Servicios Generales
+PD00000099;Siniestros
+PD00000100;Sistema Control Surtido
+PD00000102;Gestión Preventa IECISA
+PD00000103;Su Misura
+PD00000104;TAMER
+PD00000105;Tarjetas de Visita
+PD00000106;WMoS Manhattan
+PD00000107;WMS DVD
+PD00000108;WMS Gran Consumo
+PD00000109;WMS Host
+PD00000110;WMS Ilean
+PD00000111;WMS Mercancía General
+PD00000112;WMS Tandem
+PD00000113;Compras Induyco
+PD00000114;Gestión Materiales
+PD00000115;Induyco
+PD00000116;Gestión de Mercancías con socios y franquiciados
+PD00000117;Nóminas Induyco
+PD00000118;Selección y Contratación de Personal IECISA
+PD00000119;Ventas IECISA
+PD00000120;Producción Induyco
+PD00000121;CRM División Empresas
+PD00000122;Web Tienda IECISA
+PD00000123;Venta Divi
+PD00000124;Portugal
+PD00000125;Mediciones y Pesupuestos (Presto)
+PD00000126;Gestión Tiendas Telecor
+PD00000127;Liquidación de explotaciones directas
+PD00000093;Autorizaciones
+PD00000128;Consolidación de Sociedades (SAP BPC)
+PD00000129;Gestión Maestro Materiales
+PD00000130;Compra Bricor
+PD00000131;Venta Bricor
+PD00000133;Autorizaciones otras tarjetas
+PD00000132;Gestión de almacén Bricor
+PD00000134;Gestión contable Bricor
+PD00000135;Gestión contable Clientes
+PD00000136;Gestión Tiendas Bricor
+PD00000137;Contabilidad CPI
+PD00000138;Logistica IECISA
+PD00000139;Gestión Contable Telecor
+PD00000140;Gestión almacén Opencor
+PD00000141;Gestión Contable IECISA
+PD00000142;Gestión de Mercancia en Tienda Opencor
+PD00000143;Optimización de Precios
+PD00000144;Acceso a obras
+PD00000145;GRC
+PD00000146;Control documentación en obras
+PD00000147;Gestión división empresas internacional
+PD00000148;Comercio Internacional. Importación
+PD00000149;Construcciones (Backoffice)
+PD00000150;Compras Divi (Backoffice)
+PD00000151;Almacén Divi (Backoffice)
+PD00000152;Facturación Perecederos
+PD00000153;Gestión de Precios
+PD00000155;Agenda y Paneles
+PD00000156;Atención al Cliente DVD
+PD00000160;Cheques
+PD00000161;Cheques, giros y transferencias
+PD00000162;Cobertura de Expedición
+PD00000163;Codificación
+PD00000164;Composturas
+PD00000165;Compras. Agenda
+PD00000166;Compras. Entradas
+PD00000167;Consignación
+PD00000168;CPI
+PD00000169;Cuadre de la Venta
+PD00000170;Devoluciones
+PD00000171;Division Comercial ATG
+PD00000172;Encargos DVD
+PD00000173;Facturas IVA
+PD00000174;Bureaux de Crédito
+PD00000175;MKTROI(Entorno Analítico)
+PD00000176;BI Ventas
+PD00000178;BI Multicanal
+PD00000180;BI Dirección Centro Comercial
+PD00000181;Circular
+PD00000182;BI Recursos Humanos
+PD00000183;Contratos
+PD00000185;Comercios
+PD00000186;Contabilidad
+PD00000187;CRC
+PD00000188;Cuadros de Mando
+PD00000189;DW Operacional
+PD00000190;DW Riesgos
+PD00000191;ESTADOS
+PD00000192;FPP
+PD00000193;Compras Divi (BI)
+PD00000194;Almacén Divi (BI)
+PD00000195;Recuperaciones
+PD00000196;BI Control Económico
+PD00000198;PGP Pasarela de pagos
+PD00000197;BI FECI
+PD00000200;PPP
+PD00000199;BI Servicios Humanos
+PD00000201;BI Admón. Compras
+PD00000202;BI Auditoría
+PD00000204;BI Compras
+PD00000206;BI Construcción
+PD00000205;Régimen de Viajeros
+PD00000207;BI Contabilidad
+PD00000208;BI IECISA
+PD00000210;BI Induyco
+PD00000211;BI Internacional
+PD00000212;BI Logística
+PD00000214;BI Seguros
+PD00000213;Seguimiento de Operaciones ( Proceso Recuperatorio )
+PD00000216;BI Sist. Información
+PD00000215;Tarjeta ECI
+PD00000217;BI Telecor
+PD00000218;BI Opencor
+PD00000219;Titulización
+PD00000220;BI División Empresas
+PD00000222;BI Sfera Franquicias
+PD00000221;Balanzas: EPELSA,DIBAL
+PD00000225;BI BRICOR
+PD00000224;Cajeros Parking: SKIDATA, PARKARE
+PD00000228;Cartelería Técnica y Etiquetas centralizadas
+PD00000229;Conexflow
+PD00000230;Control de Afluencia
+PD00000231;Expertus (AllInOne)
+PD00000232;IAUTO
+PD00000233;Pds Móvil
+PD00000234;POSDM
+PD00000235;Radiant
+PD00000236;SCO NCR
+PD00000237;SSP (Service Store Provider)
+PD00000238;Tabletas Firma: HYPERCOM, INGENICO, VERIFONE
+PD00000239;TF PdS2
+PD00000240;Tique verde
+PD00000241;TPV PdS2
+PD00000242;WALLET
+PD00000243;Cobertura Técnica (Guardias)
+PD00000244;Centro de Cálculo
+PD00000245;Gestión de Pedidos, Envíos y Repartos ( GPER )
+PD00000246;Sistema de Gestión Pedidos de Centro Comercial ( GCC )
+PD00000247;Calendario de Aperturas
+PD00000249;Colectivos
+PD00000252;Registro capacidad maxima de exposición
+PD00000256;Analítica de clientes
+PD00000260;Servicios Multicanal (Broker)
+PD00000261;Avisos de Seguridad
+PD00000262;Venta de Localidades
+PD00000263;Venta de Localidades ( Nvo. Servicio )
+PD00000264;Estudios de Mercado (Frontoffice)
+PD00000265;Animación Digital en tienda
+PD00000266;Area Privada Fidelización (Servicios)
+PD00000267;PDF Flow
+PD00000268;Comunicación Multicanal de Clientes
+PD00000269;CRM corporativo y fidelización
+PD00000270;Fidelización: Tarjeta Cliente
+PD00000271;Registro único de clientes
+PD00000272;Cartelería Promocional
+PD00000274;BI Ventas y Promociones
+PD00000275;NET0
+PD00000276;SGD RECyFD ( Rollo Electrónico y Firma Digitalizada )
+PD00000277;Sistema Promocional Corporativo
+PD00000278;API Analítica de Clientes
+PD00000279;Gestión Presupuestos y gastos de marketing
+PD00000281;Encuestas a clientes
+PD00000282;Ecivitas
+PD00000283;Gestión de Campañas de Comunicación
+PD00000284;Control Medios
+PD00000285;InterRealización
+PD00000286;Gestión de proyectos y carteras S.I.
+PD00000287;SGD SAE CESS
+PD00000288;SGD Comercio Internacional Importación (Expedientes de Compra)
+PD00000289;SGD Contabilidad (General y Proveedores)
+PD00000290;SGD RR.EE. Y EE.M
+PD00000291;SGD Contenidos Multimedia DVD
+PD00000292;SGD Publicador
+PD00000293;GTO
+PD00000294;xVisual y jVisual
+PD00000295;API Gestión Documental
+PD00000300;Incentivos especiales de Venta
+PD00000301;Gestión de auditorías
+PD00000302;Otros Clientes
+PD00000303;Celebraciones
+PD00000304;Gestión Turismo Internacional
+PD00000306;BI Estudios de Mercado
+PD00000307;TWT
+PD00000308;Componentes
+PD00000309;Servicios Cluster
+PD00000310;SETI
+PD00000311;Callejero
+PD00000312;QUVE
+PD00000313;Plataforma Desarrollo y Calidad (PSyC)
+PD00000314;Rutinas MF
+PD00000315;MALI
+PD00000316;Servicios Integraciones WMB
+PD00000317;Servicios Integraciones MF
+PD00000318;REMEDY
+PD00000319;FDOS
+PD00000320;CALICOB
+PD00000324;Gestión Logística Telecor
+PD00000328;Layer
+PD00000329;cartera digital
+PD00000330;TPV Virtual SIS
+PD00000331;Web Opencor
+PD00000332;Web Bricor
+PD00000333;Web Supercor
+PD00000334;Web de Ámbito Cultural
+PD00000335;Web Corporativa
+PD00000336;Web Óptica 2M
+PD00000337;Fundación FRA
+PD00000338;Web Adm. Site
+PD00000339;Web Adm. Multiportal
+PD00000340;Seguridad
+PD00000341;Contratación Blecis
+PD00000342;SGD Admón. Ventas y  Financiera
+PD00000343;Gestión de la Demanda
+PD00000344;BI Admon. Ventas
+PD00000347;App Clientes ECI
+PD00000350;Objetos Desnormalizados
+PD00000352;Sistema Gestión Comercial
+PD00000353;Servicios Negocio Seguros
+PD00000354;Servicios Web Seguros
+PD00000355;Servicios Integración de clientes
+PD00000356;COP4
+PD00000357;Gestor de Catálogos (PIM)
+PD00000359;Cachés corporativas
+PD00000360;Gestión de Patrocinios y Periodistas
+PD00000361;Sistema Corporativo de Datos Maestros de Proveedores
+PD00000363;Sterling Order Management
+PD00000364;Portal Microsoft
+PD00000367;Internacionalización MarketPlaces Externos
+PD00000368;Comercio Electrónico Internacionalización
+PD00000370;Planes de Pensiones
+PD00000371;Valoración Fondos de Pensiones
+PD00000372;Mi Tarjeta
+PD00000373;Afluencia
+PD00000375;Carga de producto maestro Tourmundial
+PD00000376;CRM Vacacional Sugar
+PD00000377;Empresas alquiler de vehículos
+PD00000379;Expediente Mecanizado
+PD00000380;Financiera Gestión de Clientes
+PD00000381;Front de Venta
+PD00000382;Hoteles
+PD00000383;Punto de Venta
+PD00000384;Reservas Central y Delegación
+PD00000385;Solicitudes de Viajes
+PD00000386;Gestor de Productos Omnistore
+PD00000387;Integración automática omnicanal de pedidos  (IAO)
+PD00000389;Analítica de Proveedores S.I.
+PD00000390;Sin producto
+PD00000392;Buscador de referencias Sol´r Unique
+PD00000394;Buscador Corporativo
+PD00000396;Feed eCommerce
+PD00000398;Sistema Corporativo de Datos Maestros de Proveedores SAP MDG
+PD00000399;Correspondencia
+PD00000400;Manhattan DVD
+PD00000401;SGD Contratos Explotaciones Ajenas y Directas
+PD00000402;SGD Albaranes
+PD00000404;RIA Repositorio de Información Alimentaria
+PD00000405;Digital Servicios Comunes
+PD00000407;Gestión de Entregas
+PD00000408;Patronaje
+PD00000409;Parking
+PD00000412;CRM
+PD00000413;Facturación
+PD00000415;Línea de Crédito
+PD00000416;Online Central
+PD00000417;Pago por Cuotas
+PD00000418;Promoción y Gestión
+PD00000420;Data Centric
+PD00000421;Mis Pedidos
+PD00000422;SGD GATA (Generación Automática de Talones)
+PD00000423;SGD SAFE (Resumen de Compras y VITAL)
+PD00000424;SGD FECISA
+PD00000425;SGD ESAC (Expedientes SAC)
+PD00000426;SGD Impresión de Solicitudes
+PD00000427;SGD Asesoría Jurídica
+PD00000428;SGD Facturas de IVA
+PD00000429;SGD Venta en Proceso
+PD00000430;SGD Division Comercial
+PD00000431;SGD Régimen de Viajeros
+PD00000432;SGD Contratos Fidelización
+PD00000433;SGD Marketplace
+PD00000434;SGD Estudios Mercado
+PD00000435;SGD Relaciones Externas
+PD00000436;SGD Compras de Material
+PD00000437;SGD Logotipos
+PD00000438;SGD Activos Digitales (SGAD)
+PD00000439;SGD CMR
+PD00000440;SGD Comercio Internacional Exportación
+PD00000441;SGD Expedientes de Personal
+PD00000442;SGD Generación Contratos de Personal
+PD00000443;SGD Servicio Médico
+PD00000444;SGD UCAGECI
+PD00000445;SGD Agora
+PD00000446;SGD SECI
+PD00000447;SGD Proveedores Viajes
+PD00000448;SGD Grandes Cuentas
+PD00000449;SGD Expedientes y CRM Viajes
+PD00000450;Web Fecisa
+PD00000451;SGD ECM Corporativo
+PD00000452;Gestor de APIs corporativas
+# 2017-06-21 15:07:59.0 FIN

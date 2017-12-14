@@ -1,3 +1,5 @@
+package clarive
+
 import es.eci.utils.ParamsHelper;
 import rtc.RTCUtils;
 import urbanCode.UrbanCodeComponentInfoService
@@ -9,27 +11,23 @@ import es.eci.utils.JobRootFinder;
 import es.eci.utils.pom.MavenCoordinates
 import hudson.model.*;
 
-
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
-
-def gitGroup = resolver.resolve("gitGroup");
-def stream = resolver.resolve("stream");
+def gitGroup = build.buildVariableResolver.resolve("gitGroup");
+def stream = build.buildVariableResolver.resolve("stream");
 
 def rtcUser = build.getEnvironment(null).get("userRTC");
-def rtcPass = resolver.resolve("pwdRTC");
+def rtcPass = build.buildVariableResolver.resolve("pwdRTC");
 def rtcUrl = build.getEnvironment(null).get("urlRTC");
 
 def udClientCommand = build.getEnvironment(null).get("UDCLIENT_COMMAND");
 def urlUrbanCode = build.getEnvironment(null).get("UDCLIENT_URL");
 def userUrban = build.getEnvironment(null).get("UDCLIENT_USER");
-def passUrban = resolver.resolve("UDCLIENT_PASS");
+def passUrban = build.buildVariableResolver.resolve("UDCLIENT_PASS");
 
-def componenteUrbanCode = resolver.resolve("componenteUrbanCode");
+def componenteUrbanCode = build.buildVariableResolver.resolve("componenteUrbanCode");
 def nexusUrl = build.getEnvironment(null).get("ROOT_NEXUS_URL");
-def component = resolver.resolve("component");
-def action = resolver.resolve("action");
-def projectArea = resolver.resolve("projectAreaUUID");
+def component = build.buildVariableResolver.resolve("component");
+def action = build.buildVariableResolver.resolve("action");
+def projectArea = build.buildVariableResolver.resolve("projectAreaUUID");
 
 def params = [:];
 
@@ -64,7 +62,8 @@ if(gitGroup == null || gitGroup.trim().equals("")) {
 }
 
 // Calculamos el parámetro "subproducto" a partir del nombre de la "stream".
-def streamSuffixes = ["DESARROLLO","RELEASE","MANTENIMIENTO","DEVELOPMENT"];
+def streamSuffixes = ["DESARROLLO","RELEASE","MANTENIMIENTO","DEVELOPMENT",
+						"FrozenDevelopment","Development","Maintenance","Mantenimiento"];
 if(gitGroup != null && !gitGroup.trim().equals("") && !gitGroup.trim().equals("\${gitGroup}")) {
 	params.put("subproducto","${gitGroup.trim()}");
 		
@@ -79,7 +78,7 @@ if(gitGroup != null && !gitGroup.trim().equals("") && !gitGroup.trim().equals("\
 
 // Calculamos el parámetro "builtVersion" que en este momento ya estará seteado en el build de componente.
 // Buscar si es posible el componente
-List<AbstractBuild> fullTree = JobRootFinder.getFullExecutionTree(build);
+List<AbstractBuild> fullTree = new JobRootFinder().getFullExecutionTree(build);
 AbstractBuild componentBuild = build;
 // Buscar el job de componente
 for (AbstractBuild ancestor: fullTree) {
@@ -88,12 +87,12 @@ for (AbstractBuild ancestor: fullTree) {
 	}
 }
 
-def compoResolver = componentBuild.buildVariableResolver;
-def builtVersion = compoResolver.resolve("builtVersion");
+def builtVersion = componentBuild.buildVariableResolver.resolve("builtVersion");
 if(builtVersion != null) {
 	params.put("builtVersion", "${builtVersion}")
 }
-
+// Por miedo a un classloader leak
+componentBuild = null;
 // Se calcula la "version_maven" a partir del GAV devuelto por UrbanCode
 def version_maven;
 try {

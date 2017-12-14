@@ -1,3 +1,5 @@
+package rpm
+
 import rpm.RPMGruntPackageHelper
 import es.eci.utils.SystemPropertyBuilder
 

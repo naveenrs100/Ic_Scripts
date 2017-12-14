@@ -12,8 +12,12 @@ import groovy.json.JsonSlurper
 /**
  * Esta clase ejecuta comandos contra UrbanCode valiéndose de la instalación 
  * local de udclient.
- * Documentación de udclient:
- * https://www-01.ibm.com/support/knowledgecenter/SS4GSP_6.1.2/com.ibm.udeploy.reference.doc/topics/cli_commands.html
+ * <br/>
+ * Notar que es <b>imprescindible</b> contar con una instalación local del cliente.  Se puede provisionar
+ * desde:<br/>
+ * <a href="http://nexus.elcorteingles.int/service/local/repositories/GC/content/ibm/urbanCode/udclient/6.1.0/udclient-6.1.0.zip">Cliente udclient en Nexus</a>
+ * <br/> 
+ * @see <a href="https://www-01.ibm.com/support/knowledgecenter/SS4GSP_6.1.2/com.ibm.udeploy.reference.doc/topics/cli_commands.html">Documentación del cliente udclient en IBM</a>
  */
 class UrbanCodeExecutor extends Loggable {
 	
@@ -33,7 +37,7 @@ class UrbanCodeExecutor extends Loggable {
 	
 	/**
 	 * Construye un ejecutor de tareas Urban Code
-	 * @param udclientHome Localización del cliente udclient
+	 * @param udClientCommand Ruta completa del ejecutable del cliente udclient en disco duro
 	 * @param urlUdeploy URL del servidor de uDeploy
 	 * @param user Usuario de udeploy
 	 * @param password Password de udeploy
@@ -132,14 +136,14 @@ class UrbanCodeExecutor extends Loggable {
 	/**
 	 * Este método invoca al cliente udclient para crear un snapshot adecuado en UrbanCode
 	 * @param snapshot Versión de instantánea a crear
-	 * @return Objeto parseado a partir del json devuelto por urbanCode, p. ej.: {
+	 * @return Objeto parseado a partir del json devuelto por urbanCode, p. ej.: <pre>{
 		  "id": "ff9274d4-bc3d-493c-90aa-5020e2fda56d",
 		  "name": "My snapshot",
 		  "description": "JPetStore snapshot",
 		  "created": 1391451659050,
 		  "active": true,
 		  "locked": false
-		}
+		}</pre>
 	 */
 	public Object createSnapshot(UrbanCodeSnapshot snapshot) {
 		return executeCommand("createSnapshot", snapshot)
@@ -204,5 +208,14 @@ class UrbanCodeExecutor extends Loggable {
 	 */
 	public Object getComponentInformation(String component) {
 		return executeCommand("getComponent -component \"$component\"");
+	}
+	
+	/**
+	 * Devuelve una lista de snapshots
+	 * @param application Nombre de la aplicación.
+	 * return Objeto con la infromación de retorno
+	 */
+	public Object getSnapshotsInApplication(String application) {
+		return executeCommand("getSnapshotsInApplication -application \"${application}\"")
 	}
 }

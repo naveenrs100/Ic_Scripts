@@ -52,7 +52,7 @@ class GitTaggerCommand extends Loggable {
 			gitCommand = (this.gitCommand == null) || (this.gitCommand.trim().equals("")) ? "git" : gitCommand;
 			
 			def tagCommand = "${gitCommand} tag -a ${tag} -m ${comment}";
-			println "Se va a lanzar el comando de etiquetado -> ${tagCommand}"
+			log "Se va a lanzar el comando de etiquetado -> ${tagCommand}"
 
 			CommandLineHelper buildCommandLineHelper = new CommandLineHelper(tagCommand);
 			buildCommandLineHelper.initLogger(this);

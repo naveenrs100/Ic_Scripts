@@ -1,6 +1,7 @@
 package es.eci.utils.versioner
 
 import es.eci.utils.base.Loggable
+import es.eci.utils.versioner.XmlUtils;
 
 /**
  * Esta clase actualiza el contenido de la variable artifacts según sea necesario
@@ -16,7 +17,7 @@ class ArtifactsVariableHelper extends Loggable {
 	 * 	snapshot, incrementar versión
 	 * @return
 	 */
-	public void updateArtifacts(def jsonObject, String versionerStep, String increaseIndex = null) {
+	public void updateArtifacts(def jsonObject, String versionerStep, String action, String releaseMantenimiento) {
 		if(versionerStep == "fillVersion") {
 			log "stepUpdateArtifactsJson -> fillVersion"
 			jsonObject.each {
@@ -55,56 +56,13 @@ class ArtifactsVariableHelper extends Loggable {
 			}
 		}
 		else if(versionerStep == "increaseVersion") {
-			log "stepUpdateArtifactsJson -> increaseVersion"
-			def index = increaseIndex.toInteger(); // En este punto increaseIndex debe venir.
+			log "stepUpdateArtifactsJson -> increaseVersion"			
 			jsonObject.each {
-				def isSnapshot = it.version.contains("-SNAPSHOT");
-				String version = it.version.split("-SNAPSHOT")[0];
-				log "stepUpdateArtifactsJson -> version: ${it.groupId}:${it.artifactId}:${it.version}"
-				if (version != null && version.trim().length() > 0) {
-					ArrayList versionDigits = version.split("\\.");
-					log "stepUpdateArtifactsJson -> versionDigits: $versionDigits"
-					boolean isHotfix = (index == 5);
-		
-					def newVersion;
-					if(isSnapshot && !isHotfix) {
-						def increasedDigit = versionDigits[index - 1].toInteger() + 1;
-						versionDigits.set(index - 1, increasedDigit);
-						if(index < versionDigits.size()) {
-							for(int i = index; i < versionDigits.size(); i++) {
-								versionDigits.set(i, 0);
-							}
-						}
-						newVersion = versionDigits[0] + "." + versionDigits[1] + "." + versionDigits[2] + "." + versionDigits[3] + "-SNAPSHOT";						
-					}
-					else if(!isSnapshot && !isHotfix) {
-						def increasedDigit = versionDigits[index - 1].toInteger() + 1;
-						versionDigits.set(index - 1, increasedDigit);
-						if(index < versionDigits.size()) {
-							for(int i = index; i < versionDigits.size(); i++) {
-								versionDigits.set(i, 0);
-							}
-						}
-						newVersion = versionDigits[0] + "." + versionDigits[1] + "." + versionDigits[2] + "." + versionDigits[3];
-					}
-					else if(!isSnapshot && isHotfix) {
-						log("Caso hotfix con versionDigits = ${versionDigits}");
-						if(versionDigits[3].split("-").size() == 1) {
-							versionDigits.set(3, versionDigits[3] + "-1");
-							newVersion = versionDigits[0] + "." + versionDigits[1] + "." + versionDigits[2] + "." + versionDigits[3];
-							log("newVersion = ${newVersion}")
-						}
-						else if(versionDigits[3].split("-").size() == 2) {
-							def hotFixDigit = versionDigits[3].split("-")[1].toInteger() + 1;
-							versionDigits.set(3, versionDigits[3].split("-")[0] + "-" + hotFixDigit);
-							newVersion = versionDigits[0] + "." + versionDigits[1] + "." + versionDigits[2] + "." + versionDigits[3];
-							log("newVersion = ${newVersion}")
-						}
-					}
-		
+				XmlUtils utils = new XmlUtils();
+				if(it.version != null && it.version.trim().length() > 0) {
+					def newVersion = utils.increaseVersionDigit(it.version, action, releaseMantenimiento);
 					it.version = newVersion;
-				}
-				else {
+				} else {
 					log ("[WARNING] El contenido de version era '$version', por lo tanto no se trata")
 				}
 			}

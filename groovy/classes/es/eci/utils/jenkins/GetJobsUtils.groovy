@@ -17,7 +17,7 @@ import rtc.commands.RTCCreateRepositoryWorkspace
 class GetJobsUtils extends Loggable {
 
 	// Parámetros de RTC			// Parámetros que viene de Git.
-	def build;						String commitsId;
+									String commitsId;
 	String projectNature;			String keystoreVersion;
 	String action;					String gitHost;
 	String onlyChanges;				String privateGitLabToken;
@@ -37,16 +37,16 @@ class GetJobsUtils extends Loggable {
 	String arrastrarDependencias;
 
 
-	public GetJobsUtils(build, String projectNature, String action,
-	String onlyChanges, String workspaceRTC, String jenkinsHome,
-	String scmToolsHome, String daemonsConfigDir, String userRTC,
-	String pwdRTC, String urlRTC, String parentWorkspace,
-	String commitsId, String gitHost, String keystoreVersion,
-	String privateGitLabToken, String technology, String urlGitlab,
-	String urlNexus, String lastUserIC, String gitCommand,
-	String mavenHome, String stream, String todos_o_ninguno,
-	String getOrdered, String componentesRelease, String gitGroup, String branch,
-	String streamCargaInicial, String arrastrarDependencias) {
+	public GetJobsUtils(String projectNature, String action,
+			String onlyChanges, String workspaceRTC, String jenkinsHome,
+			String scmToolsHome, String daemonsConfigDir, String userRTC,
+			String pwdRTC, String urlRTC, String parentWorkspace,
+			String commitsId, String gitHost, String keystoreVersion,
+			String privateGitLabToken, String technology, String urlGitlab,
+			String urlNexus, String lastUserIC, String gitCommand,
+			String mavenHome, String stream, String todos_o_ninguno,
+			String getOrdered, String componentesRelease, String gitGroup, String branch,
+			String streamCargaInicial, String arrastrarDependencias) {
 		super();
 		this.projectNature = projectNature;
 		this.action = action;
@@ -72,7 +72,6 @@ class GetJobsUtils extends Loggable {
 		this.stream = stream;
 		this.todos_o_ninguno = todos_o_ninguno;
 		this.getOrdered = getOrdered;
-		this.build = build;
 		this.componentesRelease = componentesRelease;
 		this.gitGroup = gitGroup;
 		this.branch = branch;
@@ -110,7 +109,7 @@ class GetJobsUtils extends Loggable {
 			// Antes de empezar a operar con RTC se crea el WORKSPACE
 			// en caso de ser necesario.
 			RTCCreateRepositoryWorkspace wksCommand = new RTCCreateRepositoryWorkspace()
-			wksCommand.initLogger { println it }
+			wksCommand.initLogger (this)
 			wksCommand.setUrlRTC(urlRTC);
 			wksCommand.setUserRTC(userRTC);
 			wksCommand.setPwdRTC(pwdRTC);
@@ -150,19 +149,27 @@ class GetJobsUtils extends Loggable {
 	/**
 	 * Devuelve una lista de listas de jobs que han de lanzarse en paralelo según el
 	 * tipo de scm donde estén los componentes.
+	 * @param build Referencia a la ejecución en jenkins
 	 * @param finalComponentsList
 	 * @return sortedMavenCompoGroups
 	 */
-	public List<List<MavenComponent>> getOrderedList(List<String> finalComponentsList, List<String> scmComponentsList) {
+	public List<List<MavenComponent>> getOrderedList(AbstractBuild build, 
+			List<String> finalComponentsList, List<String> scmComponentsList) {
 		List<List<MavenComponent>> sortedMavenCompoGroups;
 		if(projectNature.equals("rtc")) {
-			sortedMavenCompoGroups = getRTCOrderedList(finalComponentsList, componentesRelease);
+			sortedMavenCompoGroups = getRTCOrderedList(build, finalComponentsList, componentesRelease);
 
 		} else if(projectNature.equals("git")) {
 			sortedMavenCompoGroups = getGitOrderedList(finalComponentsList, scmComponentsList, componentesRelease);
 
 		}
-
+		
+		List<MavenComponent> remainingComponents = getRemainingComponents(finalComponentsList, sortedMavenCompoGroups);
+		
+		if(remainingComponents != null && remainingComponents.size() > 0 && sortedMavenCompoGroups!= null) {
+			sortedMavenCompoGroups.add(remainingComponents);
+		}		
+		
 		return sortedMavenCompoGroups;
 	}
 
@@ -227,6 +234,7 @@ class GetJobsUtils extends Loggable {
 		log("Se sacan los componentes de la stream \"${stream}\"")
 		List<String> streamComponentsList = [];
 		ScmCommand command = new ScmCommand(true, scmToolsHome, daemonsConfigDir);
+		command.initLogger(this);
 		try {
 			log("Obteniendo componentes de " + stream)
 
@@ -379,9 +387,11 @@ class GetJobsUtils extends Loggable {
 					def retJson = new JsonSlurper().parseText(ret);
 					def chagesFlag = false;
 					retJson.direction[0].components.each { component ->
-						if(areThereChangesInRTC(component)) {
-							chagesFlag = true;
-						}
+						if(isComponentEnabled(component.name, stream)) {
+							if(areThereChangesInRTC(component)) {
+								chagesFlag = true;
+							}
+						}						
 					}
 					if(chagesFlag == true) {
 						// Si ha habido cambios la lista final contiene todos los componentes.
@@ -450,12 +460,12 @@ class GetJobsUtils extends Loggable {
 	private List<String> getGitFinalComponentList(List<String> scmComponentsList, List<String> listaComponentesRelease) {
 		List<String> thisFinalCompoList = [];
 
-		String commitsId = getStoredCommitsId(scmComponentsList, parentWorkspace);
-		log("storedCommitsId -> ${commitsId}");
-		List<String> composToRemove = checkUpdatedComponents(scmComponentsList, parentWorkspace, branch, gitHost, gitGroup, commitsId, action);
+		Map<String,String> commitsIdMap = getStoredCommitsId(scmComponentsList, parentWorkspace);
+		log("storedCommitsId -> ${commitsIdMap}");
+		List<String> composToRemove = checkUpdatedComponents(scmComponentsList, parentWorkspace, branch, gitHost, gitGroup, commitsIdMap, action);
 
 		// Creamos los nuevos archivos de commitsId en caso de action = build
-		if(action.equals("build")) {
+		if(action.equals("build") || action.equals("deploy")) {
 			saveComponentLastCommit(scmComponentsList, branch, gitHost, gitGroup);
 		}
 
@@ -501,6 +511,7 @@ class GetJobsUtils extends Loggable {
 		componentsArray.each { String component ->
 			TmpDir.tmp { File dir ->
 				GitCloneCommand cc = new GitCloneCommand();
+				GitLogCommand lg = new GitLogCommand();
 				try {
 					cc.setParentWorkspace(new File(dir.getAbsolutePath()));
 					cc.setGitBranch(branch);
@@ -512,7 +523,7 @@ class GetJobsUtils extends Loggable {
 					cc.setGitCommand(this.gitCommand);
 					cc.execute();
 
-					GitLogCommand lg = new GitLogCommand();
+					
 					lg.setResultsNumber("1");
 					lg.setParentWorkspace("${dir.getAbsolutePath()}/${component}");
 					lg.setGitCommand(this.gitCommand);
@@ -528,7 +539,7 @@ class GetJobsUtils extends Loggable {
 					commitLogFile.text = id;
 				}
 				catch (Exception e) {
-					if (cc.getLastReturnCode() == 128) {
+					if (cc.getLastReturnCode() == 128 || lg.getLastReturnCode() == 128) {
 						// Repositorio no inicializado
 						log ("WARNING: repositorio $component no inicializado")
 					}
@@ -546,15 +557,15 @@ class GetJobsUtils extends Loggable {
 	 * @param parentWorkspace
 	 * @return String commitsId
 	 */
-	private String getStoredCommitsId(componentsArray, parentWorkspace) {
-		def commitsId ="";
+	private Map<String,String> getStoredCommitsId(componentsArray, parentWorkspace) {		
+		def commitsIdMap = [:];
 		componentsArray.each { String component ->
 			def lastCommitFile = new File("${parentWorkspace}/${component}_lastCommit.txt");
 			if(lastCommitFile.exists()) {
-				commitsId = commitsId + "${component}:${lastCommitFile.text},"
+				commitsIdMap.put("${component}".toString(), "${lastCommitFile.text}".toString());
 			}
-		}
-		return removeLastComma(commitsId);
+		}		
+		return commitsIdMap;
 	}
 
 	/**
@@ -563,13 +574,12 @@ class GetJobsUtils extends Loggable {
 	 * @return componentsToRemove
 	 */
 	private List<String> checkUpdatedComponents(List<String> componentsArray, String parentWorkspace,
-			String branch, String gitHost, String gitGroup, String commitsId, String action) {
+			String branch, String gitHost, String gitGroup, Map<String,String> commitsIdMap, String action) {
 
 		def componentsToRemove = [];
 
 		// En caso de action = build or deploy se comprueba el commitId guardado.
-		if(action.equals("build") || action.equals("deploy")) {
-			def commitsIdArray = commitsId.split(",");
+		if(action.equals("build") || action.equals("deploy")) {			
 			componentsArray.each { String component ->
 				log("### Comprobando cambios en componente \"${component}\"")
 				// Comprobamos lastUser
@@ -591,10 +601,11 @@ class GetJobsUtils extends Loggable {
 				// Comprobamos el LastCommitId
 				def lastCommitId = getLastCommitId(component, branch, gitHost, gitGroup);
 				log("lastCommitId -> ${lastCommitId}");
-				if (lastCommitId != null) {
-					def componentIdPair = commitsIdArray.find { String compoPair -> compoPair.split(":")[0].equals(component) };
-					String storedCommitId = (componentIdPair != null)? componentIdPair.split(":")[1] : "";
+				if (lastCommitId != null) {					
+					log("Sacando storedCommitId para el componente \"${component}\"... (del mapa ${commitsIdMap})")
+					String storedCommitId = commitsIdMap["${component}".toString()];
 					log("storedCommitId -> ${storedCommitId}")
+					storedCommitId = storedCommitId==null?"":storedCommitId
 					if(storedCommitId.trim().equals(lastCommitId)) {
 						if(!componentsToRemove.contains(component)) {
 							componentsToRemove.add(component);
@@ -641,6 +652,7 @@ class GetJobsUtils extends Loggable {
 		String lastCommitId = null;
 		TmpDir.tmp { File dir ->
 			GitCloneCommand cc = new GitCloneCommand();
+			GitLogCommand lg = new GitLogCommand();
 			cc.initLogger(this)
 			try {
 				cc.setParentWorkspace(new File(dir.getAbsolutePath()));
@@ -652,8 +664,7 @@ class GetJobsUtils extends Loggable {
 				cc.setLocalFolderName(component);
 				cc.setGitCommand(this.gitCommand);
 				cc.execute();
-
-				GitLogCommand lg = new GitLogCommand();
+				
 				lg.initLogger(this)
 				lg.setResultsNumber("1");
 				lg.setParentWorkspace("${dir.getAbsolutePath()}/${component}");
@@ -667,7 +678,7 @@ class GetJobsUtils extends Loggable {
 				}
 			}
 			catch (Exception e) {
-				if (cc.getLastReturnCode() == 128) {
+				if (cc.getLastReturnCode() == 128 || lg.getLastReturnCode() == 128) {
 					// Repositorio no inicializado
 					log ("WARNING: repositorio $component no inicializado")
 				}
@@ -687,7 +698,7 @@ class GetJobsUtils extends Loggable {
 	 * @param componentesRelease
 	 * @return List<List<MavenComponent>> sortedMavenCompoGroups
 	 */
-	private List<List<String>> getGitOrderedList(List<String> finalComponentsList, List<String> scmComponentsList, String componentesRelease) {
+	private List<List<MavenComponent>> getGitOrderedList(List<String> finalComponentsList, List<String> scmComponentsList, String componentesRelease) {
 		List<List<MavenComponent>> sortedMavenCompoGroups = [];
 		File baseDir = new File(parentWorkspace);
 		// Ordenamos los componentes si así se indica.
@@ -704,7 +715,7 @@ class GetJobsUtils extends Loggable {
 
 				List <MavenComponent> reactor = gitBuildFileHelper.createStreamReactor(baseDir, scmComponentsList, finalComponentsList);
 				def ls = System.getProperty("line.separator");
-				
+
 				// "CheckOpenVersionsAndDeps"
 				// Se comprueba que las versiones y que los pom.xml tienen las dependencias
 				// bien cuadradas con lo que se necesita y que las versiones.
@@ -714,7 +725,7 @@ class GetJobsUtils extends Loggable {
 				} else {
 					log("[checkOpenVersionAndDeps] Action = ${action}. No comprobamos las dependencias de los pom.")
 				}
-				
+
 				// En este punto debemos añadir los componentes arrastrados por dependencias.
 				// Si un componente no ha cambiado pero su dependencia sí, ha de construirse también.
 				def componentsMavenArray = [];
@@ -772,11 +783,13 @@ class GetJobsUtils extends Loggable {
 	/**
 	 * Devuelve una lista de listas de componentes que se 
 	 * pueden construir en paralelo para proyectos RTC.
+	 * @param build Referencia a la ejecución en jenkins
 	 * @param finalComponentsList
 	 * @param componentesRelease
 	 * @return List<List<String>> sortedMavenCompoGroups
 	 */
-	private List<List<String>> getRTCOrderedList(List<String> finalComponentsList, String componentesRelease) {
+	private List<List<MavenComponent>> getRTCOrderedList(AbstractBuild build, 
+			List<String> finalComponentsList, String componentesRelease) {
 		List<List<String>> sortedMavenCompoGroups;
 		File baseDir = new File(build.workspace.toString());
 		RTCBuildFileHelper helper = new RTCBuildFileHelper(action, baseDir);
@@ -785,83 +798,83 @@ class GetJobsUtils extends Loggable {
 			// Contruimos el createStreamReactor para saber qué componentes dependen de los que han
 			// cambiado para incluirlos también en la lista de cambios.
 			//TmpDir.tmp { File tmp ->
-				RTCBuildFileHelper helperReactor = new RTCBuildFileHelper(action, baseDir);
-				helperReactor.initLogger(this);
-				// Crea el reactor y el artifacts.json al vuelo.
-				// El reactor será una lista de todos los MavenComponents ya ordenados del proyecto.
-				// El artifactsJson contendrá sólo los componentes que entren en la release.
-				List <MavenComponent> reactor = helperReactor.createStreamReactor(
-						baseDir,
-						stream,
-						"maven",
-						userRTC,
-						pwdRTC,
-						urlRTC,
-						null,
-						finalComponentsList);
+			RTCBuildFileHelper helperReactor = new RTCBuildFileHelper(action, baseDir);
+			helperReactor.initLogger(this);
+			// Crea el reactor y el artifacts.json al vuelo.
+			// El reactor será una lista de todos los MavenComponents ya ordenados del proyecto.
+			// El artifactsJson contendrá sólo los componentes que entren en la release.
+			List <MavenComponent> reactor = helperReactor.createStreamReactor(
+					baseDir,
+					stream,
+					"maven",
+					userRTC,
+					pwdRTC,
+					urlRTC,
+					null,
+					finalComponentsList);
 
-				// "CheckOpenVersionsAndDeps"
-				// Se comprueba que las versiones y que los pom.xml tienen las dependencias
-				// bien cuadradas con lo que se necesita y que las versiones.
-				if(action.equals("release")) {
-					log("[checkOpenVersionAndDeps] Comprobamos que las dependencias de los poms están en orden...");
-					checkOpenVersionAndDeps(baseDir, finalComponentsList);
-				} else {
-					log("[checkOpenVersionAndDeps] Action = ${action}. No comprobamos las dependencias de los pom.")
-				}				
+			// "CheckOpenVersionsAndDeps"
+			// Se comprueba que las versiones y que los pom.xml tienen las dependencias
+			// bien cuadradas con lo que se necesita y que las versiones.
+			if(action.equals("release")) {
+				log("[checkOpenVersionAndDeps] Comprobamos que las dependencias de los poms están en orden...");
+				checkOpenVersionAndDeps(baseDir, finalComponentsList);
+			} else {
+				log("[checkOpenVersionAndDeps] Action = ${action}. No comprobamos las dependencias de los pom.")
+			}
 
-				log("#### REACTOR ####")
-				reactor.each {
-					log it.getName()
+			log("#### REACTOR ####")
+			reactor.each {
+				log it.getName()
+			}
+			log("#################")
+
+			def finalMavenComponentList = []; // La "finalComponentsList" pero con MavenComponents en lugar de con Strings.
+			finalComponentsList.each { compo ->
+				MavenComponent temp = reactor.find { mavenCompo -> mavenCompo.getName().equals(compo) }
+				if(temp != null) {
+					finalMavenComponentList.add(temp);
 				}
-				log("#################")
+			}
 
-				def finalMavenComponentList = []; // La "finalComponentsList" pero con MavenComponents en lugar de con Strings.
-				finalComponentsList.each { compo ->
-					MavenComponent temp = reactor.find { mavenCompo -> mavenCompo.getName().equals(compo) }
-					if(temp != null) {
-						finalMavenComponentList.add(temp);
-					}
-				}
-
-				// Añadimos los componentes arrastrados por dependencias. Es decir, si uno de
-				// los componentes que no se van a construir depende de uno de los que sí se van
-				// a construir ha de construirse también.
-				if(arrastrarDependencias.equals("true")) {
-					log("Se calculan los componentes arrastrados por dependencias...")
-					def componentesArrastrados = [];
-					reactor.each { MavenComponent mavenComponent ->
-						finalComponentsList.each { String component ->
-							MavenComponent thisMavenComponent = reactor.find { it.getName().equals(component) };
-							if(MavenComponent.dependsOn(mavenComponent, thisMavenComponent)) {
-								if(!finalComponentsList.contains(mavenComponent.getName())) {
-									componentesArrastrados.add(mavenComponent);
-								}
+			// Añadimos los componentes arrastrados por dependencias. Es decir, si uno de
+			// los componentes que no se van a construir depende de uno de los que sí se van
+			// a construir ha de construirse también.
+			if(arrastrarDependencias.equals("true")) {
+				log("Se calculan los componentes arrastrados por dependencias...")
+				def componentesArrastrados = [];
+				reactor.each { MavenComponent mavenComponent ->
+					finalComponentsList.each { String component ->
+						MavenComponent thisMavenComponent = reactor.find { it.getName().equals(component) };
+						if(MavenComponent.dependsOn(mavenComponent, thisMavenComponent)) {
+							if(!finalComponentsList.contains(mavenComponent.getName())) {
+								componentesArrastrados.add(mavenComponent);
 							}
 						}
 					}
-					finalMavenComponentList.addAll(componentesArrastrados);
 				}
+				finalMavenComponentList.addAll(componentesArrastrados);
+			}
 
-				def finalMavenComponentListOrdered = [];
-				// Ahora tenemos mezclados los componentes finales con los componentes arrastrados.
-				// Ordenamos esta lista final fijándonos en el reactor.
-				reactor.each { MavenComponent reactorComponent ->
-					MavenComponent thisMavenComponent = finalMavenComponentList.find { it.getName().equals(reactorComponent.getName())}
-					if(thisMavenComponent != null) {
-						finalMavenComponentListOrdered.add(thisMavenComponent);
-					}
+			def finalMavenComponentListOrdered = [];
+			// Ahora tenemos mezclados los componentes finales con los componentes arrastrados.
+			// Ordenamos esta lista final fijándonos en el reactor.
+			reactor.each { MavenComponent reactorComponent ->
+				MavenComponent thisMavenComponent = finalMavenComponentList.find { it.getName().equals(reactorComponent.getName())}
+				if(thisMavenComponent != null) {
+					finalMavenComponentListOrdered.add(thisMavenComponent);
 				}
+			}
 
-				log("finalMavenComponentListOrdered ->")
-				int ind = 0;
-				finalMavenComponentListOrdered.each {
-					ind ++;
-					log(ind + ": " + it.getName());
-				}
-				// Obtenemos una lista de listas de MavenComponents con los MavenComponents
-				// agrupados según los que se puedan construir en paralelo.
-				sortedMavenCompoGroups = new SortGroupsStrategy().sortGroups(finalMavenComponentListOrdered);
+			log("finalMavenComponentListOrdered ->")
+			int ind = 0;
+			finalMavenComponentListOrdered.each {
+				ind ++;
+				log(ind + ": " + it.getName());
+			}
+			// Obtenemos una lista de listas de MavenComponents con los MavenComponents
+			// agrupados según los que se puedan construir en paralelo.
+			sortedMavenCompoGroups = new SortGroupsStrategy().sortGroups(finalMavenComponentListOrdered);
 			//}
 		}
 
@@ -1001,6 +1014,7 @@ class GetJobsUtils extends Loggable {
 		String lastUser = null;
 		TmpDir.tmp { File dir ->
 			GitCloneCommand cc = new GitCloneCommand();
+			GitLogCommand lg = new GitLogCommand();
 			try {
 				cc.setParentWorkspace(new File(dir.getAbsolutePath()));
 				cc.setGitBranch(branch);
@@ -1011,8 +1025,7 @@ class GetJobsUtils extends Loggable {
 				cc.setLocalFolderName(component);
 				cc.setGitCommand(this.gitCommand);
 				cc.execute();
-
-				GitLogCommand lg = new GitLogCommand();
+				
 				lg.setResultsNumber("1");
 				lg.setParentWorkspace("${dir.getAbsolutePath()}/${component}");
 				lg.setGitCommand(this.gitCommand);
@@ -1025,7 +1038,7 @@ class GetJobsUtils extends Loggable {
 				}
 			}
 			catch (Exception e) {
-				if (cc.getLastReturnCode() == 128) {
+				if (cc.getLastReturnCode() == 128 || lg.getLastReturnCode() == 128) {
 					// Repositorio no inicializado
 					log ("WARNING: repositorio $component no inicializado")
 				}
@@ -1069,5 +1082,61 @@ class GetJobsUtils extends Loggable {
 			File componentDir = new File(baseDir,componentName);
 			PomXmlOperations.checkOpenVersionAndDeps(componentDir, artifactsJson, urlNexus);
 		}
+	}
+	
+	/**
+	 * Calcula la lista de componentes ordenada junto con la lista de componentes que se ha quedado fuera de la
+	 * ordenación por no tener pom.xml.
+	 * @param finalComponentsList
+	 * @param sortedMavenCompoGroups
+	 * @return 
+	 */
+	public List<MavenComponent> getRemainingComponents(List<String> finalComponentsList, List<List<MavenComponent>> sortedMavenCompoGroups) {
+		// Mediante remainingComponents calculamos los componentes que tengan jobs activos que
+		// se hayan quedado fuera por no cumplir los requisitos de ordenación (no tener pom.xml).
+		def scmGroup;
+		if(projectNature.equals("rtc")) {
+			if(streamCargaInicial != null && !streamCargaInicial.trim().equals("")) {
+				scmGroup = streamCargaInicial;
+			} else {
+				scmGroup = stream;
+			}
+		} else if(projectNature.equals("git")) {
+			scmGroup = gitGroup;
+		}
+		List<MavenComponent> remainingComponents = [];
+		finalComponentsList.each { String finalCompo ->
+			boolean contained = false;
+			sortedMavenCompoGroups.each { List<MavenComponent> compoGroup ->
+				compoGroup.each { MavenComponent compo ->
+					if(finalCompo.equals(compo.getName())) {
+						contained = true;
+					}
+				}
+			}
+			if(contained == false) {
+				// Comprobar que tiene job activo en Jenkins.
+				def nombreJob = "${scmGroup} -COMP- ${finalCompo}";
+				def job = Hudson.instance.getJob(nombreJob);
+				if (job != null && !job.disabled) {
+					remainingComponents.add(new MavenComponent(finalCompo));
+				} else {
+					log("WARNING: El job \"${nombreJob}\" no está dado de alta en Jenkins o está desactivado.");
+				}
+
+			}
+		}
+		
+		return remainingComponents;
+	}
+	
+	private Boolean isComponentEnabled(String component, String stream) {
+		Boolean isEnabled = false;
+		def nombreJob = "${stream} -COMP- ${component}";
+		def job = Hudson.instance.getJob(nombreJob);
+		if (job != null && !job.disabled) {
+			isEnabled = true;
+		}
+		return isEnabled;
 	}
 }

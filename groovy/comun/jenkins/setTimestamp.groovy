@@ -1,3 +1,5 @@
+package jenkins
+
 // Este script calcula un timestamp en el formato yyyyMMddHHmm y lo deja en una variable timestamp
 
 import hudson.model.*
@@ -8,9 +10,6 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 
 import es.eci.utils.ParamsHelper
-
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
 
 String ret = null;
 

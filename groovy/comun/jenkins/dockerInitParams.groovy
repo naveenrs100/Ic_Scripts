@@ -1,8 +1,7 @@
+package jenkins
+
 import hudson.model.*;
 import es.eci.utils.ParamsHelper;
-
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
 
 /**
  * Definimos un handle y que pasaremos luego al "ControllerDockerDirect"

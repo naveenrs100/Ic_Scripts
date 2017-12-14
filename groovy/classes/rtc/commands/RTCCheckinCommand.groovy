@@ -2,6 +2,7 @@ package rtc.commands
 
 import rtc.RTCUtils
 import es.eci.utils.ParameterValidator
+import es.eci.utils.Retries
 import es.eci.utils.ScmCommand
 import es.eci.utils.Stopwatch
 import es.eci.utils.TmpDir
@@ -80,11 +81,16 @@ class RTCCheckinCommand extends AbstractRTCCommand {
 							log "### Filtro recibido! Unicamente suben a RTC los ficheros con la mascara: " + this.rtcFilter
 							File folder = new File("${this.parentWorkspace}")
 							folder.traverse (
+								preDir : { if (it.name == 'node_modules' || it.name == 'target') 
+										return groovy.io.FileVisitResult.SKIP_SUBTREE },
 								type: groovy.io.FileType.FILES,
 								nameFilter: ~/${this.rtcFilter}/
 								) {
-								command.ejecutarComando("checkin -n " + it.canonicalPath, userRTC, pwdRTC, null, parentWorkspace)
-								RTCUtils.exitOnError(command.getLastResult(), "Checkin code", [30])
+								command.ejecutarComando("checkin -n \"" + it.canonicalPath + "\"", userRTC, pwdRTC, null, parentWorkspace)
+								if ( (command.getLastResult() == 30) && (command.getLastErrorOutput().contains("is not shared.") ) ) {
+									RTCUtils.exitOnError(command.getLastResult(), "Checkin code")
+								} else
+									RTCUtils.exitOnError(command.getLastResult(), "Checkin code", [30])
 							}
 						}
 					// Si el filtro viene vacío, se añade todo.
@@ -95,7 +101,20 @@ class RTCCheckinCommand extends AbstractRTCCommand {
 					}
 					// FIN - GDR - 29/11/2016					
 					// UUID del cambio
-					String jsonChange = command.ejecutarComando("status -j", userRTC, pwdRTC, null, parentWorkspace)
+					// Se añade retries debido a un problema observado en contenedores Docker
+					// En algunos casos se corrompe un fichero .iteminfo.dat dentro del directorio .jazz5
+					// Se repite el comando status en tanto que esto parece reparar el error
+					String jsonChange = 
+						Retries.retry(5,500, 
+							{ 
+								String json = command.ejecutarComando("status -j", userRTC, pwdRTC, null, parentWorkspace)
+								// Repetir la ejecución si devuelve un estado distinto de cero
+								int result = command.getLastResult();
+								if (result != 0) {
+									throw new Exception();
+								}
+								return json;			
+							});
 					RTCUtils.exitOnError(command.getLastResult(), "Status")
 					def objChange = new JsonSlurper().parseText(jsonChange);
 					String changeSet = null;

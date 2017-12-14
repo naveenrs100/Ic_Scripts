@@ -7,18 +7,24 @@ package docker;
 import es.eci.utils.base.Loggable;
 import es.eci.utils.commandline.CommandLineHelper
 import es.eci.utils.pom.MavenCoordinates
+import es.eci.utils.NexusHelper
 import es.eci.utils.TmpDir;
 import es.eci.utils.Stopwatch;
 import es.eci.utils.StringUtil;
 import es.eci.utils.ParameterValidator;
+import es.eci.utils.ZipHelper;
+import groovy.lang.Closure;
 
 class DockerBuildImage extends Loggable {
 	
+	private String action;			// Acción que desencadena la construcción
 	private String component;		// Nombre del componente
 	private String registry;		// Registry docker
 	private String builtVersion;	// Versión que se está construyendo
 	private String proxy;			// Para descargas externas dentro de la imagen
 	private String ws;				// Para el lanzamiento del build en el directorio correcto
+	private String maven;			// Para la subida a Nexus de la configuración de DC/OS
+	private String urlNexus;		// Idem anterior
 	private String stream;			// RTC
 	private String gitGroup;		// GIT
 	
@@ -30,10 +36,13 @@ class DockerBuildImage extends Loggable {
 		
 		// Validación de obligatorios
 		ParameterValidator.builder()
+			.add("action", action)
 			.add("component", component)
 			.add("builtVersion", builtVersion)
 			.add("proxy", proxy)
-			.add("ws", ws);
+			.add("ws", ws)
+			.add("maven", maven)
+			.add("urlNexus", urlNexus).build().validate();
 	
 		long millis = Stopwatch.watch {
 			
@@ -43,8 +52,12 @@ class DockerBuildImage extends Loggable {
 				File dir_execute = new File (ws);
 				String dockerFile = fichero.getText()
 				String ficheroTmp = ""
+				String app = ""
 				// Obtener del stream o el gitGroup un nombre final
-				String app = decodeApp(stream, gitGroup)
+				if (StringUtil.isNull(stream))
+					app = decodeName(gitGroup)
+				else
+					app = decodeName(stream)
 				
 				log "--- INFO: Reemplazando version en Dockerfile"				
 				if (dockerFile != null && dockerFile.size() > 0) {
@@ -54,15 +67,18 @@ class DockerBuildImage extends Loggable {
 					fichero.setText(ficheroTmp.replaceAll("##BUILD_VERSION##", builtVersion))
 					
 					// Nombre final de la imagen
-					String nombreImg = component.toLowerCase()
+					String nombreImg = decodeName(component)
+					
+					// Sufijo para nombre de la imagen nightly/latest
+					String sufijoNombreImg = action == "deploy"? "nightly" : "latest"
 					
 					log "--- INFO: OK"
 					
 					long millis_two = Stopwatch.watch {
 						
 						log "--- INFO: Lanzando construccion"
-						CommandLineHelper comando = new CommandLineHelper("docker build -t ${nombreImg} .")
-						comando.initLogger { println it }
+						CommandLineHelper comando = new CommandLineHelper("docker build -t ${nombreImg}:${sufijoNombreImg} .")
+						comando.initLogger(this)
 						
 						if (comando.execute(dir_execute) == 0)
 							log "--- INFO: OK"
@@ -78,28 +94,57 @@ class DockerBuildImage extends Loggable {
 						
 						log "--- INFO: Publicando imagen"
 						
-						CommandLineHelper comando_tag = new CommandLineHelper(
-							"docker tag ${nombreImg}:latest ${registry}/${app}/${nombreImg}:${builtVersion.toLowerCase()}")
-						comando_tag.initLogger { println it }
+						int resultadoComando = 0
 						
-						if (comando_tag.execute(dir_execute) == 0) {
+						CommandLineHelper comando_tag = new CommandLineHelper(
+							"docker tag -f ${nombreImg}:${sufijoNombreImg} ${registry}/${app}/${nombreImg}:${builtVersion}")
+						comando_tag.initLogger(this)
+						
+						resultadoComando = comando_tag.execute(dir_execute)
+						
+						if (resultadoComando == 0) {
 							log "--- INFO: Tag OK"
 							
 							CommandLineHelper comando_push = new CommandLineHelper(
-								"docker push ${registry}/${app}/${nombreImg}:${builtVersion.toLowerCase()}")
-							comando_push.initLogger { println it }
+								"docker push ${registry}/${app}/${nombreImg}:${builtVersion}")
+							comando_push.initLogger(this)
 							
-							if (comando_push.execute(dir_execute) == 0) {
+							resultadoComando = comando_push.execute(dir_execute)
+							
+							if (resultadoComando == 0) {
 								log "--- INFO: Push OK"
 								
-								CommandLineHelper comando_rmi = new CommandLineHelper("docker rmi -f \$(docker images -q ${nombreImg})")
-								comando_rmi.initLogger { println it }
+								if (action == 'deploy') {
+									comando_tag = new CommandLineHelper(
+										"docker tag -f ${nombreImg}:nightly ${registry}/${app}/${nombreImg}:nightly")
+									comando_tag.initLogger(this)
+								
+									resultadoComando = comando_tag.execute(dir_execute)
+								
+									if (resultadoComando == 0) log "--- INFO: Tag Nightly OK"
+									
+									comando_push = new CommandLineHelper(
+										"docker push ${registry}/${app}/${nombreImg}:nightly")
+									comando_push.initLogger(this)
+									
+									resultadoComando = comando_push.execute(dir_execute)
+									
+									if (resultadoComando == 0) log "--- INFO: Push Nightly OK"
+								}
+								
+								CommandLineHelper comando_rmi = new CommandLineHelper(
+									"docker rmi -f ${registry}/${app}/${nombreImg}:${builtVersion} \
+									${registry}/${app}/${nombreImg}:nightly \
+									${nombreImg}:latest ${nombreImg}:nightly")
+								comando_rmi.initLogger(this)
+								
+								uploadDcosConfig()
 								
 								if (comando_rmi.execute(dir_execute) == 0) {
 									log "--- INFO: Borrado OK de la imagen generada"
 								} else {
-									log "### ERROR: Error en el borrado de la imagen temporal" 
-									throw new Exception("Error en publicacion")
+									// Se ha hecho el mejor esfuerzo para limpiarla
+									log "### WARNING: Error en el borrado de la imagen temporal" 
 								}
 							} else {
 								log "### ERROR: Error en el push de la imagen"
@@ -129,18 +174,78 @@ class DockerBuildImage extends Loggable {
 	
 	/**
 	 * Método que utiliza la corriente de RTC o el grupo de GIT para generar el nombre "funcional" que agrupará
-	 * las imágenes docker generadas. Siempre estará informado uno de los dos parámetros, ya sea git o rtc.
-	 * @param rtc: Corriente de RTC
-	 * @param git: Grupo de GIT
-	 * @return Cadena tratada, el grupo de git se deja igual, pero al de RTC se le quitan los espacios.
+	 * las imágenes docker generadas.
+	 * @param rtc: Corriente de RTC o grupo de GIT
+	 * @return Cadena tratada.
 	 */
-	private String decodeApp (String rtc, String git) {
+	private String decodeName (String cadena) {
+		String theString = StringUtil.trimStreamName(cadena).toLowerCase()
+		return StringUtil.normalize(theString)
+	}
+	
+	/**
+	 * Método que crea un zip con todos los ficheros existentes en la ruta dcos/ en la raíz del repositorio. Si
+	 * dicha ruta no existe no hace nada.
+	 * @return N/A
+	 */
+	private void uploadDcosConfig () {
 		
-		if (!StringUtil.isNull(git))
-			return git.toLowerCase();
-		else {
-			return StringUtil.cleanBlank(rtc.toLowerCase());	
-		}		
+		NexusHelper nHelper = new NexusHelper(urlNexus);
+		
+		File dir_dcos = new File (ws + "/dcos");
+		
+		if ( dir_dcos != null && dir_dcos.exists() ) {
+			
+			File zip = ZipHelper.addDirToArchive(dir_dcos)
+			String artifactId = decodeName(component) + "_dcos"
+			String repository = ""
+			
+			if (builtVersion.contains("SNAPSHOT"))
+				repository = urlNexus + "/content/repositories/fichas_dcos-snapshots"
+			else
+				repository = urlNexus + "/content/repositories/fichas_dcos-releases"
+			
+			try {
+				log "--- INFO: Subiendo la configuracion de DC/OS a: G:[es.eci.dcos-config] A:[${artifactId}] V:[${builtVersion}]"
+				
+				// Maven: Se asume lanzamiento en linux con la instalación de maven en el path
+				nHelper.uploadToNexus(
+					"mvn",
+					"es.eci.dcos-config",
+					artifactId,
+					"${builtVersion}",
+					zip.getCanonicalPath(),
+					repository,
+					"zip"
+				)
+						
+				log "--- INFO: OK Subida configuracion DC/OS"
+			} catch (Exception e) {
+				log "### ERROR: Ha habido un problmema subiendo la configuracion DC/OS a Nexus"
+				e.printStackTrace();
+			}
+			finally {
+				zip.delete()
+			}
+		} else {
+			log "--- INFO: No hay directorio dcos, no se envian datos de configuracion a Nexus"
+		}
+	}
+	
+	/**
+	 * 
+	 * @return the action
+	 */
+	public String getAction() {
+		return action;
+	}
+
+	/**
+	 * 
+	 * @param action the action to set
+	 */
+	public void setAction(String action) {
+		this.action = action;
 	}
 	
 	/**
@@ -197,6 +302,34 @@ class DockerBuildImage extends Loggable {
 	 */
 	public void setWs(String ws) {
 		this.ws = ws;
+	}
+
+	/**
+	 * @return the maven
+	 */
+	public String getMaven() {
+		return maven;
+	}
+
+	/**
+	 * @param maven the maven to set
+	 */
+	public void setMaven(String maven) {
+		this.maven = maven;
+	}
+
+	/**
+	 * @return the nexusUrl
+	 */
+	public String getUrlNexus() {
+		return urlNexus;
+	}
+
+	/**
+	 * @param nexusUrl the nexusUrl to set
+	 */
+	public void setUrlNexus(String urlNexus) {
+		this.urlNexus = urlNexus;
 	}
 
 	/**

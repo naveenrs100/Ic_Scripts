@@ -14,6 +14,7 @@ import org.w3c.dom.NodeList
 
 import es.eci.utils.NexusHelper;
 import es.eci.utils.TmpDir;
+import es.eci.utils.base.Loggable
 import es.eci.utils.pom.ArtifactObject
 import es.eci.utils.pom.MavenCoordinates
 import es.eci.utils.pom.MavenCoordinatesDocument
@@ -22,10 +23,10 @@ import es.eci.utils.pom.PomNode
 import es.eci.utils.pom.PomTree
 import groovy.json.JsonSlurper
 
-public class XmlUtils {
+public class XmlUtils extends Loggable {
 
 	// Cache de propiedades
-	private static Map<File, Map<String, String>> propertiesCache = [:]
+	private Map<File, Map<String, String>> propertiesCache = [:]
 
 	/**
 	 * Obtiene el encoding de un archivo utilizando herramientas
@@ -34,10 +35,10 @@ public class XmlUtils {
 	 * @return String encoding
 	 */
 	@Deprecated
-	public static String getEncodingNameWithGroovy(File pomFile) {
+	public String getEncodingNameWithGroovy(File pomFile) {
 		CharsetToolkit toolkit = new CharsetToolkit(pomFile);
 		Charset guessedCharset = toolkit.getCharset();
-		println("CHARSET de ${pomFile.getAbsolutePath()}-> " + guessedCharset.name())
+		log("CHARSET de ${pomFile.getAbsolutePath()}-> " + guessedCharset.name())
 
 		String encoding = null;
 		if(guessedCharset.name().equals("UTF-8")) {
@@ -56,7 +57,7 @@ public class XmlUtils {
 	 * @param xmlFile
 	 * @return org.w3c.dom.Document
 	 */
-	public static Document parseXml(File xmlFile) {
+	public Document parseXml(File xmlFile) {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
@@ -71,7 +72,7 @@ public class XmlUtils {
 	 * @param xml
 	 * @return org.w3c.dom.Document
 	 */
-	public static Document parseXmlString(String xml) {
+	public Document parseXmlString(String xml) {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
@@ -88,7 +89,7 @@ public class XmlUtils {
 	 * @param String xPathQuery
 	 * @return NodeList nodes
 	 */
-	public static Node xpathNode(Document doc, String xPathQuery) {
+	public Node xpathNode(Document doc, String xPathQuery) {
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		Node node = xPath.evaluate("${xPathQuery}", doc.getDocumentElement(), XPathConstants.NODE);
 		return node;
@@ -101,7 +102,7 @@ public class XmlUtils {
 	 * @param String xPathQuery
 	 * @return NodeList nodes
 	 */
-	public static Node[] xpathNodes(Document doc, String xPathQuery) {
+	public Node[] xpathNodes(Document doc, String xPathQuery) {
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		NodeList nodes = xPath.evaluate("${xPathQuery}", doc.getDocumentElement(), XPathConstants.NODESET);
 		Node[] nodesArray = nodes != null ? convertToArray(nodes) : [];
@@ -112,7 +113,7 @@ public class XmlUtils {
 	 * Intenta resolver una propiedad contra el elemento <properties/>
 	 * de un pom.xml
 	 */
-	public static String lookupProperty(Document doc, String value) {
+	public String lookupProperty(Document doc, String value) {
 		Node nodeProp = xpathNode(doc, "/project/properties/${value}");
 		def ret = nodeProp != null ? nodeProp.getTextContent() : null;
 		return ret;
@@ -126,7 +127,7 @@ public class XmlUtils {
 	 * @param String variable a resolver (en el formato ${variable})
 	 * @return
 	 */
-	public static String solveRecursive(File baseDirectory, Document doc, String variable, File docFile) {
+	public String solveRecursive(File baseDirectory, Document doc, String variable, File docFile) {
 		StringBuilder sb = new StringBuilder();
 		List<String> tokens = parse(variable);
 		for(String token: tokens) {
@@ -150,7 +151,7 @@ public class XmlUtils {
 	 * @param value
 	 * @return
 	 */
-	public static String lookupPropertyRecursive(File baseDirectory, Document doc, String value, File docFile) {
+	public String lookupPropertyRecursive(File baseDirectory, Document doc, String value, File docFile) {
 		String ret = '';
 		def isNull = { String s ->
 			return s == null || s.trim().length() == 0;
@@ -199,7 +200,7 @@ public class XmlUtils {
 	 * @param docFile
 	 * @return
 	 */
-	private static Map<String, String> populatePropertiesMap(File baseDirectory, Document doc, File docFile) {
+	private Map<String, String> populatePropertiesMap(File baseDirectory, Document doc, File docFile) {
 		Map<String, String> ret = null;
 		if (propertiesCache[baseDirectory] != null) {
 			ret = propertiesCache[baseDirectory];
@@ -249,7 +250,7 @@ public class XmlUtils {
 	 * @param list
 	 * @return
 	 */
-	public static Node[] convertToArray(NodeList list) {
+	public Node[] convertToArray(NodeList list) {
 		int length = list.getLength();
 		Node[] copy = new Node[length];
 		for (int n = 0; n < length; ++n) {
@@ -271,7 +272,7 @@ public class XmlUtils {
 	 Debería resolver la versión a:
 	 21.0.0-SNAPSHOT
 	 */	
-	public static String solve(Document doc, String s) {
+	public String solve(Document doc, String s) {
 		StringBuilder sb = new StringBuilder();
 		List<String> tokens = parse(s);
 		for(String token in tokens) {
@@ -298,7 +299,7 @@ public class XmlUtils {
 	 * @return Map<String,String> sb
 	 */
 	@Deprecated
-	public static solveWithParam(Document doc, String propName) {
+	public solveWithParam(Document doc, String propName) {
 		def result = [:];
 		def propertyName = propName.substring(2, propName.length() - 1);
 		if (propName.startsWith('${') && propName.endsWith('}')) {
@@ -318,7 +319,7 @@ public class XmlUtils {
 	 * @param property
 	 * @param value
 	 */
-	public static void setProperty(Document doc, String property, String value) {
+	public void setProperty(Document doc, String property, String value) {
 		Node node = xpathNode(doc, "/project/properties/${property}")
 		if(node != null) {
 			node.setTextContent(value);
@@ -334,7 +335,7 @@ public class XmlUtils {
 	 * '${pom-variable-1}-${pom-variable2}-${pom-variable3}' -> ['${pom-variable-1}', '-', '${pom-variable-2}', '-', '${pom-variable-3}']
 	 * '${pom-variable}-SNAPSHOT' -> ['${pom-variable}', '-SNAPSHOT']
 	 */
-	public static List<String> parse(String s) {
+	public List<String> parse(String s) {
 		List<String> ret = null;
 		if (s != null) {
 			ret = new LinkedList<String>();
@@ -368,7 +369,7 @@ public class XmlUtils {
 	 * @param xPathQuery
 	 * @return Node[] nodePropsArray
 	 */
-	public static Node[] xpathGetChildNodes(Document doc, String xPathQuery) {
+	public Node[] xpathGetChildNodes(Document doc, String xPathQuery) {
 		Node[] nodePropsArray = [];
 		Node nodeProps = xpathNode(doc, xPathQuery);
 		if(nodeProps != null) {
@@ -384,7 +385,7 @@ public class XmlUtils {
 	 * @param Node node
 	 * @return Node[] nodePropsArray
 	 */
-	public static Node[] getChildNodes(Node node) {
+	public Node[] getChildNodes(Node node) {
 		Node[] nodePropsArray = convertToArray(node.getChildNodes()).findAll { it.getNodeType() == Node.ELEMENT_NODE };
 		return nodePropsArray;
 	}
@@ -397,7 +398,7 @@ public class XmlUtils {
 	 * @param String xPathQuery
 	 * @return Node
 	 */
-	public static Node getChildNode(Node node, String xPathQuery) {
+	public Node getChildNode(Node node, String xPathQuery) {
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		Node retNode = xPath.evaluate("${xPathQuery}", node, XPathConstants.NODE);
 		return retNode;
@@ -409,10 +410,10 @@ public class XmlUtils {
 	 * @return
 	 */
 	@Deprecated
-	public static String[] getArtifactsStream(String artifactsJson) {
+	public String[] getArtifactsStream(String artifactsJson) {
 		def artifacts = []
 		if(artifactsJson.trim() != "") {
-			println("Se parsea el parametro artifactsJson con contenido: ${artifactsJson}")
+			log("Se parsea el parametro artifactsJson con contenido: ${artifactsJson}")
 			JsonSlurper jsonSlurper = new JsonSlurper();
 			def jsonObject = jsonSlurper.parseText(artifactsJson);
 			jsonObject.each {
@@ -428,11 +429,11 @@ public class XmlUtils {
 	 * @param dir
 	 * @return
 	 */
-	public static ArrayList<ArtifactObject> getArtifactsMap(String artifactsJson) {
+	public ArrayList<ArtifactObject> getArtifactsMap(String artifactsJson) {
 		ArrayList<ArtifactObject> artifacts = []
 
 		if(artifactsJson.trim() != "") {
-			println("Se parsea el parametro artifactsJson con contenido: ${artifactsJson}")
+			log("Se parsea el parametro artifactsJson con contenido: ${artifactsJson}")
 			JsonSlurper jsonSlurper = new JsonSlurper();
 			def jsonObject = jsonSlurper.parseText(artifactsJson);
 			jsonObject.each {
@@ -455,12 +456,12 @@ public class XmlUtils {
 	 * @return
 	 */
 	@Deprecated
-	public static Node getPropNode(propName, doc, thisDoc, artifactId, file) {
+	public Node getPropNode(propName, doc, thisDoc, artifactId, file) {
 		def propNode;
-		if(XmlUtils.xpathNode(doc, "/project/properties/${propName}") != null) {
-			propNode = XmlUtils.xpathNode(doc, "/project/properties/${propName}");
-		} else if(XmlUtils.xpathNode(thisDoc, "/project/properties/${propName}") != null) {
-			propNode = XmlUtils.xpathNode(thisDoc, "/project/properties/${propName}");
+		if(xpathNode(doc, "/project/properties/${propName}") != null) {
+			propNode = xpathNode(doc, "/project/properties/${propName}");
+		} else if(xpathNode(thisDoc, "/project/properties/${propName}") != null) {
+			propNode = xpathNode(thisDoc, "/project/properties/${propName}");
 		} else {
 			throw new NumberFormatException(
 			"La dependencia \"${artifactId}\" del pom \"${file.getCanonicalPath()}\" tiene " +
@@ -479,25 +480,25 @@ public class XmlUtils {
 	 * @param value
 	 * @return Node ret
 	 */
-	public static NodeProps getFinalPropNode(File pomFile, Map<String,Map<String,String>> treeMap, String value, String nexusUrl = null) {
-		println("Intentando resolver la propiedad \"${value}\" contra el pom.xml \"${pomFile.getCanonicalPath()}\"");
+	public NodeProps getFinalPropNode(File pomFile, Map<String,Map<String,String>> treeMap, String value, String nexusUrl = null) {
+		log("Intentando resolver la propiedad \"${value}\" contra el pom.xml \"${pomFile.getCanonicalPath()}\"");
 		NodeProps ret = null;
-		def doc = XmlUtils.parseXml(pomFile);
+		def doc = parseXml(pomFile);
 		def cleanValue = value.substring(2, value.length() -1);
 
-		def propNode = XmlUtils.xpathNode(doc, "/project/properties/${cleanValue}");
+		def propNode = xpathNode(doc, "/project/properties/${cleanValue}");
 		if(propNode != null) {
 			def propValue = propNode.getTextContent();
 			if(!propValue.contains("\${")) {
-				println("Encontrado valor para ${cleanValue} en ${pomFile} = ${propNode.getTextContent()}")
+				log("Encontrado valor para ${cleanValue} en ${pomFile} = ${propNode.getTextContent()}")
 				ret = new NodeProps(doc, propNode, pomFile);
 				return ret;
 
 			} else if(propValue.contains("\${")) {
 				def cleanPropValue = propValue.substring(2, propValue.length() -1);
-				def nextPropNode = XmlUtils.xpathNode(doc,"/project/properties/${cleanPropValue}");
+				def nextPropNode = xpathNode(doc,"/project/properties/${cleanPropValue}");
 				if(nextPropNode == null) {
-					def parentNode = XmlUtils.xpathNode(doc, "/project/parent/artifactId");
+					def parentNode = xpathNode(doc, "/project/parent/artifactId");
 					if(parentNode != null) {
 						Map<String,String> parentProp = treeMap.getAt(parentNode.getTextContent());
 						def parentFilePath = parentProp.entrySet().iterator().next().getKey();
@@ -510,7 +511,7 @@ public class XmlUtils {
 			}
 		}
 		else if(propNode == null) {
-			def parentNode = XmlUtils.xpathNode(doc, "/project/parent");
+			def parentNode = xpathNode(doc, "/project/parent");
 			if(parentNode != null) {
 				String parentArtifactId = getChildNode(parentNode, "artifactId").getTextContent();
 				String parentGroupId = getChildNode(parentNode, "groupId").getTextContent();
@@ -520,12 +521,12 @@ public class XmlUtils {
 					if(nexusUrl != null) {
 						TmpDir.tmp { File tmpDir ->
 							NexusHelper nxHelper = new NexusHelper(nexusUrl);
-							nxHelper.initLogger { println it }
+							nxHelper.initLogger(this)
 							MavenCoordinates coord = new MavenCoordinates(parentGroupId, parentArtifactId, parentVersion);
 							coord.setPackaging("pom");
 							File parentPomFile = nxHelper.download(coord,tmpDir);
-							Document parentPomDoc = XmlUtils.parseXml(parentPomFile);
-							def parentPropNode = XmlUtils.xpathNode(parentPomDoc, "/project/properties/${cleanValue}");
+							Document parentPomDoc = parseXml(parentPomFile);
+							def parentPropNode = xpathNode(parentPomDoc, "/project/properties/${cleanValue}");
 							if(parentPropNode == null) {
 								// Propiedad no resuelta y estamos al final del árbol.
 								throw new NumberFormatException("La propiedad \"${cleanValue}\" no se puede resolver.");
@@ -534,7 +535,7 @@ public class XmlUtils {
 							}
 						}
 					} else {
-						println("[WARNING] No se ha indicado valor para \"nexusUrl\", no se podrá resolver la propiedad contra el pom padre \"${parentArtifactId}\".")
+						log("[WARNING] No se ha indicado valor para \"nexusUrl\", no se podrá resolver la propiedad contra el pom padre \"${parentArtifactId}\".")
 					}
 
 				}
@@ -555,15 +556,15 @@ public class XmlUtils {
 	 * @param baseDir
 	 * @return treeMap
 	 */
-	public static Map<String,Map<String,String>> getTreeNodesMap(File baseDir) {
+	public Map<String,Map<String,String>> getTreeNodesMap(File baseDir) {
 		Map<String,Map<String,String>> treeMap = [:];
 		baseDir.eachFileRecurse { File file ->
 			if(VersionerComun.pathAllowed(file) && file.getName() == "pom.xml") {
 				def thisFileProp = [:];
-				Document doc = XmlUtils.parseXml(file);
-				def artifactId = XmlUtils.xpathNode(doc, "/project/artifactId").getTextContent();
+				Document doc = parseXml(file);
+				def artifactId = xpathNode(doc, "/project/artifactId").getTextContent();
 
-				def parentNode = XmlUtils.xpathNode(doc, "/project/parent/artifactId");
+				def parentNode = xpathNode(doc, "/project/parent/artifactId");
 				def parentArtifactId;
 				if(parentNode != null) {
 					parentArtifactId = parentNode.getTextContent();
@@ -573,8 +574,83 @@ public class XmlUtils {
 				treeMap.put(artifactId, thisFileProp);
 			}
 		}
-		println("treemap->\n${treeMap}\n");
+		log("treemap->\n${treeMap}\n");
 		return treeMap;
+	}
+	
+	/**
+	 * Método que incrementa el dígito necesario en una versión según
+	 * la acción que se le asocie.
+	 * @param versionText Versión a modificar.
+	 * @param action Acción a realizar sobre la version.
+	 * @return newVersion Versión modificada.
+	 */
+	public String increaseVersionDigit(String versionText, String action, String releaseMantenimiento) {
+		def isSnapshot = versionText.contains("-SNAPSHOT");
+		def version = versionText.split("-SNAPSHOT")[0];
+		List versionDigits = version.split("\\.");		
+		def lastDigit = versionDigits.last();		
+		def penultimateDigit = versionDigits[versionDigits.size() - 2];		
+		def newVersion = "";
+		
+		if(action.toLowerCase().equals("release") && !releaseMantenimiento.equals("true")) {
+			def increasedDigit = penultimateDigit.toInteger() + 1;
+			versionDigits.set(versionDigits.size() - 2, increasedDigit);
+			// Se pone el último dígito a 0.
+			versionDigits.set(versionDigits.size() - 1, 0);
+			
+			for(int i = 0; i < versionDigits.size(); i++) {
+				if(i < versionDigits.size() - 1) {
+					newVersion = newVersion + versionDigits[i] + ".";
+				} else {
+					newVersion = newVersion + versionDigits[i];
+				}
+			}
+			if(isSnapshot) {
+				newVersion = newVersion + "-SNAPSHOT"
+			}			
+		}
+		
+		if(action.toLowerCase().equals("addfix") || (releaseMantenimiento.equals("true") && action.equals("release"))) {
+			def increasedDigit = lastDigit.split("-")[0].toInteger() + 1;
+			versionDigits.set(versionDigits.size() - 1, increasedDigit);			
+			for(int i = 0; i < versionDigits.size(); i++) {
+				if(i < versionDigits.size() - 1) {
+					newVersion = newVersion + versionDigits[i] + ".";
+				} else {
+					newVersion = newVersion + versionDigits[i];
+				}
+			}
+			if(isSnapshot) {
+				throw new NumberFormatException("Se está intentando hacer Fix de versiones en formato -SNAPSHOT");
+			}			
+		}
+		
+		if(action.toLowerCase().equals("addhotfix")) {
+			def increasedDigit;
+			if(lastDigit.split("-").size() == 1) {
+				// La versión no tenía todavía formato de hotfix (X.X.X... Y.Z)
+				increasedDigit = lastDigit + "-1";
+				
+			} else if(lastDigit.split("-").size() == 2) {
+				// La versión ya tenía formato de hotfix (X.X.X... Y.Z-H)
+				def hotFixDigit = lastDigit.split("-")[1].toInteger() + 1;
+				increasedDigit = lastDigit.split("-")[0] + "-" + hotFixDigit;				
+			}
+							
+			versionDigits.set(versionDigits.size() - 1, increasedDigit);			
+			for(int i = 0; i < versionDigits.size(); i++) {
+				if(i < versionDigits.size() - 1) {
+					newVersion = newVersion + versionDigits[i] + ".";
+				} else {
+					newVersion = newVersion + versionDigits[i];
+				}
+			}
+			if(isSnapshot) {
+				throw new NumberFormatException("Se está intentando hacer hotFix de versiones en formato -SNAPSHOT");
+			}			
+		}
+		return newVersion;
 	}
 
 }

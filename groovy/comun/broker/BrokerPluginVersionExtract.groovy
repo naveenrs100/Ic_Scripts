@@ -1,3 +1,5 @@
+package broker
+
 import groovy.util.XmlSlurper
 
 // slaveWorkspace viene en el primer parámetro

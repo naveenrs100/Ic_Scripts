@@ -1,10 +1,9 @@
+package clarive
+
 import hudson.model.*;
 import groovy.json.*;
 import es.eci.utils.ParamsHelper;
 import com.cloudbees.plugins.flow.FlowCause;
-
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
 
 def causa = build.getCause(Cause.UpstreamCause);
 if(causa == null) {

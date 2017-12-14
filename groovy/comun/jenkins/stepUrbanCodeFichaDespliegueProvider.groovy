@@ -1,8 +1,14 @@
+package jenkins
+
 /**
  * Llama a la clase UrbanCodeFichaDespliegue informando si ha sido ejecutado desde corriente o
  * desde componente, 
  */
 
+import java.util.List;
+
+import buildtree.BuildBean;
+import buildtree.BuildTreeHelper;
 import es.eci.utils.GlobalVars
 import es.eci.utils.JobRootFinder
 import es.eci.utils.ParamsHelper
@@ -11,34 +17,40 @@ import hudson.model.Result
 import urbanCode.UrbanCodeFichaDespliegue
 import urbanCode.UrbanCodeGenerateJsonDescriptor;
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver;
-
 ///////////////////////////////////////////////////////////////////////////////
 // Nexus
-String urlNexus =			build.getEnvironment(null).get("ROOT_NEXUS_URL");
 String urlNexusDeploy =		build.getEnvironment(null).get("NEXUS_FICHAS_DESPLIEGUE_URL");
+String uDeployUser =		build.buildVariableResolver.resolve("DEPLOYMENT_USER");
+String uDeployPass =		build.buildVariableResolver.resolve("DEPLOYMENT_PWD");
 // UC
 String udClientCommand =	build.getEnvironment(null).get("UDCLIENT_COMMAND");
 String urlUrbanCode =		build.getEnvironment(null).get("UDCLIENT_URL");
 String urbanUser =			build.getEnvironment(null).get("UDCLIENT_USER");
-String urbanPassword =		resolver.resolve("UDCLIENT_PASS");
+String urbanCodeEnv =		build.getEnvironment(null).get("entornoUrbanCode");
+String urbanPassword =		build.buildVariableResolver.resolve("UDCLIENT_PASS");
+boolean serviceStop =		false;
+if (build.buildVariableResolver.resolve("serviceStop") != null) {
+	serviceStop = build.buildVariableResolver.resolve("serviceStop");
+}
 // Clase - Lanzamiento desde corriente
 String urbanCodeApp =		build.getEnvironment(null).get("aplicacionUrbanCode");
 String urbanCodeSnapName =	build.getEnvironment(null).get("instantanea");
-boolean componentLauch =	false;
-String jobInvokerType =		resolver.resolve("jobInvokerType");
+String nuevaInstantanea =	build.getEnvironment(null).get("nuevaInstantanea");
+String jobInvokerType =		build.buildVariableResolver.resolve("jobInvokerType");
+String jobAction =			build.getEnvironment(null).get("action");
 String parentWorkspace =	build.getEnvironment(null).get("parentWorkspace");
+String systemWorkspace =	build.getEnvironment(null).get("WORKSPACE");
 // Clase - Lanzamiento desde componente
-String urbanCodeEnv =		build.getEnvironment(null).get("entornoUrbanCode");
+boolean componentLauch =	false;
 // Conexión con git
 String gitCommand =			build.getEnvironment(null).get("GIT_SH_COMMAND");
 String gitUser =			build.getEnvironment(null).get("GIT_USER");
 String gitHost =			build.getEnvironment(null).get("GIT_HOST");
-String gitGroup =			resolver.resolve("gitGroup");
-// Clase - Componentes de la release o del deploy de git
-String gitReleaseComp =		resolver.resolve("componentsUrban");
-String gitDeployComp =		resolver.resolve("finalComponentsList");
+String gitGroup =			build.buildVariableResolver.resolve("gitGroup");
+String targetBranch =		build.buildVariableResolver.resolve("targetBranch");
+
+// Mail
+String managersMail = 		build.getEnvironment(null).get("managersMail");
 
 ///////////////////////////////////////////////////////////////////////////////
 // Parámetros para la creación del descriptor
@@ -54,17 +66,23 @@ else {
 String rtcUser = 			build.getEnvironment(null).get("userRTC");
 String rtcUrl = 			build.getEnvironment(null).get("urlRTC");
 
-String stream = 			resolver.resolve("stream");
-String streamCargaInicial =	resolver.resolve("streamCargaInicial");
-String streamTarget = 		resolver.resolve("streamTarget").equals("") ? stream : resolver.resolve("streamTarget");
+String stream = 			build.buildVariableResolver.resolve("stream");
+String streamCargaInicial =	build.buildVariableResolver.resolve("streamCargaInicial");
+String streamTarget = 		build.buildVariableResolver.resolve("streamTarget").equals("") ? stream : build.buildVariableResolver.resolve("streamTarget");
 
-String rtcPass = 			resolver.resolve("pwdRTC");
+String rtcPass = 			build.buildVariableResolver.resolve("pwdRTC");
 
 // Esta es la variable final que se envia a la clase
 String theStream = stream;
 
 if (streamCargaInicial != null && streamCargaInicial.trim().length() > 0) {
 	theStream = streamCargaInicial;
+}
+
+// Lanza la ficha aunque el proceso padre no haya acabado correctamente
+boolean forceLaunch =		false;
+if (build.buildVariableResolver.resolve("forceLaunch") != null) {
+	forceLaunch = Boolean.valueOf(build.buildVariableResolver.resolve("forceLaunch"));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,15 +92,15 @@ def isNull = { String s ->
 }
 
 def urbanConnect = 			build.getEnvironment(null).get("URBAN_CONNECTION");
-def urbanConnLocal = 		resolver.resolve("URBAN_CONNECTION");
+def urbanConnLocal = 		build.buildVariableResolver.resolve("URBAN_CONNECTION");
 urbanConnect = (urbanConnLocal == null || (urbanConnLocal != "true" && urbanConnLocal != "false")) ? urbanConnect : urbanConnLocal;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-JobRootFinder finder = new JobRootFinder(build);
+JobRootFinder finder = new JobRootFinder();
 finder.initLogger { println it }
 
-AbstractBuild ancestor = finder.getRoot();
+AbstractBuild ancestor = finder.getRootBuild(build);
 
 // Si se ha lanzado desde componente
 if (ancestor.getProject().getName().contains("-COMP-")) {
@@ -90,27 +108,50 @@ if (ancestor.getProject().getName().contains("-COMP-")) {
 	componentLauch = true
 }
 
+println "---------------------------------------------"
 println "jobInvokerType: " + jobInvokerType
 println "componentLauch: " + componentLauch
+println "jobAction: " + jobAction
+println "forceLaunch: " + forceLaunch
+println "---------------------------------------------"
+
+// Si lanzamos un deploy, cargamos el árbol de lanzamiento y nos lo llevamos a
+// UrbanCodeGenerateJsonDescriptor para parsearlo y obtener los builtVersion
+List<BuildBean> beanListTree = null
+if (jobAction == "deploy") {
+	BuildTreeHelper btHelperExecute = new BuildTreeHelper()
+	beanListTree = btHelperExecute.executionTree(ancestor);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Si ha terminado ok, continuamos
-if (ancestor.getResult() == Result.SUCCESS) {
+// Si ha terminado ok, o es un lanzamiento manual, continuamos
+if ( (ancestor.getResult() == Result.SUCCESS) || (forceLaunch) ) {
 	
-	if ( (componentLauch && jobInvokerType.equals("components")) || (!componentLauch && jobInvokerType.equals("streams")) ) {
+	// Si viene desde corriente o es un lanzamiento manual, continuamos
+	if ( (!componentLauch && jobInvokerType.equals("streams")) || (forceLaunch) ) {
 		
 		// Generamos el descriptor
 		UrbanCodeGenerateJsonDescriptor generateJsonDesc = new UrbanCodeGenerateJsonDescriptor();
 			
-		generateJsonDesc.setUrlNexus(urlNexus)
+		generateJsonDesc.setUrlNexus(urlNexusDeploy)
+		generateJsonDesc.setuDeployUser(uDeployUser)
+		generateJsonDesc.setuDeployPass(uDeployPass)
 		generateJsonDesc.setMaven(maven)
 		generateJsonDesc.setParentWorkspace(parentWorkspace)
+		generateJsonDesc.setSystemWorkspace(systemWorkspace)
+		generateJsonDesc.setUdClientCommand(udClientCommand)
+		generateJsonDesc.setUrlUrbanCode(urlUrbanCode)
+		generateJsonDesc.setUrbanUser(urbanUser)
+		generateJsonDesc.setUrbanPassword(urbanPassword)
 		generateJsonDesc.setNombreAplicacionUrban(urbanCodeApp)
 		generateJsonDesc.setInstantaneaUrban(urbanCodeSnapName)
+		generateJsonDesc.setNuevaInstantaneaUrban(nuevaInstantanea)
 		generateJsonDesc.setGroupIdUrbanCode(groupIdUrbanCode)
+		generateJsonDesc.setActionDescUrban(jobAction)
 		generateJsonDesc.setStreamTarget(streamTarget)
 		generateJsonDesc.setStream(theStream)
+		generateJsonDesc.setStreamFicha(stream)
 		generateJsonDesc.setRtcPass(rtcPass)
 		generateJsonDesc.setRtcUser(rtcUser)
 		generateJsonDesc.setRtcUrl(rtcUrl)
@@ -118,8 +159,10 @@ if (ancestor.getResult() == Result.SUCCESS) {
 		generateJsonDesc.setGitUser(gitUser)
 		generateJsonDesc.setGitHost(gitHost)
 		generateJsonDesc.setGitGroup(gitGroup)
-		generateJsonDesc.setGitReleaseComp(gitReleaseComp)
-		generateJsonDesc.setGitDeployComp(gitDeployComp)
+		generateJsonDesc.setTargetBranch(targetBranch)
+		generateJsonDesc.setBeanListTree(beanListTree)
+		generateJsonDesc.setForceLaunch(forceLaunch)
+		generateJsonDesc.setManagersMail(managersMail)
 			
 		generateJsonDesc.initLogger { println it }
 				
@@ -144,9 +187,9 @@ if (ancestor.getResult() == Result.SUCCESS) {
 			urbanExecutor.setDescriptor(descriptor)
 			urbanExecutor.setNombreAplicacionUrban(urbanCodeApp)
 			urbanExecutor.setInstantaneaUrban(urbanCodeSnapName)
-				
-			urbanExecutor.setComponentLauch(componentLauch)
+
 			urbanExecutor.setEntornoUrban(urbanCodeEnv)
+			urbanExecutor.setServiceStop(serviceStop)
 			
 			urbanExecutor.initLogger { println it }
 			urbanExecutor.execute()

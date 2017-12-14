@@ -5,15 +5,17 @@ import java.util.Map;
 import es.eci.utils.base.JSONBean
 
 /**
- * Codifica un json de este aspecto
+ * Este bean se corresponde con un json de solicitud de proceso de Urban Code:
+ * <pre>
  {
-		  "application": "00010-moonshine",
-		  "applicationProcess": "Despliegue APP",
-		  "environment": "NFT",
-		  "onlyChanged": "false",
-		  "snapshot": "ENTORNO-VERSION"
- }
- Utilizado para lanzar el despliegue de una instantánea
+	"application": "00010-moonshine",
+	"applicationProcess": "Despliegue APP",
+	"environment": "NFT",
+	"onlyChanged": "false",
+	"snapshot": "ENTORNO-VERSION"
+ }</pre><br/>
+ Utilizado para lanzar el despliegue de una instantánea.  
+ @see <a href="https://www-01.ibm.com/support/knowledgecenter/SS4GSP_6.1.2/com.ibm.udeploy.reference.doc/topics/cli_commands.html">Documentación del cliente udclient en IBM</a>
  */
 class UrbanCodeApplicationProcess extends JSONBean {
 	

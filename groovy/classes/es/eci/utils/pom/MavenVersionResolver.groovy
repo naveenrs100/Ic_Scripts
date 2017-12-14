@@ -97,7 +97,7 @@ class MavenVersionResolver extends Loggable {
 					if (versionParser.data.version.size() != 1 ){
 						throw new Exception('Se ha obtenido un número de vesiones distinto del esperado')
 					} else {
-						System.out.println('Version recuperada: ' + versionParser.data.version.get(0).value())
+						log('Version recuperada: ' + versionParser.data.version.get(0).value())
 						ret = versionParser.data.version.get(0).value()
 						ret = ret.substring(1, ret.length()-1)
 					}

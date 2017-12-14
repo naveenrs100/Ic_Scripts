@@ -1,14 +1,13 @@
+package jenkins
+
 import hudson.model.*
 import jenkins.model.*
 import es.eci.utils.*
 import es.eci.utils.pom.ArtifactsFinder
 import es.eci.utils.pom.MavenCoordinates
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
-
 // Parámetros
-File folder = new File(resolver.resolve("parentWorkspace"))
+File folder = new File(build.buildVariableResolver.resolve("parentWorkspace"))
 
 // 1- Buscar coordenadas de los artefactos agrupados por tipo
 Map artefactos = ArtifactsFinder.findByPackaging(folder, null)

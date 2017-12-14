@@ -2,13 +2,13 @@ package rtc.commands
 
 import java.nio.channels.FileLock
 
-import rtc.RTCUtils
 import es.eci.utils.ParameterValidator
 import es.eci.utils.ScmCommand
 import es.eci.utils.Stopwatch
+import es.eci.utils.StringUtil
 import es.eci.utils.TmpDir
-import es.eci.utils.base.Loggable
 import groovy.json.JsonSlurper
+import rtc.RTCUtils
 
 /**
  * Esta clase modela un comando de carga de código desde RTC hacia local (comando
@@ -261,7 +261,9 @@ class RTCDownloaderCommand extends AbstractRTCCommand {
 			Object objSalientes = new JsonSlurper().parseText(dumpSalientes);		
 			if (objSalientes["direction"].size() > 0) {
 				objSalientes["direction"].each { direction ->
-					if (direction["outgoing-changes"] == true) {
+					if (direction["outgoing-changes"] == true && StringUtil.isNull(baseline)) {
+						// Se asume que una línea base puede tener cambios 'salientes', es decir, que se hayan
+						//	echado atrás en la corriente
 						direction.components.each { outGoingComponent ->
 							if (outGoingComponent.name == component 
 									&& (outGoingComponent.changesets != null || outGoingComponent.baselines != null)) {
@@ -270,18 +272,23 @@ class RTCDownloaderCommand extends AbstractRTCCommand {
 								log "Outgoing changes! Last release was surely wrong.  Replacing component ${component} with latest from ${stream} ..."
 								TmpDir.tmp { File dirRemove ->
 									ScmCommand removeCommand = 
-									new ScmCommand(false, scmToolsHome, daemonsConfigDir.getCanonicalPath());
+									new ScmCommand(true, scmToolsHome, daemonsConfigDir.getCanonicalPath());
 									removeCommand.initLogger(this);
-									executeScmCommand(removeCommand, 
-										"remove component --ignore-uncommitted \"${workspaceRTC}\" \"$component\" ", 
-										dirRemove);
-									RTCUtils.exitOnError(
-										removeCommand.getLastResult(), "Removing component");
-									executeScmCommand(removeCommand, 
-										"workspace add-components \"${workspaceRTC}\" -s \"$stream\" \"$component\" ", 
-										dirRemove);
-									RTCUtils.exitOnError(
-										removeCommand.getLastResult(), "Adding component");
+									try {
+										executeScmCommand(removeCommand, 
+											"remove component --ignore-uncommitted \"${workspaceRTC}\" \"$component\" ", 
+											dirRemove);
+										RTCUtils.exitOnError(
+											removeCommand.getLastResult(), "Removing component");
+										executeScmCommand(removeCommand, 
+											"workspace add-components \"${workspaceRTC}\" -s \"$stream\" \"$component\" ", 
+											dirRemove);
+										RTCUtils.exitOnError(
+											removeCommand.getLastResult(), "Adding component");
+									}
+									finally {
+										removeCommand.detenerDemonio(dirRemove);
+									}
 								}
 							}
 						}

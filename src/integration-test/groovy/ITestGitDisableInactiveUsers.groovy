@@ -21,6 +21,11 @@ class ITestGitDisableInactiveUsers extends BaseTest {
 		
 		command.initLogger { println it }
 		
-		command.execute();
+		try {
+			command.execute();
+		}
+		catch (Exception e) {
+			println "Se han encontrado usuarios inactivos"
+		}
 	}
 }

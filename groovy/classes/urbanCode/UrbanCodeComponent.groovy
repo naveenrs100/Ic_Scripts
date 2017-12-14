@@ -1,12 +1,9 @@
-/**
- * 
- */
 package urbanCode
 
 import es.eci.utils.base.JSONBean;
 
 /**
- * Esta clase modela la información para crear una versión de componente en Urban
+ * Este bean modela la información para crear una versión de componente en Urban
  * Code.
  */
 class UrbanCodeComponent extends JSONBean {

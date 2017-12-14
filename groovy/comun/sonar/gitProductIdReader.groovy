@@ -1,3 +1,5 @@
+package sonar
+
 import java.beans.XMLEncoder
 
 import es.eci.utils.ParamsHelper
@@ -23,10 +25,7 @@ import jenkins.model.Jenkins
 println "================================================="
 println "Inicio de gitProductIdReader..."
 
-
-def build = Thread.currentThread().executable;
 File workspace = new File(build.workspace.toString())
-def resolver = build.buildVariableResolver;
 
 File groupsFile = new File(workspace, "gitlab_groups.json")
 assert groupsFile.exists()

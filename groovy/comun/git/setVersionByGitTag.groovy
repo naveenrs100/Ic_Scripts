@@ -1,11 +1,10 @@
+package git
+
 import es.eci.utils.ParamsHelper;
 import hudson.model.*;
 import es.eci.utils.commandline.CommandLineHelper;
 
-def build = Thread.currentThread().executable;
-def resolver = build.buildVariableResolver;
-
-def version = resolver.resolve("version");
+def version = build.buildVariableResolver.resolve("version");
 
 if(version == null || version.trim().equals("")) {
   def getTgCommand = "/jenkins/buildtools/gitAIX/git.sh for-each-ref --sort=taggerdate --format '%(refname) %(taggerdate)' refs/tags";

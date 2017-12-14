@@ -90,7 +90,7 @@ class RTCLoadWorkspaceCommand extends AbstractRTCCommand {
 				if (light) {
 					command.detenerDemonio(new File(sandbox));
 				}
-				new File (sandbox).each { println it }
+				new File (sandbox).each { log it }
 			}
 		}
 		log "stepRTCCreateWorkspace: ${millis} mseg."

@@ -25,7 +25,7 @@ class ParamsHelper {
 	} 
 	
 	/**
-	 * Añade un parámetro por su clave a los parámetros actuales del build.
+	 * Añade una tabla de parejas clave/valor a los parámetros actuales del build.
 	 * @param build Objeto build de jenkins
 	 * @param theParams Tabla de parámetros definidos por clave / valor
 	 */
@@ -55,15 +55,11 @@ class ParamsHelper {
 		def paramsIn = build?.actions.find{ it instanceof ParametersAction }?.parameters
 		def index = build?.actions.findIndexOf{ it instanceof ParametersAction }
 		def params = [];
-		println("paramsIn: ${paramsIn}")
-		println("paramsToDelete: ${paramsToDelete}")
 		if (paramsIn!=null) {
 			for(param in paramsIn) {
 				// Añadimos sólo los parámetros que no están en
 				// la lista de parámetros a borrar.
-				println("Comparamos: ${param.getName()} con cada  ${paramsToDelete}")
 				if(!paramsToDelete.contains(param.getName())) {
-					println("Se añade el parámetros ${param}")
 					params.add(param)
 				}
 			}

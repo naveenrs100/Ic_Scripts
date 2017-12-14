@@ -29,6 +29,8 @@ class TestNpm extends GroovyTestCase{
 		test = nh.addPaddingToVersion("1.0.1234");
 		assert test  == "1.0.1234"
 		
+		test = nh.addPaddingToVersion("1.0.0.0");
+		assert test  == "1.0.0.0"
 		
 		test = nh.addPaddingToVersion("1.0.1234-SNAPSHOT");
 		assert test  == "1.0.1234-SNAPSHOT"

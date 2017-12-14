@@ -1,3 +1,5 @@
+package git
+
 import es.eci.utils.ParamsHelper;
 import git.GitUtils;
 
@@ -19,22 +21,19 @@ import git.GitUtils;
  * version
  */
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
-
-def version = resolver.resolve("version");
-def builtVersion = resolver.resolve("builtVersion");
+def version = build.buildVariableResolver.resolve("version");
+def builtVersion = build.buildVariableResolver.resolve("builtVersion");
 
 if (version == null || version.trim().length() == 0) {
 
 	println "Calculando la versión..."
 	
 	// Parámetros de entrada
-	def gitGroup = resolver.resolve("gitGroup");
-	def branch = resolver.resolve("branch")
+	def gitGroup = build.buildVariableResolver.resolve("gitGroup");
+	def branch = build.buildVariableResolver.resolve("branch")
 	def gitHost = build.getEnvironment(null).get("GIT_HOST"); 
 	def gitCommand = build.getEnvironment(null).get("GIT_SH_COMMAND");
-	def gitRepository = resolver.resolve("component")
+	def gitRepository = build.buildVariableResolver.resolve("component")
 	
 	GitUtils utils = new GitUtils("git", gitHost, gitCommand)
 	utils.initLogger { println it }

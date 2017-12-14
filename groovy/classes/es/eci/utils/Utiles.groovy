@@ -160,13 +160,13 @@ class Utiles {
 	 * @param fichero Fichero de origen.
 	 * @param dirDestino Ruta del directorio de destino.
 	 */
-	public static void copiar (File fichero, String dirDestino) {
-		new File(dirDestino).mkdirs()
-		def rutaDestino = dirDestino + System.getProperty("file.separator") + fichero.getName()
+	public static void copy (File file, String target) {
+		new File(target).mkdirs()
+		def rutaDestino = target + System.getProperty("file.separator") + file.getName()
 		File destino = new File(rutaDestino)
 		destino.getParentFile().mkdirs()
 		destino.createNewFile()
-		destino.bytes = fichero.bytes
+		destino.bytes = file.bytes
 	}
 	
 	/**
@@ -174,20 +174,20 @@ class Utiles {
 	 * @param origen Directorio origen.
 	 * @param dest Directorio destino.
 	 */
-	public static void copiarDirectorios(File origen, File dest) {
-		if (origen != null && dest != null && origen.isDirectory() && origen.exists()) {
-			if (!dest.exists()) {
-				dest.mkdirs()
+	public static void copyDirectories(File source, File target) {
+		if (source != null && target != null && source.isDirectory() && source.exists()) {
+			if (!target.exists()) {
+				target.mkdirs()
 			}
-			File[] ficheros  = origen.listFiles()
-			ficheros.each { fichero ->
-				File fileDest = new File(dest.getCanonicalPath() + System.getProperty("file.separator") + fichero.getName())
-				if (fichero.isFile()) {
+			File[] files  = source.listFiles()
+			files.each { File file ->
+				File fileDest = new File(target, file.getName())
+				if (file.isFile()) {
 					fileDest.createNewFile()
-					fileDest.bytes = fichero.bytes
+					fileDest.bytes = file.bytes
 				}
-				else if (fichero.isDirectory()) {
-					copiarDirectorios(fichero, fileDest)
+				else if (file.isDirectory()) {
+					copyDirectories(file, fileDest)
 				}
 			}
 		}

@@ -1,3 +1,5 @@
+package git
+
 import java.util.List;
 import git.commands.GitCloneCommand
 import git.commands.GitLogCommand
@@ -10,15 +12,12 @@ import groovy.json.*;
 
 println("Comienza el setJobsAsParams:");
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
-
-def gitGroup = resolver.resolve("gitGroup");
-def branch = resolver.resolve("branch")
+def gitGroup = build.buildVariableResolver.resolve("gitGroup");
+def branch = build.buildVariableResolver.resolve("branch")
 def gitHost = build.getEnvironment(null).get("gitHost");
 
 def parentWorkspace = "${build.workspace}";
-def getOrdered = resolver.resolve("getOrdered");
+def getOrdered = build.buildVariableResolver.resolve("getOrdered");
 File jenkinsComponentsJobsFile = new File("${parentWorkspace}/jenkinsComponentsJobs.txt");
 
 def components = []

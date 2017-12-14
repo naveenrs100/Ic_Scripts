@@ -1,13 +1,16 @@
 package buildtree
 
-import hudson.model.*
-
 import java.util.EnumSet;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.concurrent.TimeUnit;
 
-import es.eci.utils.base.Loggable;
+import es.eci.utils.ParamsHelper
+import es.eci.utils.StringUtil
+import es.eci.utils.base.Loggable
+import hudson.model.AbstractBuild
+import hudson.model.Hudson
+import hudson.model.Result
 
 /**
  * Esta clase implementa la lectura del árbol de ejecución de un job en jenkins.
@@ -52,7 +55,7 @@ class BuildTreeHelper extends Loggable {
 		def b = Thread.currentThread().executable;
 		def resolver = b.buildVariableResolver;
 		
-		Build build = Hudson.getInstance().getJob(jobName).getBuildByNumber(buildNumber)
+		AbstractBuild build = Hudson.getInstance().getJob(jobName).getBuildByNumber(buildNumber)
 		return executionTree(build);
 	}
 	
@@ -63,11 +66,13 @@ class BuildTreeHelper extends Loggable {
 	 * @return Lista de ejecuciones de jobs, ordenada en profundidad, lanzadas a partir
 	 * de la que se ha pasado como parámetro. 
 	 */
-	public List<BuildBean> executionTree(Build build) {
+	public List<BuildBean> executionTree(AbstractBuild build) {
 		// Lista de ocurrencias registradas		
 		def ocurrencias = []		
 		// Lista con el resultado final
-		List<BuildBean> resultList = []
+		List<BuildBean> resultList = [
+			new BuildBean(build)	
+		]
 		
 		log "root project name: ${build.getProject().name}"
 		
@@ -82,16 +87,35 @@ class BuildTreeHelper extends Loggable {
 		    ocurrencias = tail(ocurrencias);
 			String name = item.getName()
 		    def number = item.getBuildNumber()
-		    Build proyecto = Hudson.getInstance().getJob(name).getBuildByNumber(number);
+		    AbstractBuild proyecto = Hudson.getInstance().getJob(name).getBuildByNumber(number);
 		    if (proyecto != null) {
 		      item.setDuration(proyecto.getDuration());
-		      item.setResult(proyecto.getResult());
+		      item.setResult(proyecto.getResult().toString());
 			  String description = firstLine(proyecto.project.description);
 			  if (description == null || description.trim().length() == 0) {
 				  description = name;
 			  } 
 		      item.setDescription(description);
 			  item.setLogTail(proyecto.getLog(this.lines));
+			  // Intentar recuperar la versión construida
+			  String builtVersion = ParamsHelper.getParam(proyecto, "builtVersion");
+			  if (!StringUtil.isNull(builtVersion)) {
+				  item.setBuiltVersion(builtVersion);
+			  }
+			  else if (!StringUtil.isNull(ParamsHelper.getParam(proyecto, "version"))) {
+			  	  // Algunos build legacy llevan un parámetro version
+				  item.setBuiltVersion(ParamsHelper.getParam(proyecto, "version"));
+			  }
+			  // Intentar recuperar el componente construido
+			  // Algunos wf antiguos tienen jobs que acaban en -COMP-
+			  // En estos casos el nombre de componente se encuentra en 
+			  //	un parámetro 'artifactId' o bien 'component'
+			  if (!StringUtil.isNull(ParamsHelper.getParam(proyecto, "component"))) {
+				  item.setComponent(ParamsHelper.getParam(proyecto,"component"));
+			  }
+			  else if (!StringUtil.isNull(ParamsHelper.getParam(proyecto,"artifactId"))) {
+				  	item.setComponent(ParamsHelper.getParam(proyecto,"artifactId"));
+			  }
 		      ocurrencias = findJobChildren(proyecto, ocurrencias, item.getDepth())
 		      
 		      resultList.add(item)
@@ -167,7 +191,7 @@ class BuildTreeHelper extends Loggable {
 	 * 	si hubiera habido alguno
 	 */
 	private List<BuildBean> findJobChildren(
-			Build buildInvoker, 
+			AbstractBuild buildInvoker, 
 			List<BuildBean> ocurrencias, 
 			Integer parentDepth = null) {
 	    List<BuildBean> result = []
@@ -181,26 +205,34 @@ class BuildTreeHelper extends Loggable {
 	        if (match != null) {
 			  String childExecutionName = match[1].toString() 
 			  Integer childExecutionNumber = Integer.valueOf(match[2].toString().substring(1))
-		      def ocurrencia = 
-		            new BuildBean(childExecutionName, 
-		                          childExecutionNumber,
-		                          Result.fromString(match[3].toString()), 
-								  (parentDepth == null?0:parentDepth + 1));
-	          if (!ocurrencias.contains(ocurrencia)) {
-	          	result.add(ocurrencia)
-	          }            
-			  else {
-				  // A veces, el log puede presentarnos una ejecución "demasiado pronto",
-				  //	mostrándonosla en el log de una ejecución que no es el padre 
-				  //	inmediato.  Para corregir esto, recuperamos la ocurrencia y actualizamos
-				  //	su profundidad si nos la volvemos a encontrar más abajo
-				  ocurrencias.findAll { BuildBean it -> 
-					  it.getName().equals(ocurrencia.getName()) &&
-					  	it.getBuildNumber().equals(ocurrencia.getBuildNumber())
-				  }.each { BuildBean it ->
-				  	// Actualizar la profundidad
-				  	it.setDepth(parentDepth + 1)
+			  def job = Hudson.getInstance().getJob(childExecutionName).
+								  	getBuildByNumber(childExecutionNumber);
+			  if (job != null) {
+			      def ocurrencia = 
+			            new BuildBean(childExecutionName, 
+			                          childExecutionNumber,
+									  job.getStartTimeInMillis(),
+			                          Result.fromString(match[3].toString()).toString(), 
+									  (parentDepth == null?0:parentDepth + 1));
+		          if (!ocurrencias.contains(ocurrencia)) {
+		          	result.add(ocurrencia)
+		          }            
+				  else {
+					  // A veces, el log puede presentarnos una ejecución "demasiado pronto",
+					  //	mostrándonosla en el log de una ejecución que no es el padre 
+					  //	inmediato.  Para corregir esto, recuperamos la ocurrencia y actualizamos
+					  //	su profundidad si nos la volvemos a encontrar más abajo
+					  ocurrencias.findAll { BuildBean it -> 
+						  it.getName().equals(ocurrencia.getName()) &&
+						  	it.getBuildNumber().equals(ocurrencia.getBuildNumber())
+					  }.each { BuildBean it ->
+					  	// Actualizar la profundidad
+					  	it.setDepth(parentDepth + 1)
+					  }
 				  }
+			  }
+			  else {
+				  println "Descartando ${childExecutionName}:${childExecutionNumber} puesto que no se encuentra ya el job"
 			  }
 	        }
 	      }

@@ -83,7 +83,15 @@ public class ParameterValidator {
 		// Construye una validación informada
 		public Validation(String param, Object actual) {
 			// Por defecto se limita a comprobar que el objeto no sea nulo
-			this(param, actual, { return actual != null })
+			this(param, actual, { 
+					if (actual instanceof String) {
+						return StringUtil.notNull(actual)
+					}
+					else {
+						return actual != null
+					} 
+				}
+			)
 		}
 		
 		// Construye una validación informada

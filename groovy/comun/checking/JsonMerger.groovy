@@ -1,13 +1,13 @@
+package checking
+
 //$JENKINS_HOME/jobs/ScriptsCore/workspace/groovy/comun/checking/JsonMerger.groovy
-import hudson.model.*
 import groovy.json.*
-import java.io.*
+import hudson.model.*
+
 import java.text.Normalizer
-  
-def resolver = build.buildVariableResolver
-  
-def fileNameList = resolver.resolve("fileNameList")
-def outFileName = resolver.resolve("outFileName")
+
+def fileNameList = build.buildVariableResolver.resolve("fileNameList")
+def outFileName = build.buildVariableResolver.resolve("outFileName")
 
 def projectAreas = [:]
 projectAreas.projectAreas = [:]

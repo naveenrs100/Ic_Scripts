@@ -1,3 +1,5 @@
+package checking
+
 import groovy.net.xmlrpc.*
 import java.util.Hashtable
 /**

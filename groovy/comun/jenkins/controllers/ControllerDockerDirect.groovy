@@ -1,4 +1,4 @@
-package controllers
+package jenkins.controllers
 
 import hudson.model.ParametersAction;
 
@@ -10,12 +10,10 @@ import hudson.model.ParametersAction;
 //-----------------------------------------------------------------
 
 String handle = params["identificador"];;
-//def slaveJavaHome = build.getEnvironment().get("SLAVE_JAVA_HOME")
-//println "slaveJavaHome: $slaveJavaHome"
 
 def swarmNode = getNode(handle,
-	Long.valueOf(build.getEnvironment().get("DOCKER_SLAVE_DETECTION_MSEC")),
-	Integer.valueOf(build.getEnvironment().get("DOCKER_SLAVE_DETECTION_TRIES")));
+		Long.valueOf(build.getEnvironment().get("DOCKER_SLAVE_DETECTION_MSEC")),
+		Integer.valueOf(build.getEnvironment().get("DOCKER_SLAVE_DETECTION_TRIES")));
 if (swarmNode == null) throw new Exception("El esclavo no ha arrancado");
 println "Nodo levantado en contenedor Docker: $swarmNode";
 
@@ -23,15 +21,17 @@ def populateParams = [:];
 populateParams.put("WHERE", swarmNode.getNodeName());
 build(populateParams, "PopulateSlave");
 
-
 // Lanzar los jobs en la lista contra el nodo indicado
 def jobs = params["jobsList"].split("\n");
 def listaSkipsParam = params["listaSkips"];
 def listaSkips = listaSkipsParam!=null?listaSkipsParam.split(","):[];
 
-//println "jobs-> ${jobs}"
 Boolean ok = true;
+Boolean unstable = false;
 def b = null;
+
+int jobsNumber = jobs.size();
+int failCount = 0;
 
 ignore(ABORTED) {
 	jobs.each { String job ->
@@ -53,64 +53,68 @@ ignore(ABORTED) {
 					}
 				}
 			}
-			//jobParams.put("JAVA_HOME", slaveJavaHome);
 			jobParams.put("WHERE", swarmNode.getNodeName());
-		  
-			  //println("Se esta asignando el JAVA_HOME = [${slaveJavaHome}]");
 
 			println("El estado del flow por ahora es: ok=${ok}");
 			if (ok) {
 				println "********** EJECUTANDO job: \"${jobx}\"";
-				//println("Lanzado con valores:");
-				//jobParams.keySet().each { key->
-				//	println("${key} -> " + jobParams.getAt(key));
-				//}
 				println "INICIO: ${new Date()} ---";
-				// Si el job no es bloqueante tendrá el parámetro "block" a "false".
-				//En todo caso el resultado será "SUCCESS".
+				// Si el job no es bloqueante tendrÃ¡ el parÃ¡metro "block" a "false".
+				//En todo caso el resultado serÃ¡ "SUCCESS".
 				if (jobParams["block"]=="false") {
 					println("El job ${jobx} no es bloqueante.")
-					try {
+					if(jobParams["markUnstable"]=="true") {
+						println("El job ${jobx} puede marcar la construcción como inestable.");
 						b = buildSkip(jobParams, jobx, listaSkips);
-						build.getState().setResult(SUCCESS);
-					} catch(Exception e) {
-						build.getState().setResult(SUCCESS);
+						if(b.getResult()!=SUCCESS) {
+							unstable = true;
+							if(b.getResult()==FAILURE) {
+								failCount++;
+								build.getState().setResult(SUCCESS);
+							}
+						}
+					} else {
+						try {
+							b = buildSkip(jobParams, jobx, listaSkips);
+							build.getState().setResult(SUCCESS);
+						} catch(Exception e) {
+							build.getState().setResult(SUCCESS);
+						}
 					}
-					// Si el job es bloqueante tendrá el parámetro "block" distinto de "false".
+					// Si el job es bloqueante tendrÃ¡ el parÃ¡metro "block" distinto de "false".
 				} else {
 					println("El job ${jobx} es bloqueante.")
 					b = buildSkip(jobParams, jobx, listaSkips);
-//					def thisJobParameters = b.actions.find{ it instanceof ParametersAction }.parameters
-//					println("Lanzado con valores:")
-//					thisJobParameters.each {
-//					   println "parameter ${it.name}:";
-//					   println it.value;
-//					}
-//					println(" --- --- ---")
-					if (b!=null){
+					if (b!=null) {
 						ok = b.getResult()==SUCCESS;
 					}
 				}
 				if (b!=null) {
-					println "FIN:    ${new Date()} ---";
-					// println(b.getBuild().getLog());
+					println("FIN:	${new Date()} ---");
 				}
-				println "FIN: ${new Date()} ---";
+				println("FIN: ${new Date()} ---");
 			}
 		}
 	}
 }
 
 // Finalmente, destruimos el contenedor creado en todo caso al final del Controller.
-//dockerDestroy(handle);
+if(unstable) {
+	if(failCount == jobsNumber) {
+		build.getState().setResult(FAILURE);
+	} else {
+		build.getState().setResult(UNSTABLE);
+	}
+}
 if(!ok) {
 	build.getState().setResult(FAILURE);
 }
 
-// Función que nos permite referirnos al nodo levantado en el contenedor Docker
+
+// FunciÃ³n que nos permite referirnos al nodo levantado en el contenedor Docker
 def getNode(String handle, long msecWait, int triesLeft) {
-		long startGetNode = new java.util.Date().getTime();
-	// Se puede sacar a una configuración externa
+	long startGetNode = new java.util.Date().getTime();
+	// Se puede sacar a una configuraciÃ³n externa
 	def lookForNode = { String pattern ->
 		def ret = null;
 		for (slave in hudson.model.Hudson.instance.slaves) {
@@ -122,8 +126,8 @@ def getNode(String handle, long msecWait, int triesLeft) {
 	}
 	def ret = null;
 	// lo intenta $triesLeft veces, separadas cada una por periodos de
-	//    de $msecWait milisegundos.  Pasado este tiempo, asume que el
-	//    esclavo swarm no ha conseguido levantarse.
+	// de $msecWait milisegundos.  Pasado este tiempo, asume que el
+	// esclavo swarm no ha conseguido levantarse.
 	while (ret == null && triesLeft > 0) {
 		ret = lookForNode(handle);
 		if (ret == null) {
@@ -131,12 +135,12 @@ def getNode(String handle, long msecWait, int triesLeft) {
 			Thread.sleep(msecWait);
 		}
 	}
-		long endGetNode = new java.util.Date().getTime();
-		println "Tiempo empleado en buscar el nodo: " + (endGetNode  - startGetNode ) + " mseg"
+	long endGetNode = new java.util.Date().getTime();
+	println "Tiempo empleado en buscar el nodo: " + (endGetNode  - startGetNode ) + " mseg"
 	return ret;
 }
 
-// Ejecución sólo de los jobs que no formen parte de listaSkips
+// EjecuciÃ³n sÃ³lo de los jobs que no formen parte de listaSkips
 def buildSkip(paramsLocal, job, listaSkips) {
 	def b = null;
 	if (listaSkips.find{skip -> job==skip}!=null) {
@@ -171,7 +175,7 @@ def injectParam(String valor) {
 			indice = ret.indexOf("\${", indice);
 			if (indice != -1) {
 				def remp=params[ret.substring(ret.indexOf("{", indice)+1,ret.indexOf("}", indice))];
-				// Detección temprana de bucles
+				// DetecciÃ³n temprana de bucles
 				if (remp == valor) {
 					throw new Exception("Bucle infinito detectado en $valor");
 				}

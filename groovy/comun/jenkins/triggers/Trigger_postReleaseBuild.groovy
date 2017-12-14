@@ -1,3 +1,5 @@
+package jenkins.triggers
+
 import hudson.model.*;
 import es.eci.utils.JobRootFinder;
 
@@ -22,7 +24,7 @@ def setParams(build, params) {
 		build?.actions.add(new ParametersAction(paramsTmp))
 	}
 
-JobRootFinder jRootFinder = new JobRootFinder(build);
+JobRootFinder jRootFinder = new JobRootFinder();
 def rootResult = jRootFinder.getRootBuild(build).getResult();
 println("Resultado del padre: " + rootResult);
 

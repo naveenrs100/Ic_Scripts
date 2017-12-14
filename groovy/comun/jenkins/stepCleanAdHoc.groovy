@@ -1,3 +1,5 @@
+package jenkins
+
 import es.eci.utils.SystemPropertyBuilder;
 import es.eci.utils.CleanAdHoc;
 

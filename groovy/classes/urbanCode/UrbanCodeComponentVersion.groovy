@@ -1,6 +1,3 @@
-/**
- * 
- */
 package urbanCode
 
 import es.eci.utils.base.JSONBean;

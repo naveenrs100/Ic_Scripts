@@ -1,3 +1,5 @@
+package version.versioner
+
 /*
  * GROOVY SCRIPT
  * Este script busca el fichero artifacts.json en el directorio de ejecución, 
@@ -14,7 +16,8 @@ SystemPropertyBuilder parameterBuilder = new SystemPropertyBuilder();
 def params = parameterBuilder.getSystemParameters();
 
 def versionerStep = params["versionerStep"];
-def increaseIndex = params["increaseIndex"];
+def action = params["action"];
+def releaseMantenimiento = params["releaseMantenimiento"]
 
 def jsonObject;
 File currentDir = new File(".")
@@ -39,7 +42,7 @@ if(jsonObject != null) {
 	
 	ArtifactsVariableHelper helper = new ArtifactsVariableHelper();
 	helper.initLogger { println it }
-	helper.updateArtifacts(jsonObject, versionerStep, increaseIndex);
+	helper.updateArtifacts(jsonObject, versionerStep, action, releaseMantenimiento);
 
 	// Actualizamos el parámetro artifactsJson si existiese.
 	// Si no existiese actualizamos el archivo

@@ -1,14 +1,12 @@
 import hudson.model.*
 import jenkins.model.*
 
-def build = Thread.currentThread().executable
-def resolver = build.getBuildVariableResolver()
 def workspaceJob = build.getEnvironment(null).get("WORKSPACE")
 def mavenHome = build.getEnvironment(null).get("MAVEN_HOME")
 def mavenBin = "${mavenHome}/bin/mvn"
-def stream = resolver.resolve("stream")
-def componente = resolver.resolve("component")
-def deploy_env = resolver.resolve("deploy_env")
+def stream = build.buildVariableResolver.resolve("stream")
+def componente = build.buildVariableResolver.resolve("component")
+def deploy_env = build.buildVariableResolver.resolve("deploy_env")
 def deployBasePath = build.getEnvironment(null).get("DEPLOYMENT_BASE_PATH")
 def deployProjectPath = "${deployBasePath}/$stream/$componente/$deploy_env"
 def mavenPhase = "validate"
@@ -31,7 +29,7 @@ def deployProfilePreMulticanal = build.getEnvironment(null).get("DEPLOY_PROFILE_
 def deployProfileProMulticanal = build.getEnvironment(null).get("DEPLOY_PROFILE_PRO_MULTICANAL")
 def deployProfileIntegracion85 = build.getEnvironment(null).get("DEPLOY_PROFILE_INTEGRACION_8.5")
 def uDeployer ="-DuDeployer="+ build.getEnvironment(null).get("uDeployer")
-def uDeployerPass = "-DuDeployerPass="+ resolver.resolve("uDeployerPass")
+def uDeployerPass = "-DuDeployerPass="+ build.buildVariableResolver.resolve("uDeployerPass")
 def WAS = build.getEnvironment(null).get("WAS")
 if (WAS == null){
 	WAS = "7"

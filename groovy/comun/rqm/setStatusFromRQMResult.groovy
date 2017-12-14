@@ -1,7 +1,8 @@
+package rqm
+
 import hudson.model.*
 import jenkins.model.*
 
-def build = Thread.currentThread().executable
 
 def rqmReponseTxt = new File("${build.workspace}/resultRQM.xml").text.replaceAll("ns5:","")
 rqmReponseTxt = "<?xml version='1.0' encoding='UTF-8'?><result>${rqmReponseTxt}</result>"

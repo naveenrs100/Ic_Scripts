@@ -21,13 +21,6 @@ import hudson.model.Hudson;
 class GlobalVars extends Loggable {
 
 	//-----------------------------------------------
-	// Propiedades de la clase
-	
-	// Build padre (el de nivel más alto; normalmente, el frontal de corriente
-	//	o bien el frontal de componente)
-	private AbstractBuild root;
-	
-	//-----------------------------------------------
 	// Métodos de la clase
 	
 	/**
@@ -35,7 +28,7 @@ class GlobalVars extends Loggable {
 	 * @param run Ejecución cuya causa necesitamos obtener.
 	 * @return La causa de la ejecución si la tuviera, null en otro caso.
 	 */
-	private static Cause getCause(AbstractBuild run) {
+	private Cause getCause(AbstractBuild run) {
 	  def cause = null;
 	  cause = run.getCause(Cause.UpstreamCause);
 	  if (cause == null) {
@@ -49,7 +42,7 @@ class GlobalVars extends Loggable {
 	 * @param cause Causa de una ejecución.
 	 * @return Ejecución que ha disparado dicha causa.
 	 */
-	private static AbstractBuild getParentRun(Cause cause) {
+	private AbstractBuild getParentRun(Cause cause) {
 	  def run = null;
 	  if (cause instanceof Cause.UpstreamCause) {
 	    def name = ((Cause.UpstreamCause)cause).getUpstreamProject()
@@ -113,7 +106,7 @@ class GlobalVars extends Loggable {
 	 * @param build Build cuyo padre queremos obtener
 	 * @return Padre del build, null si no lo tiene o no lo podemos obtener
 	 */
-	public static AbstractBuild getParentBuild(AbstractBuild build) {
+	public AbstractBuild getParentBuild(AbstractBuild build) {
 		AbstractBuild ret = null;
 		Cause cause = getCause(build);
 		if (cause != null) {
@@ -125,18 +118,18 @@ class GlobalVars extends Loggable {
 	/**
 	 * Construye un objeto de acceso a variables globales a partir de 
 	 * la ejecución actual.
-	 * @param build Ejecución actual.
 	 */
-	public GlobalVars(AbstractBuild build) {
-		root = getRootBuild(build);
+	public GlobalVars() {
 	}
 	
 	/**
 	 * Obtiene el valor de una variable global.
+	 * @param build Job a cuyas globales se quiere acceder
 	 * @param variable Nombre de la variable.
 	 * @return Valor de la variable, si está definida.  Null en otro caso.
 	 */
-	public String get(String variable) {
+	public String get(AbstractBuild build, String variable) {
+		AbstractBuild root = getRootBuild(build);
 		String ret = ParamsHelper.getParam(root, variable);
 		log ("Root build:: " + root);
 		log("Variable global:: $variable -> $ret")
@@ -145,9 +138,11 @@ class GlobalVars extends Loggable {
 	
 	/**
 	 * Elimina una variable global.
+	 * @param build Job a cuyas globales se quiere acceder
 	 * @param variable Nombre de la variable a eliminar.
 	 */
-	public void delete(String variable) {
+	public void delete(AbstractBuild build, String variable) {
+		AbstractBuild root = getRootBuild(build);
 		log ("Root build:: " + root);
 		log("Eliminando variable global:: $variable ...")
 		ParamsHelper.deleteParams(root, variable);
@@ -155,12 +150,14 @@ class GlobalVars extends Loggable {
 	
 	/** 
 	 * Actualiza el valor de una variable global.
+	 * @param build Job a cuyas globales se quiere acceder
 	 * @param variable Nombre de la variable a actualizar.
 	 * @param value Valor a asignar a la variable.
 	 */
-	public void put(String variable, String value) {
+	public void put(AbstractBuild build, String variable, String value) {
+		AbstractBuild root = getRootBuild(build);
 		log ("Root build:: " + root);
-		delete(variable);
+		delete(build, variable);
 		log("Asignando variable global:: $variable <- $value")
 		Map<String, String> map = new HashMap<String, String>();
 		map.put(variable, value);

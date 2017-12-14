@@ -1,3 +1,5 @@
+package npm
+
 import es.eci.utils.SystemPropertyBuilder;
 import es.eci.utils.npm.NpmCleanCommand
 

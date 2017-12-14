@@ -1,6 +1,3 @@
-/**
- * 
- */
 package urbanCode
 
 import es.eci.utils.NexusHelper
@@ -11,14 +8,15 @@ import groovy.json.JsonSlurper
 
 /**
  * 
- * Esta clase modela el objeto necesario para informar de una release de UrbanCode.
+ * Este bean modela el objeto necesario para informar de una release de UrbanCode.
  * El objeto se define a partir de su serialización en JSON  
+ * <pre>
 {
   "name": "NombreAPP-version",
   "application": "NombreAPP",
   "description": "descripción de los cambios",
   "versions": [{"componente1": "1.0"}, {"componente2": "1.0"}, {"componente3": "1.1"}]
-}
+}</pre>
  * 
  */
 class UrbanCodeSnapshot extends JSONBean {

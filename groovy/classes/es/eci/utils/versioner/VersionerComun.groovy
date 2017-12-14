@@ -19,74 +19,78 @@ class VersionerComun {
 	 * @param Closure c2 A ejecutar en el caso de que la versión venga indicada como variable.
 	 */
 	public static void action(File dir, String artifactsJson, Closure c1, Closure c2, String nexusUrl) {
+		XmlUtils utils = new XmlUtils();
 		def pomRaiz = new File(dir.getCanonicalPath() + "/pom.xml");
-		def treeNodesMap = XmlUtils.getTreeNodesMap(dir);
-		ArrayList<ArtifactObject> artifacts = XmlUtils.getArtifactsMap(artifactsJson);
+		if(pomRaiz.exists()) {
+			def treeNodesMap = utils.getTreeNodesMap(dir);
+			ArrayList<ArtifactObject> artifacts = utils.getArtifactsMap(artifactsJson);
 
-		def touchedProperties = [];
+			def touchedProperties = [];
+			dir.eachFileRecurse { File file ->
+				def docRaiz = utils.parseXml(pomRaiz);
+				if(pathAllowed(file)) { // Se excluyen los archivos de target.
+					boolean isRaiz = (file.getCanonicalPath() == pomRaiz.getCanonicalPath())
+					if(file.getName() == "pom.xml") {
+						def doc = utils.parseXml(file);
+						def nodeVersion = utils.xpathNode(doc, "/project/version");
+						def mainArtifact = utils.xpathNode(doc, "/project/artifactId");
+						def nodeParentVersion = utils.xpathNode(doc, "/project/parent/version");
+						def nodeParentArtifact = utils.xpathNode(doc, "/project/parent/artifactId");
+						def parentArtifactId = nodeParentArtifact != null ? nodeParentArtifact.getTextContent() : "";
 
-		dir.eachFileRecurse { File file ->
-			def docRaiz = XmlUtils.parseXml(pomRaiz);
-			if(pathAllowed(file)) { // Se excluyen los archivos de target.
-				boolean isRaiz = (file.getCanonicalPath() == pomRaiz.getCanonicalPath())
-				if(file.getName() == "pom.xml") {
-					def doc = XmlUtils.parseXml(file);
-					def nodeVersion = XmlUtils.xpathNode(doc, "/project/version");
-					def mainArtifact = XmlUtils.xpathNode(doc, "/project/artifactId");
-					def nodeParentVersion = XmlUtils.xpathNode(doc, "/project/parent/version");
-					def nodeParentArtifact = XmlUtils.xpathNode(doc, "/project/parent/artifactId");
-					def parentArtifactId = nodeParentArtifact != null ? nodeParentArtifact.getTextContent() : "";
+						touchedProperties = actionNode(doc,nodeVersion,file,pomRaiz,docRaiz,isRaiz,touchedProperties,false,mainArtifact.getTextContent(),artifacts,c1,c2)
 
-					touchedProperties = actionNode(doc,nodeVersion,file,pomRaiz,docRaiz,isRaiz,touchedProperties,false,mainArtifact.getTextContent(),artifacts,c1,c2)
+						if(!file.getCanonicalPath().equals(pomRaiz.getCanonicalPath())
+						&& (parentArtifactId != "eci-pom") && (parentArtifactId != "atg-super-pom")) {
+							touchedProperties = actionNode(doc,nodeParentVersion,file,pomRaiz,docRaiz,isRaiz,touchedProperties,false,parentArtifactId,artifacts,c1,c2)
+						}
 
-					if(!file.getCanonicalPath().equals(pomRaiz.getCanonicalPath())
-					&& (parentArtifactId != "eci-pom") && (parentArtifactId != "atg-super-pom")) {
-						touchedProperties = actionNode(doc,nodeParentVersion,file,pomRaiz,docRaiz,isRaiz,touchedProperties,false,parentArtifactId,artifacts,c1,c2)
-					}
+						// Comprobamos las dependencias.
+						Node[] docDeps = utils.xpathNodes(doc, "/project/dependencies/dependency");
+						docDeps.each { Node docDepNode ->
+							String depArtifactId = (utils.getChildNodes(docDepNode).find { it.getNodeName() == "artifactId" }).getTextContent();
+							Node depVersionNode = utils.getChildNodes(docDepNode).find { it.getNodeName() == "version" }
+							String depGroup = utils.getChildNodes(docDepNode).find { it.getNodeName() == "groupId" }.getTextContent();
 
-					// Comprobamos las dependencias.
-					Node[] docDeps = XmlUtils.xpathNodes(doc, "/project/dependencies/dependency");
-					docDeps.each { Node docDepNode ->
-						String depArtifactId = (XmlUtils.getChildNodes(docDepNode).find { it.getNodeName() == "artifactId" }).getTextContent();
-						Node depVersionNode = XmlUtils.getChildNodes(docDepNode).find { it.getNodeName() == "version" }
-						String depGroup = XmlUtils.getChildNodes(docDepNode).find { it.getNodeName() == "groupId" }.getTextContent();
+							if(depVersionNode != null) {
+								Node finalDepNode;
+								String depVersionText = depVersionNode.getTextContent();
+								def finalDepVersion;
+								if(depVersionText.contains("\${") && !depVersionText.contains("\${project.") && !depVersionText.contains("\${parent.")) {
+									finalDepNode = utils.getFinalPropNode(file,treeNodesMap,depVersionText, nexusUrl).getNode();
+									finalDepVersion = finalDepNode.getTextContent();
+								}
+								else {
+									finalDepNode = depVersionNode;
+									finalDepVersion = finalDepNode.getTextContent();
+								}
 
-						if(depVersionNode != null) {
-							Node finalDepNode;
-							String depVersionText = depVersionNode.getTextContent();
-							def finalDepVersion;
-							if(depVersionText.contains("\${") && !depVersionText.contains("\${project.") && !depVersionText.contains("\${parent.")) {
-								finalDepNode = XmlUtils.getFinalPropNode(file,treeNodesMap,depVersionText, nexusUrl).getNode();
-								finalDepVersion = finalDepNode.getTextContent();
-							}
-							else {
-								finalDepNode = depVersionNode;
-								finalDepVersion = finalDepNode.getTextContent();
-							}
-							
-							boolean depInArtifactsJson = isDepInArtifacts(artifacts,depArtifactId,depGroup,finalDepVersion);
-							
-							if(depInArtifactsJson) {
-								// Si la dependencia está incluida en el artifacts.json
-								touchedProperties = actionNode(doc,depVersionNode,file,pomRaiz,docRaiz,isRaiz,touchedProperties,true,depArtifactId,artifacts,c1,c2);
-							}
-							else if(!depInArtifactsJson && !touchedProperties.contains(finalDepNode.getNodeName()) && !finalDepVersion.contains("\${project.") && !finalDepVersion.contains("\${parent.")) {
-								// Si la dependencia no está incuida en el artifacts.json
-								ArtifactObject targetObject = artifacts.find { it.getArtifactId().equals(depArtifactId) && it.getGroupId().equals(depGroup) }
-								if(targetObject != null) {
-									println("touchedProperties -> ${touchedProperties}");
-									println("[WARNING] La dependencia \"${depGroup}:${depArtifactId}:${finalDepVersion}\" en " +
-											"el pom.xml \"${file.getCanonicalPath()}\" tiene la versión descuadrada");
+								boolean depInArtifactsJson = isDepInArtifacts(artifacts,depArtifactId,depGroup,finalDepVersion);
+
+								if(depInArtifactsJson) {
+									// Si la dependencia está incluida en el artifacts.json
+									touchedProperties = actionNode(doc,depVersionNode,file,pomRaiz,docRaiz,isRaiz,touchedProperties,true,depArtifactId,artifacts,c1,c2);
+								}
+								else if(!depInArtifactsJson && !touchedProperties.contains(finalDepNode.getNodeName()) && !finalDepVersion.contains("\${project.") && !finalDepVersion.contains("\${parent.")) {
+									// Si la dependencia no está incuida en el artifacts.json
+									ArtifactObject targetObject = artifacts.find { it.getArtifactId().equals(depArtifactId) && it.getGroupId().equals(depGroup) }
+									if(targetObject != null) {
+										println("touchedProperties -> ${touchedProperties}");
+										println("[WARNING] La dependencia \"${depGroup}:${depArtifactId}:${finalDepVersion}\" en " +
+												"el pom.xml \"${file.getCanonicalPath()}\" tiene la versión descuadrada");
+									}
 								}
 							}
-						}
-						else {
-							println("[WARNING] La dependencia \"${depArtifactId}\" del pom \"${file.getCanonicalPath()}\" viene " +
-									"indicada sin la tag <version>!");
+							else {
+								println("[WARNING] La dependencia \"${depArtifactId}\" del pom \"${file.getCanonicalPath()}\" viene " +
+										"indicada sin la tag <version>!");
+							}
 						}
 					}
 				}
 			}
+		} else {
+			println("########## [WARNING] No hay ningún pom.xml en la raíz del directorio \"${dir.getCanonicalPath()}\"");
 		}
 	}
 
@@ -151,7 +155,7 @@ class VersionerComun {
 		}
 		return allowed;
 	}
-	
+
 	/**
 	 * 
 	 * @param ArrayList<ArtifactObject> artifacts
@@ -160,14 +164,14 @@ class VersionerComun {
 	 * @param String finalDepVersion
 	 * @return boolean True si la dependencia está dentro del artifacts.
 	 */
-	public static boolean isDepInArtifacts(ArrayList<ArtifactObject> artifacts, 
-		String depArtifactId, String depGroup, String finalDepVersion) {
+	public static boolean isDepInArtifacts(ArrayList<ArtifactObject> artifacts,
+			String depArtifactId, String depGroup, String finalDepVersion) {
 		boolean isDepInArtifacts = false;
 		artifacts.each { ArtifactObject ao ->
 			if( ao.getArtifactId().equals(depArtifactId) &&
-				ao.getGroupId().equals(depGroup) &&
-				ao.getVersion().equals(finalDepVersion)) {				
-				isDepInArtifacts = isDepInArtifacts || true;				
+			ao.getGroupId().equals(depGroup) &&
+			ao.getVersion().equals(finalDepVersion)) {
+				isDepInArtifacts = isDepInArtifacts || true;
 			}
 		}
 		return isDepInArtifacts;

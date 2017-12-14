@@ -1,3 +1,5 @@
+package jenkins
+
 import hudson.model.Hudson
 import urbanCode.Constants;
 import urbanCode.UrbanCodeApplicationProcess
@@ -10,6 +12,7 @@ import buildtree.BuildBean
 import buildtree.BuildTreeHelper
 import es.eci.utils.NexusHelper
 import es.eci.utils.ParamsHelper
+import es.eci.utils.StringUtil
 import es.eci.utils.pom.MavenCoordinates
 
 /**
@@ -32,9 +35,6 @@ import es.eci.utils.pom.MavenCoordinates
  * jobs - Lista separada por comas de nombres de jobs de Jenkins
  */
 
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver;
-
 ///////////////////////////////////////////////////////////////////////////////
 // Contexto del script
 // Nexus
@@ -43,14 +43,19 @@ String urlNexus = 			build.getEnvironment(null).get("ROOT_NEXUS_URL");
 String urbanCodeCommand = 	build.getEnvironment(null).get("UDCLIENT_COMMAND");
 String urlUrbanCode = 		build.getEnvironment(null).get("UDCLIENT_URL");
 String userUrbanCode = 		build.getEnvironment(null).get("UDCLIENT_USER");
-String pwdUrbanCode = 		resolver.resolve("UDCLIENT_PASS");
+String pwdUrbanCode = 		build.buildVariableResolver.resolve("UDCLIENT_PASS");
 // Aplicación y entorno para Urban Code
 String urbanCodeApp =		build.getEnvironment(null).get("aplicacionUrbanCode");
 String urbanCodeEnv =		build.getEnvironment(null).get("entornoUrbanCode");
 // Credenciales Nexus
-String nexusUser =			resolver.resolve("NEXUS_ADMIN_USER");
-String nexusPass =			resolver.resolve("NEXUS_ADMIN_PASS");
+String nexusUser =			build.buildVariableResolver.resolve("NEXUS_ADMIN_USER");
+String nexusPass =			build.buildVariableResolver.resolve("NEXUS_ADMIN_PASS");
+String stream	=			build.buildVariableResolver.resolve("stream");
+String group	=			build.buildVariableResolver.resolve("gitGroup");
+
 ///////////////////////////////////////////////////////////////////////////////
+
+//TODO: Agregar variables de gitGrouo y corriente para generar el nombre de la nightly
 
 def isNull = { String s ->
 	return s == null || s.trim().length() == 0;
@@ -105,24 +110,38 @@ if (!isNull(urbanCodeApp)) {
 				}
 			}
 		} 
-		UrbanCodeExecutor exec = new UrbanCodeExecutor(urbanCodeCommand,
-							urlUrbanCode,
-							userUrbanCode,
-							pwdUrbanCode);
-		exec.initLogger { println it };
-		// Lanzar el despliegue
-		UrbanCodeSnapshotDeployer deploy = new UrbanCodeSnapshotDeployer(exec, urlNexus);
-		
-		// Informamos las credenciales de Nexus por si fueran necesarias para acceder a un repo privado.
-		deploy.setNexus_user(nexusUser);
-		deploy.setNexus_pass(nexusPass);
-		
-		deploy.initLogger { println it };
-		deploy.deploySnapshotVersions(
-			componentsVersions, 
-			urbanCodeApp, 
-			urbanCodeEnv);
-		
+		if (componentsVersions != null && componentsVersions.size() > 0) {
+			UrbanCodeExecutor exec = new UrbanCodeExecutor(urbanCodeCommand,
+								urlUrbanCode,
+								userUrbanCode,
+								pwdUrbanCode);
+			exec.initLogger { println it };
+			// Lanzar el despliegue
+			UrbanCodeSnapshotDeployer deploy = new UrbanCodeSnapshotDeployer(exec, urlNexus);
+			
+			// Informamos las credenciales de Nexus por si fueran necesarias para acceder a un repo privado.
+			deploy.setNexus_user(nexusUser);
+			deploy.setNexus_pass(nexusPass);
+			
+			deploy.initLogger { println it };
+			// Nombre de la agrupación
+			def groupName = null;
+			if (!StringUtil.isNull(group)) {
+				groupName = group;
+			}
+			else if (!StringUtil.isNull(stream)) {
+				groupName = stream;
+			}
+			deploy.deploySnapshotVersions(
+				componentsVersions, 
+				urbanCodeApp, 
+				urbanCodeEnv,
+				"nightly_${StringUtil.normalize(groupName)}");
+		}
+		else {
+			println "En la construcción no han entrado componentes con despliegue en Urban"
+			println "Cancelando la creación de instantánea..."
+		}
 	}
 	catch (Exception e) {
 		println "---> ERROR INTENTANDO COMPONER LA INSTANTÁNEA NOCTURNA"

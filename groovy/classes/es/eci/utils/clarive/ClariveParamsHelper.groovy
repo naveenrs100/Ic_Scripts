@@ -16,8 +16,6 @@ import com.cloudbees.plugins.flow.FlowCause;
 
 class ClariveParamsHelper extends Loggable {
 
-	def build;
-	def resolver;
 	def gitGroup;
 	def stream;
 
@@ -39,8 +37,7 @@ class ClariveParamsHelper extends Loggable {
 	def jenkinsHome;
 
 	public ClariveParamsHelper(build) {
-		this.build = build;
-		resolver = build.buildVariableResolver;
+		def resolver = build.buildVariableResolver;
 		gitGroup = resolver.resolve("gitGroup");
 		stream = resolver.resolve("stream");
 		rtcUser = build.getEnvironment(null).get("userRTC");
@@ -126,7 +123,7 @@ class ClariveParamsHelper extends Loggable {
 	 */
 	public String getSubproducto() {
 		def subproducto;
-		def streamSuffixes = ["DESARROLLO","RELEASE","MANTENIMIENTO","DEVELOPMENT","Development"];
+		def streamSuffixes = ["DESARROLLO","RELEASE","MANTENIMIENTO","DEVELOPMENT","Development", "FrozenDevelopment", "Maintenance"];
 		if(gitGroup != null && !gitGroup.trim().equals("") && !gitGroup.trim().equals('${gitGroup}')) {
 			subproducto = gitGroup.trim();
 
@@ -144,10 +141,10 @@ class ClariveParamsHelper extends Loggable {
 	 * @param build
 	 * @return builtVersion
 	 */
-	public String getBuiltVersion() {
+	public String getBuiltVersion(build) {
 		// Calculamos el parámetro "builtVersion" que en este momento ya estará seteado en el build de componente.
 		// Buscar si es posible el componente
-		List<AbstractBuild> fullTree = JobRootFinder.getFullExecutionTree(build);
+		List<AbstractBuild> fullTree = new JobRootFinder().getFullExecutionTree(build);
 		AbstractBuild componentBuild = build;
 		// Buscar el job de componente
 		for (AbstractBuild ancestor: fullTree) {
@@ -204,7 +201,7 @@ class ClariveParamsHelper extends Loggable {
 	 * @param build
 	 * @return metricas
 	 */
-	public Map<String,String> getMetricas() {
+	public Map<String,String> getMetricas(build) {
 		Map<String,String> metricas = [:];
 		def causa = build.getCause(Cause.UpstreamCause);
 		if(causa == null) {
@@ -271,7 +268,7 @@ class ClariveParamsHelper extends Loggable {
 	 * @param build
 	 * @return resultado
 	 */
-	public String getResultado() {
+	public String getResultado(build) {
 		def causa = build.getCause(Cause.UpstreamCause);
 		if(causa == null) {
 			causa = build.getCause(FlowCause);

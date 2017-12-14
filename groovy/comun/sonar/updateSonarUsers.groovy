@@ -1,3 +1,5 @@
+package sonar
+
 @Grab(group='org.apache.httpcomponents', module='httpclient', version='4.4')
 
 import java.beans.XMLDecoder

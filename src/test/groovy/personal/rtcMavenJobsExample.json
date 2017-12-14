@@ -1,0 +1,18 @@
+{
+    "Marketing - Gestion Promociones - SGP": {
+        "workitem": "201779",
+        "aplicacionUrbanCode": "Marketing - Sistema Promocional Corporativo (RTC)",
+        "entornoUbanRelease": "PRE WAS 8.5",
+        "entornoUbanDeploy": "DES WAS 8.5",
+        "components": {
+            "6Z7 - Gestion Marketing": {
+                "docker_template": "was",
+                "componenteUrbanCode": "6Z7 - Gestion Marketing"               
+            },
+            "6Z7 - Gestion Marketing - Properties": {
+                "docker_template": "was",
+                "componenteUrbanCode": "6Z7 - Gestion Marketing - Properties"
+            }
+        }
+    }
+}

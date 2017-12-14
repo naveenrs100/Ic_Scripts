@@ -4,19 +4,19 @@ class Retries {
 	
 	/**
 	 * Retries a Closure a number of times until it
-	 * doesn't throw Exception. Devuelve un booleano
-	 * que determina si se han agotado los intentos con error.
-	 * @param int times Number of times to retry.
-	 * @param int miliseconds Number of milliseconds to wait between each iteration.
-	 * @param Closure c Closure to retry.
-	 * @return boolean 
+	 * doesn't throw Exception. 
+	 * @param times Number of times to retry.
+	 * @param miliseconds Number of milliseconds to wait between each iteration.
+	 * @param c Closure to retry.
+	 * @return Result of the closure
 	 */
-	static void retry(int times, int miliseconds, Closure c) {
+	static Object retry(int times, int miliseconds, Closure c) {
 		def goOn = true;
+		Object ret = null;
 		for(int i=0; i < times; i++) {						
 			try {
 				if(goOn == true) {
-					c(i);
+					ret = c(i);
 					goOn = false;
 				}
 			} catch (Exception e) {
@@ -27,5 +27,6 @@ class Retries {
 				}
 			}
 		}
+		return ret;
 	}
 }

@@ -1,12 +1,12 @@
+package portal
+
 //$JENKINS_HOME/jobs/ScriptsCore/workspace/groovy/comun/portal/Portalizador.groovy
 import hudson.model.*
 import java.util.regex.*
 import groovy.xml.*
 import groovy.util.Node
 
-def resolver = build.buildVariableResolver
-
-def jobList = resolver.resolve("jobList")
+def jobList = build.buildVariableResolver.resolve("jobList")
 home = build.getEnvironment(null).get("JENKINS_HOME")
 workspace = build.workspace
 

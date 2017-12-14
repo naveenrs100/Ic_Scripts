@@ -290,36 +290,12 @@ class RTCBuildFileHelper extends Loggable {
 				artifacts.add(artifact)
 			}
 		}
-		ficheros.each { fComp ->
-			def comp = fComp.key
-			def f = fComp.value
-			f.each { fichero ->
-				def pom = new XmlParser().parse(fichero)
-				pom.dependencies.dependency.each { dependency ->
-					def artifact = getArtifactMaven(dependency, baseDirectory)
-					if (artifact.version!=null){
-						if (artifact.version.toLowerCase().indexOf("snapshot")>0){
-							if (artifacts.find{it.equals(artifact)}!=null){
-								result = true
-							}else{
-								err << "There is a snapshot version in ${dependency.artifactId.text()} inside ${fichero}\n"
-							}
-						}
-					}
-				}
-			}
-		}
-		if (err.length()>0) {
-			if (['release', 'addFix', 'addHotfix'].contains(action)) {
-				throw new NumberFormatException("${err}")
-			}
-		}
-		// escribe artifacts para ser usado por stepFileVersioner.groovy para quitar los snapshots
-		//writeJsonArtifactsMaven(artifactsComp,home,finalComponentsList)
+
 		VersionUtils vUtils = new VersionUtils();
 		vUtils.writeJsonArtifactsMaven(artifactsComp, home, "artifacts.json", finalComponentsList);
 		vUtils.writeJsonArtifactsMaven(artifactsComp, home, "artifactsAll.json", null);
-		return result
+
+		return true
 	}
 
 	// Escribe el fichero de artefactos maven en el directorio de la construcción
@@ -660,14 +636,14 @@ class RTCBuildFileHelper extends Loggable {
 				modulos.remove(modulo)
 				// Intenta descargar el fichero
 				String ficheroRTC = buildFileName(component, modulo, tecnologias[technology])
-				File directorioModulo =
-						new File(dirComponente, modulo)
+				String ficheroRTCTarget = buildFileName(component, modulo, "target")
+				File directorioModulo =	new File(dirComponente, modulo)
 				directorioModulo.mkdirs()
 				log("Bajando ${modulo} para crear el árbol de poms...");
-				comando.ejecutarComando(
-						"load \"${workspaceRTC}\" -t \"${directorioModulo.canonicalPath}\" \"${ficheroRTC}\" --force",
-						userRTC, pwdRTC, urlRTC, baseDirectory);//dirComponente)
-				//cleanRTC(directorioModulo)
+				comando.ejecutarComando("load \"${workspaceRTC}\" -t \"${directorioModulo.canonicalPath}\" \"${ficheroRTC}\" --force",
+						userRTC, pwdRTC, urlRTC, baseDirectory);
+				comando.ejecutarComando("load \"${workspaceRTC}\" -t \"${directorioModulo.canonicalPath}\" \"${ficheroRTCTarget}\" --force",
+						userRTC, pwdRTC, urlRTC, baseDirectory);
 				// ¿Ha bajado?
 				File buildFile = new File(directorioModulo, tecnologias[technology] )
 				if (buildFile.exists()) {

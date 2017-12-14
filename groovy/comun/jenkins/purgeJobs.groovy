@@ -1,3 +1,5 @@
+package jenkins
+
 /** 
  * Este script toma el fichero de componentes de RTC (creado por getComponents.sh) y
  * lo parsea para obtener el listado de componentes de la corriente.  Dada esa lista
@@ -13,12 +15,9 @@ import components.RTCComponent
 import es.eci.utils.ScmCommand
 import es.eci.utils.TmpDir
 
-
-def build = Thread.currentThread().executable
-def resolver = build.buildVariableResolver
 def urlRTC = build.getEnvironment(null).get("urlRTC")
 def userRTC= build.getEnvironment(null).get("userRTC") 
-def pwdRTC = resolver.resolve("pwdRTC") 
+def pwdRTC = build.buildVariableResolver.resolve("pwdRTC") 
 def tecnologias = ["maven":"pom.xml","gradle":"build.gradle"]
 		
 /**
@@ -145,10 +144,10 @@ def purgeJobs(String stream, String technology, File componentsCompareFile, List
 	}
 }
 		
-def stream = resolver.resolve("stream")
-def technology = resolver.resolve("technology")
+def stream = build.buildVariableResolver.resolve("stream")
+def technology = build.buildVariableResolver.resolve("technology")
 def componentsCompareFile = new File("${build.workspace}/componentsCompare.txt")
-def jobs = resolver.resolve("jobs")
+def jobs = build.buildVariableResolver.resolve("jobs")
 
 // Recorrer el fichero de componentes
 List<String> listaJobs = crearLista(jobs)

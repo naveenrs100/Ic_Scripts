@@ -4,8 +4,14 @@ import es.eci.utils.base.Loggable
 import es.eci.utils.pom.MavenCoordinates
 
 /**
- * El propósito de esta clase es obtener la información relevante de un componente
+ * Este servicio obtiene la información relevante de un componente
  * en Urban Code, en formato de coordenadas Maven. 
+ * <br/>
+ * Notar que es <b>imprescindible</b> contar con una instalación local del cliente.  Se puede provisionar
+ * desde:<br/>
+ * <a href="http://nexus.elcorteingles.int/service/local/repositories/GC/content/ibm/urbanCode/udclient/6.1.0/udclient-6.1.0.zip">Cliente udclient en Nexus</a>
+ * <br/> 
+ * 
  */
 class UrbanCodeComponentInfoService extends Loggable {
 
@@ -66,6 +72,10 @@ class UrbanCodeComponentInfoService extends Loggable {
 			else if (property.name.equals("MavenComponentProperties/repoUrl")) {
 				if (property.value.contains("private"))
 					repository = "private-all";
+			}
+			else if (property.name.equals("MavenComponentProperties/repoUrl")) {
+				if (property.value.contains("fichas_dcos"))
+					repository = "fichas_dcos";
 			}
 		}
 		// Recorrer las propiedades de templateSourceProperties, en ocasiones viene informado aquí el packaging

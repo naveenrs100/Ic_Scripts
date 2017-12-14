@@ -31,5 +31,7 @@
   -s "##ECI_PROXY_PORT##=${DOCKER_PROXY_PORT}" \
   -s "##ECI_PROXY_USER##=${DOCKER_PROXY_USER}" \
   -s "##ECI_PROXY_PWD##=${DOCKER_PROXY_PWD} " \
+  -s "##KIUWAN_USER##=${KIUWAN_USER} " \
+  -s "##KIUWAN_PWD##=${KIUWAN_PWD} " \
   
 docker build -f ${docker_template}.Dockerfile -t ${DOCKER_BASE_IMAGE}-${docker_template}:${DOCKER_SLAVE_TAG} .
