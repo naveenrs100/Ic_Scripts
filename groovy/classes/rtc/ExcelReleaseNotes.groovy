@@ -1,5 +1,4 @@
 
-@GrabResolver(name='nexusECI', root='http://nexus.elcorteingles.pre/content/groups/public/')
 @Grab(group='org.apache.poi', module='poi-ooxml', version='3.10.1')
 
 import java.text.DateFormat;

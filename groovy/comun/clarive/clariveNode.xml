@@ -1,0 +1,5 @@
+<hudson.model.BooleanParameterDefinition>
+    <name>permisoClarive</name>
+    <description/>
+	<defaultValue>true</defaultValue>
+</hudson.model.BooleanParameterDefinition>

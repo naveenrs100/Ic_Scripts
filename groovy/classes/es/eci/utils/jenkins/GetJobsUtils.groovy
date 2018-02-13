@@ -466,7 +466,12 @@ class GetJobsUtils extends Loggable {
 
 		// Creamos los nuevos archivos de commitsId en caso de action = build
 		if(action.equals("build") || action.equals("deploy")) {
-			saveComponentLastCommit(scmComponentsList, branch, gitHost, gitGroup);
+			if(listaComponentesRelease != null && listaComponentesRelease.size() > 0) {
+				saveComponentLastCommit(listaComponentesRelease, branch, gitHost, gitGroup);
+			} else {
+				saveComponentLastCommit(scmComponentsList, branch, gitHost, gitGroup);
+			}
+			
 		}
 
 		if(onlyChanges.equals("true")) {

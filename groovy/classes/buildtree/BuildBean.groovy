@@ -1,5 +1,6 @@
 package buildtree
 
+import es.eci.utils.ParamsHelper
 import hudson.model.AbstractBuild
 
 /**
@@ -59,6 +60,9 @@ class BuildBean implements Comparable {
 			build.getNumber(), 
 			build.getTimestamp().getTimeInMillis(), 
 			build.getResult().toString())
+		this.builtVersion = ParamsHelper.getParam(build, "builtVersion");
+		this.description = null;
+		this.duration = build.getDuration();
 	}
 	
 	/**

@@ -23,6 +23,7 @@ public class JobCreatorUtils extends Loggable {
 			Node nodeName = xmlUtils.getChildNodes(parameterNode).find { it.getNodeName() == "name"}
 			if(nodeName.getTextContent().equals(parameterName)) {
 				Node defaultValueNode = xmlUtils.getChildNodes(parameterNode).find { it.getNodeName() == "defaultValue" }
+				System.out.println("##################################  Cambiando el valor a " + parameterName + " por " + finalValue)
 				defaultValueNode.setTextContent(finalValue);
 			}
 		}

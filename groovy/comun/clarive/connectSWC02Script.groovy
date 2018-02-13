@@ -18,8 +18,9 @@ Long milis = Stopwatch.watch {
 
 	ClariveParamsHelper clHelper = new ClariveParamsHelper(build);
 	clHelper.initLogger { println it }
-	def producto = clHelper.findArea();
-	producto = producto.replaceAll('\\(RTC\\)','').trim();
+	def producto = build.buildVariableResolver.resolve("aplicacionUrbanCode");
+//	def producto = clHelper.findArea();
+//	producto = producto.replaceAll('\\(RTC\\)','').trim();
 
 	def subproducto = clHelper.getSubproducto();
 	def tipo_corriente = clHelper.getTipoCorriente();
@@ -127,7 +128,7 @@ Long milis = Stopwatch.watch {
 		}
 
 	} else {
-		println("action -> ${action}. No se pasa por SWC02 a Clarive.")
+		println("action -> ${action} y permisoClarive -> ${permisoClarive}. No se pasa por SWC02 a Clarive.")
 	}
 
 }

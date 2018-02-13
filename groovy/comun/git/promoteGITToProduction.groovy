@@ -23,13 +23,10 @@ def aplicacionUrbanCode = params["aplicacionUrbanCode"];
 //def aplicacionUrbanCode = "88888 - Prueba GATES";
 
 def nexusUrl = params["nexusUrl"]
-//def nexusUrl = "http://nexus.elcorteingles.pre/content/groups/public";
 
 def fichasGroupId = params["fichasGroupId"];
-//def fichasGroupId = "es.eci.fichas_urbancode";
 
 def parentWorkspace = params["parentWorkspace"];
-//def parentWorkspace = new File("C:/Users/dcastro.jimenez/Desktop/Herramientas ECI/tmp");
 
 def gitHost = params["gitHost"]
 //def gitHost = "mx00000018d0323.eci.geci"

@@ -1,29 +1,27 @@
 package es.eci.utils.mail
 
-import java.lang.ref.WeakReference
-import java.lang.reflect.Field
-import java.util.List;
 import java.util.regex.Matcher
 
-import buildtree.BuildBean;
-import buildtree.BuildTreeHelper
 import es.eci.utils.JobRootFinder
 import es.eci.utils.ParamsHelper
-import es.eci.utils.Stopwatch
+import es.eci.utils.StringUtil;
 import es.eci.utils.base.Loggable
-import groovy.json.JsonSlurper;
+import groovy.json.JsonSlurper
 import hudson.model.*
 
 class SetMailParametersUrban extends Loggable {
 
 	private Map params = [:]
 	private Result fatherResult = null
-
-	// Descompone una lista de destinatarios separada por comas en una lista de cadenas de caracteres
-	private List<String> parseReceivers(String managersMail) {
-		List<String> ret = new LinkedList<String>()
-		def managers = managersMail.split(',')
-		managers.each { if (it != null && it.trim().size() > 0) { ret << it } }
+	
+	// Este método decide si debemos enviar el mail, en función del
+	//	parámetro pasado desde el paso de Provider
+	private boolean getSendMail(AbstractBuild build) {
+		String param = ParamsHelper.getParam(build, "sendMail")
+		boolean ret = false;
+		if (!StringUtil.isNull(param)) {
+			ret = Boolean.valueOf(param);
+		}
 		return ret;
 	}
 	
@@ -45,50 +43,44 @@ class SetMailParametersUrban extends Loggable {
 	def setParameters (Cause causa, String action, AbstractBuild build, String managersMail,
 		String mailSubject, String defaultManagersMail, String origen) {
 		
-		boolean sendMail = true;
+		boolean sendMail = getSendMail(build);
 		
-		if (causa != null){
-			// Ejecución -----------
-			def nombrePadre = causa.getUpstreamProject()
-			def numeroPadre = causa.getUpstreamBuild()
-			def buildInvoker = Hudson.instance.getJob(nombrePadre).
-				getBuildByNumber(Integer.valueOf(numeroPadre))
-			log "--- INFO: Acciones del buildInvoker: $nombrePadre"
-			
-			log "--- INFO: ACTION: " + action
-			// Añadir a la lista de destinatarios los indicados expresamente en el job
-			List<String> receivers = parseReceivers(managersMail)
-
-			if (causa != null){
-				JobRootFinder finder = new JobRootFinder();
-				finder.initLogger(this);
-				AbstractBuild ancestor = finder.getRootBuild(buildInvoker);
+		if (sendMail) {
+	 		if (causa != null){
+				// Ejecución -----------
+				def nombrePadre = causa.getUpstreamProject()
+				def numeroPadre = causa.getUpstreamBuild()
+				def buildInvoker = Hudson.instance.getJob(nombrePadre).
+					getBuildByNumber(Integer.valueOf(numeroPadre))
+				log "--- INFO: Acciones del buildInvoker: $nombrePadre"
 				
-				fatherResult = ancestor.getResult();
-
-				if (fatherResult.equals(Result.NOT_BUILT)) {
-					sendMail = false;
-				}
-				
-				ParamsHelper.deleteParams(build, 'sendMail')
-				ParamsHelper.addParams(build, ['sendMail':Boolean.toString(sendMail)])
-				// Añadir a la lista de destinatarios la lista de destinatarios por defecto
-				// indicados en la variable de entorno MANAGERS_MAIL
-				MailUtils.addDefaultManagersMail(defaultManagersMail, receivers)
-				
-				if (sendMail) {
-					MailWriter writer = MailWriter.writer("component");
+				log "--- INFO: ACTION: " + action
+				// Añadir a la lista de destinatarios los indicados expresamente en el job
+				List<String> receivers = MailAddressParser.parseReceivers(managersMail)
+	
+				if (causa != null){
+					JobRootFinder finder = new JobRootFinder();
+					finder.initLogger(this);
+					AbstractBuild ancestor = finder.getRootBuild(buildInvoker);
+					// Añadir a la lista de destinatarios la lista de destinatarios por defecto
+					// indicados en la variable de entorno MANAGERS_MAIL
+					MailUtils.addDefaultManagersMail(defaultManagersMail, receivers)
+					
+					MailWriter writer = new MailWriter();
 					writer.initLogger(this)
 					log "--- INFO: Lista de correos 2: $receivers"
 					writeResult(buildInvoker, mailSubject, build, receivers, writer, origen)
 				}
 			}
+			else{
+				log "### ERROR: ESTE JOB NECESITA SER LLAMADO SIEMPRE DESDE OTRO!!"
+				build.setResult(Result.FAILURE)
+			}
 		}
-		else{
-			log "### ERROR: ESTE JOB NECESITA SER LLAMADO SIEMPRE DESDE OTRO!!"
-			build.setResult(Result.FAILURE)
+		else {
+			log "### WARNING: Se cancela el envío de correo al no haber interacción con Urban Code"
+			build.setResult(Result.NOT_BUILT)
 		}
-
 	}
 	
 	/**

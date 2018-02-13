@@ -5,19 +5,22 @@ package jenkins
  * desde componente, 
  */
 
-import java.util.List;
-
-import buildtree.BuildBean;
-import buildtree.BuildTreeHelper;
-import es.eci.utils.GlobalVars
+import buildtree.BuildBean
+import buildtree.BuildTreeHelper
 import es.eci.utils.JobRootFinder
 import es.eci.utils.ParamsHelper
+import es.eci.utils.StringUtil
+import groovy.json.JsonSlurper
 import hudson.model.AbstractBuild
 import hudson.model.Result
+import release.GetReleaseInfo
 import urbanCode.UrbanCodeFichaDespliegue
-import urbanCode.UrbanCodeGenerateJsonDescriptor;
+import urbanCode.UrbanCodeGenerateJsonDescriptor
 
 ///////////////////////////////////////////////////////////////////////////////
+// Clarive
+String permisoClarive = build.buildVariableResolver.resolve("permisoClarive");
+
 // Nexus
 String urlNexusDeploy =		build.getEnvironment(null).get("NEXUS_FICHAS_DESPLIEGUE_URL");
 String uDeployUser =		build.buildVariableResolver.resolve("DEPLOYMENT_USER");
@@ -53,6 +56,18 @@ String targetBranch =		build.buildVariableResolver.resolve("targetBranch");
 String managersMail = 		build.getEnvironment(null).get("managersMail");
 
 ///////////////////////////////////////////////////////////////////////////////
+// ¿Se está haciendo RELEASE_MANAGEMENT?
+// En caso afirmativo, se debe informar en el workItem de RTC (caso de estar en 
+//	RTC) un comentario indicando que se ha construido 
+
+boolean releaseManagement = false;
+if (build.getEnvironment(null).get("RELEASE_MANAGEMENT") != null) {
+	releaseManagement = Boolean.parseBoolean(build.getEnvironment(null).get("RELEASE_MANAGEMENT"));
+}
+
+String releaseId = 			build.getEnvironment(null).get("workItem");
+
+///////////////////////////////////////////////////////////////////////////////
 // Parámetros para la creación del descriptor
 
 String groupIdUrbanCode =	build.getEnvironment(null).get("URBAN_GROUP_ID");
@@ -71,6 +86,10 @@ String streamCargaInicial =	build.buildVariableResolver.resolve("streamCargaInic
 String streamTarget = 		build.buildVariableResolver.resolve("streamTarget").equals("") ? stream : build.buildVariableResolver.resolve("streamTarget");
 
 String rtcPass = 			build.buildVariableResolver.resolve("pwdRTC");
+String rtcKeystore = 		build.getEnvironment(null).get("RTC_KEYSTORE_VERSION");
+
+
+boolean sendMail = false;
 
 // Esta es la variable final que se envia a la clase
 String theStream = stream;
@@ -131,6 +150,8 @@ if ( (ancestor.getResult() == Result.SUCCESS) || (forceLaunch) ) {
 	// Si viene desde corriente o es un lanzamiento manual, continuamos
 	if ( (!componentLauch && jobInvokerType.equals("streams")) || (forceLaunch) ) {
 		
+		sendMail = true;
+		
 		// Generamos el descriptor
 		UrbanCodeGenerateJsonDescriptor generateJsonDesc = new UrbanCodeGenerateJsonDescriptor();
 			
@@ -163,6 +184,27 @@ if ( (ancestor.getResult() == Result.SUCCESS) || (forceLaunch) ) {
 		generateJsonDesc.setBeanListTree(beanListTree)
 		generateJsonDesc.setForceLaunch(forceLaunch)
 		generateJsonDesc.setManagersMail(managersMail)
+		if (releaseManagement && !StringUtil.isNull(releaseId)) {
+			println "Gestión de release"
+			try {
+				File f = new File(parentWorkspace, GetReleaseInfo.RELEASE_INFO_FILE_NAME);
+				if (f.exists()) {
+					def releaseInfo =
+						new JsonSlurper().parseText(f.text);
+					generateJsonDesc.setReleaseId(releaseInfo.releaseId);
+					generateJsonDesc.setRemedyRequest(releaseInfo.remedyRequest);
+				}
+				else {
+					log "[WARNING] No hay información de release"
+				}
+			}
+			catch(Exception e) {
+				
+			}
+		}
+		else {
+			println "[WARNING] Se salta la gestión de releases al estar desactivada"
+		}
 			
 		generateJsonDesc.initLogger { println it }
 				
@@ -187,6 +229,7 @@ if ( (ancestor.getResult() == Result.SUCCESS) || (forceLaunch) ) {
 			urbanExecutor.setDescriptor(descriptor)
 			urbanExecutor.setNombreAplicacionUrban(urbanCodeApp)
 			urbanExecutor.setInstantaneaUrban(urbanCodeSnapName)
+			urbanExecutor.setPermisoClarive(permisoClarive)
 
 			urbanExecutor.setEntornoUrban(urbanCodeEnv)
 			urbanExecutor.setServiceStop(serviceStop)
@@ -200,8 +243,13 @@ if ( (ancestor.getResult() == Result.SUCCESS) || (forceLaunch) ) {
 		
 	} else {
 		println "--- INFO: El tipo de invocación no coincide, no hay acciones hacia Urbancode."
+		build.setResult(Result.NOT_BUILT)
 	}
 	
 } else {
 	println "--- INFO: El proceso no ha finalizado correctamente, no hay acciones hacia Urbancode."
+	build.setResult(Result.NOT_BUILT)
 }
+
+
+ParamsHelper.addParams(build, ["sendMail": Boolean.toString(sendMail)])

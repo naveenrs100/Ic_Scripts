@@ -34,6 +34,8 @@ try {
 		new MavenCoordinates(groupId, "ECIServiceAdmin", builtVersion, "ear"),
 		new MavenCoordinates(groupId, "ECIServices", 	 builtVersion, "ear"),
 		new MavenCoordinates(groupId, "OmniStore-Code",  builtVersion, "zip")
+		// new MavenCoordinates(groupId, "ECILoader", 		 builtVersion, "ear"),
+		// new MavenCoordinates(groupId, "ECIWorker", 		 builtVersion, "ear")
 	]
 
 	String action = build.buildVariableResolver.resolve("action");
@@ -43,7 +45,7 @@ try {
 	String managersMail = "josemanuel_fernandez@gexterno.es,GCSoporteplataformaIC@elcorteingles.es";
 	
 	if(action.trim().toLowerCase().equals("deploy")) {
-		instantanea = "nightly_ATG_Omnistore"
+		instantanea = "nightly_${StringUtil.normalize(stream)}"
 	}
 	if(instantanea == null || instantanea.trim().equals("") || instantanea.contains("\${")) {		
 		instantanea = builtVersion;
@@ -111,11 +113,11 @@ try {
 	/**
 	 * Se borra la nightly de urbancode si ya existia.
 	 */
-	if(action.trim().equals("deploy")) {
-		UrbanCodeExecutor exec = new UrbanCodeExecutor(udClientCommand, urlUrbanCode, urbanUser, urbanPassword);
-		exec.initLogger { println it }
-		exec.deleteSnapshot(aplicacionUrbanCode, instantanea);
-	}
+	//if(action.trim().equals("deploy")) {
+	//	UrbanCodeExecutor exec = new UrbanCodeExecutor(udClientCommand, urlUrbanCode, urbanUser, urbanPassword);
+	//	exec.initLogger { println it }
+	//	exec.deleteSnapshot(aplicacionUrbanCode, instantanea);
+	//} (Esto ya se hace más adelante)
 	
 	/**
 	 * Conexión con UrbanCode para crear las versiones, dar de alta la snapshot y lanzar el despliegue si fuese necesario.

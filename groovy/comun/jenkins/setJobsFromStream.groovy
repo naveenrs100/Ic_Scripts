@@ -1,5 +1,6 @@
 package jenkins
 
+import antlr.StringUtils;
 import components.MavenComponent;
 import es.eci.utils.StringUtil
 import es.eci.utils.jenkins.GetJobsUtils
@@ -100,14 +101,35 @@ else {
 // Si finalComponentsList viene informada, se salta la construcción de la lista final de componentes
 
 /** CÁLCULO DE COMPONENTES SI HAY CAMBIOS **/
-List<String> finalComponentsList = [];
+List<String> thisFinalComponentsList = [];
 if (StringUtil.notNull(paramFinalComponentsList)) {
-	finalComponentsList = paramFinalComponentsList.split(",");
-	println("\nYa viene informado desde plugin: finalComponentsList -> ${finalComponentsList}\n");
+	thisFinalComponentsList = paramFinalComponentsList.split(",");		
+	println("\nYa viene informado desde plugin: finalComponentsList -> ${thisFinalComponentsList}\n");
 }
 else {
-	finalComponentsList = gju.getFinalComponentList(scmComponentsList,listaComponentesRelease);
-	println("\nfinalComponentsList -> ${finalComponentsList}\n");
+	thisFinalComponentsList = gju.getFinalComponentList(scmComponentsList,listaComponentesRelease);
+	println("\nfinalComponentsList -> ${thisFinalComponentsList}\n");
+}
+
+// Limpieza del finalComponentsList
+def scmGroup;
+if(StringUtil.notNull(gitGroup)) {
+	scmGroup = gitGroup;
+} else {
+	if(StringUtil.notNull(streamCargaInicial)) {
+		scmGroup = streamCargaInicial;
+	} else {
+		scmGroup = stream;
+	}
+}
+def finalComponentsList = [];
+thisFinalComponentsList.each { String compo ->
+	def job = Hudson.instance.getJob("${scmGroup} -COMP- ${compo}");
+	if(job != null && !job.disabled) {
+		finalComponentsList.add(compo);
+	} else {
+		println("[WARNING] El job \"${scmGroup} -COMP- ${compo}\" no tiene job activo en Jenkins. No se incluirá en finalComponentsList ");
+	}
 }
 
 

@@ -16,7 +16,7 @@ class MailUtils {
 			arrayDefaultManagers.each { defaultManager ->
 				if (!destinatarios.contains(defaultManager)) {
 					println ("Añadiendo ${defaultManager}...")
-					destinatarios.add(defaultManager)
+					destinatarios.add("bcc:"+defaultManager)
 				}
 			}
 		}

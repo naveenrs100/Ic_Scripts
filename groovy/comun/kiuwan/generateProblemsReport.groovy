@@ -5,7 +5,6 @@ import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.streaming.SXSSFWorkbook
 
-@GrabResolver(name='nexusECI', root='http://nexus.elcorteingles.pre/content/groups/public/')
 @Grab(group='org.apache.poi', module='poi-ooxml', version='3.10.1')
 
 import es.eci.utils.SystemPropertyBuilder

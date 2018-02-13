@@ -18,9 +18,10 @@ Long milis = Stopwatch.watch {
 	clConn.initLogger { println it };
 
 	ClariveParamsHelper clHelper = new ClariveParamsHelper(build);
-	clHelper.initLogger { println it }	
-	def producto = clHelper.findArea();
-	producto = producto.replaceAll('\\(RTC\\)','').trim();
+	clHelper.initLogger { println it }
+	def producto = build.buildVariableResolver.resolve("aplicacionUrbanCode");
+//	def producto = clHelper.findArea();
+//	producto = producto.replaceAll('\\(RTC\\)','').trim();
 	
 	def subproducto = clHelper.getSubproducto();
 	def tipo_corriente = clHelper.getTipoCorriente();

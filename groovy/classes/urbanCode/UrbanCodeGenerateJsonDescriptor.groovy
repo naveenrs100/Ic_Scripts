@@ -73,6 +73,14 @@ class UrbanCodeGenerateJsonDescriptor extends Loggable {
 	//Mail
 	private String managersMail;
 	
+	///////////////////////////////////////////
+	// Gestión de releases
+	
+	// Identificador de la release
+	private String releaseId;
+	// Campo CRQ_Remedy 
+	private String remedyRequest;
+	
 	//---------------------------------------------------------------
 	
 	private boolean sinDescriptor = false;
@@ -198,11 +206,20 @@ class UrbanCodeGenerateJsonDescriptor extends Loggable {
 				
 				// Descriptor Kiuwan
 				if (isNull(gitGroup)) {
-					jsonCompleteKiuwan = JsonOutput.toJson(["source": "${streamFicha}", "managersMail": "${managersMail}", 
+					jsonCompleteKiuwan = JsonOutput.toJson([
+						"releaseId" : releaseId,
+						"remedyRequest" : remedyRequest,
+						"source": "${streamFicha}", 
+						"managersMail": "${managersMail}", 
 						"versions" : componentsKiuwan])
 				} else {
-					jsonCompleteKiuwan = JsonOutput.toJson(["source": "${gitGroup}", "managersMail": "${managersMail}", 
-						"branch": "${targetBranch}", "versions" : componentsKiuwan])
+					jsonCompleteKiuwan = JsonOutput.toJson([
+						"releaseId" : releaseId,
+						"remedyRequest" : remedyRequest,
+						"source": "${gitGroup}", 
+						"managersMail": "${managersMail}", 
+						"branch": "${targetBranch}", 
+						"versions" : componentsKiuwan])
 				}				
 			
 				// Se sube el nuevo descriptor a Nexus.			
@@ -762,5 +779,35 @@ class UrbanCodeGenerateJsonDescriptor extends Loggable {
 	public void setNuevaInstantaneaUrban(String nuevaInstantaneaUrban) {
 		this.nuevaInstantaneaUrban = nuevaInstantaneaUrban;
 	}
+
+	/**
+	 * @return the remedyRequest
+	 */
+	public String getRemedyRequest() {
+		return remedyRequest;
+	}
+
+	/**
+	 * @param remedyRequest the remedyRequest to set
+	 */
+	public void setRemedyRequest(String remedyRequest) {
+		this.remedyRequest = remedyRequest;
+	}
+
+	/**
+	 * @return the releaseId
+	 */
+	public String getReleaseId() {
+		return releaseId;
+	}
+
+	/**
+	 * @param releaseId the releaseId to set
+	 */
+	public void setReleaseId(String releaseId) {
+		this.releaseId = releaseId;
+	}
+	
+	
 	
 }

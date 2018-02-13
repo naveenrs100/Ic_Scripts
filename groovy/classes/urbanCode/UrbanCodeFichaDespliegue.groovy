@@ -50,6 +50,9 @@ class UrbanCodeFichaDespliegue extends Loggable {
 	// Si el despliegue conlleva parada de servicio
 	private boolean serviceStop;
 	
+	// Identificador del proceso si la construcción ha sido iniciada por Clarive
+	private String permisoClarive;
+	
 	//---------------------------------------------------------------
 	// Métodos de la clase
 	
@@ -107,6 +110,8 @@ class UrbanCodeFichaDespliegue extends Loggable {
 						// ¿Hay entorno? - Una # indica que no se desplegará
 						if ( isNull(entornoUrban) || entornoUrban.contains("#") ) {
 							log "--- INFO: No está activado el despliegue automático en entorno desde QUVE"
+						} else if( !isNull(permisoClarive) && permisoClarive.equals("true") ) {
+							log "--- INFO: Proceso iniciado desde Clarive (permisoClarive = ${permisoClarive}). El encargado del despliegue va a ser Clarive."
 						} else {
 							log "--- INFO: Se procede a lanzar el despliegue en Urban"
 							executeUrbanDeploy(descriptor, isServiceStop());
@@ -456,6 +461,21 @@ class UrbanCodeFichaDespliegue extends Loggable {
 	 */
 	public void setServiceStop(boolean serviceStop) {
 		this.serviceStop = serviceStop;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getPermisoClarive() {
+		return permisoClarive;
+	}
+
+	/**
+	 * @param permisoClarive True si la construcción ha sido llevada a cabo por Clarive
+	 */
+	public void setPermisoClarive(String permisoClarive) {
+		this.permisoClarive = permisoClarive;
 	}
 
 }

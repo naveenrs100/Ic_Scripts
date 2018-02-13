@@ -66,6 +66,7 @@ public class JobCreator extends Loggable {
 				String aplicacionUrbanCode = componentsParams.getAt("aplicacionUrbanCode");	
 				String managersMail = componentsParams.getAt("managersMail");
 				String ordenacion = componentsParams.getAt("ordenacion");
+				
 
 				// Creación de job de build de corriente:
 				println("### Creación del job build para ${product}:");
@@ -348,6 +349,7 @@ public class JobCreator extends Loggable {
 					JobCreatorUtils.modifyParameterNode("streamTarget", product + " - RELEASE", componentParametersNode, xmlUtils);
 					JobCreatorUtils.modifyParameterNode("streamMantenimiento", product + " - MANTENIMIENTO", componentParametersNode, xmlUtils);
 					JobCreatorUtils.modifyParameterNode("component", component, componentParametersNode, xmlUtils);
+					
 
 					if(!technology.equals("broker")) {
 						String docker_template = compoParams.getAt("docker_template");
@@ -370,6 +372,9 @@ public class JobCreator extends Loggable {
 					
 					String componenteUrbanCode = compoParams.getAt("componenteUrbanCode")
 					JobCreatorUtils.modifyParameterNode("componenteUrbanCode", componenteUrbanCode, componentParametersNode, xmlUtils);
+					
+					String jdkSuffix = compoParams.getAt("jdkSuffix")
+					JobCreatorUtils.modifyParameterNode("JdkSuffix", jdkSuffix, componentParametersNode, xmlUtils);
 
 					customWorkspaceNode = xmlUtils.xpathNode(componentDoc, "/project/customWorkspace");
 					wksNormalized = JobCreatorUtils.normalize(product + " - DESARROLLO_" + component);
@@ -679,6 +684,9 @@ public class JobCreator extends Loggable {
 
 					String componenteUrbanCode = compoParams.getAt("componenteUrbanCode")
 					JobCreatorUtils.modifyParameterNode("componenteUrbanCode", componenteUrbanCode, componentParametersNode, xmlUtils);
+					
+					String jdkSuffix = compoParams.getAt("jdkSuffix")
+					JobCreatorUtils.modifyParameterNode("JdkSuffix", jdkSuffix, componentParametersNode, xmlUtils);
 
 					customWorkspaceNode = xmlUtils.xpathNode(componentDoc, "/project/customWorkspace");
 					wksNormalized = JobCreatorUtils.normalize(product + " - " + component);

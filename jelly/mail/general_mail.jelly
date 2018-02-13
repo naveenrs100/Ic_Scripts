@@ -19,6 +19,16 @@ body {
 	text-align: center
 }
 
+.tableHeader {
+	font-weight:bold;
+	color: #555;
+}
+
+.resultsTable {
+	margin-top:20px;
+	margin-left:110px;
+}
+
 .alDcha {
 	text-align: right
 }
@@ -390,16 +400,16 @@ input[type=checkbox]:checked + div {
 				<p><span>Componente RTC:</span> ${component}</p>
 			</j:if>
 			<j:if test="${version!=''}">
-				<p><span>Versión:</span> ${version}</p>
+				<p><span>Versi&amp;oacute;n:</span> ${version}</p>
 			</j:if>
 			<j:if test="${instantanea!=null &amp;&amp; instantanea!=''}">
 				<p><span>Ficha de despliegue:</span> ${instantanea}</p>
 			</j:if>
 			<p><span>Fecha:</span> ${it.timestampString}</p>
 			<p class="B${buildResult}"><span>Resultado final:</span> ${resultadoTraducido}</p>
-			<p><span>Duración:</span> ${duration}</p>
+			<p><span>Duraci&amp;oacute;n:</span> ${duration}</p>
 			<j:if test="${urlCheckin!=''}">
-				<p><span>Análisis de código estático:</span> <a href="${urlCheckin}">Acceder a Kiuwan</a></p>
+				<p><span>An&amp;aacute;lisis de c&amp;oacute;digo est&amp;aacute;tico:</span> <a href="${urlCheckin}">Acceder a Kiuwan</a></p>
 			</j:if>
 		</div>
 		<br /><br />
@@ -409,7 +419,7 @@ input[type=checkbox]:checked + div {
 			${resumenHTML}
 			<br />
 			<p class="B${buildResult}"><span>Resultado Final:</span> ${resultadoTraducido}</p>
-			<p class="normal"><span>Duración de la construcción:</span> ${duration}</p>
+			<p class="normal"><span>Duraci&amp;oacute;n de la construcci&amp;oacute;n:</span> ${duration}</p>
 		</div>
 		
 		<j:if test="${statusHTML!=null &amp;&amp; statusHTML!=''}">
@@ -424,8 +434,8 @@ input[type=checkbox]:checked + div {
 		<j:set var="unknownMails" value="${build.buildVariableResolver.resolve('unknownMails')}" />
 		<j:if test="${unknownMails!=null &amp;&amp; unknownMails!=''}">
 			<div class="seccion">
-				<h2>USUARIOS SIN DIRECCIÓN DE CORREO ELECTRÓNICO</h2>
-				<p class="BFAILURE">AVISO: Se debe informar el correo electrónico de los siguientes usuarios en RTC:</p>
+				<h2>USUARIOS SIN DIRECCI&amp;Oacute;N DE CORREO ELECTR&amp;Oacute;NICO</h2>
+				<p class="BFAILURE">AVISO: Se debe informar el correo electr&amp;oacute;nico de los siguientes usuarios en RTC:</p>
 				<p class="normal">
 					<ul>${unknownMails}</ul>
 				</p>
@@ -438,7 +448,7 @@ input[type=checkbox]:checked + div {
 			<j:if test="${changeSet!=null &amp;&amp; !changeSet.isEmptySet() &amp;&amp; process!='RELEASE'}">
 				<j:set var="hadChanges" value="false" />
 				<div class="seccion">
-					<h2>CAMBIOS EN EL REPOSITORIO DE CÓDIGO FUENTE</h2>
+					<h2>CAMBIOS EN EL REPOSITORIO DE C&amp;Oacute;DIGO FUENTE</h2>
 					<p class="normal">
 						<j:forEach var="cs" items="${changeSet.logs}" varStatus="loop">
 							<j:set var="hadChanges" value="true" />
@@ -468,7 +478,7 @@ input[type=checkbox]:checked + div {
 							<br />
 						</j:forEach>
 						<j:if test="${!hadChanges}">
-								NO HA HABIDO CAMBIOS EN EL REPOSITORIO DE CÓDIGO FUENTE
+								NO HA HABIDO CAMBIOS EN EL REPOSITORIO DE C&amp;Oacute;DIGO FUENTE
 							</j:if>
 					</p>
 				</div>
@@ -479,7 +489,7 @@ input[type=checkbox]:checked + div {
 			<j:if test="${releaseNotes!=null &amp;&amp; !releaseNotes.isEmptySet() &amp;&amp; process=='RELEASE'}">
 				<j:set var="hadChanges" value="false" />
 				<div class="seccion">
-					<h2>CAMBIOS INTRODUCIDOS EN LA VERSIÓN ${version}</h2>
+					<h2>CAMBIOS INTRODUCIDOS EN LA VERSI&amp;Oacute;N ${version}</h2>
 					<p class="normal">
 						<j:forEach var="cs" items="${releaseNotes.logs}" varStatus="loop">
 							<j:set var="hadChanges" value="true" />
@@ -510,7 +520,7 @@ input[type=checkbox]:checked + div {
 							<br />-->
 						</j:forEach>
 						<j:if test="${!hadChanges}">
-								NO HA HABIDO CAMBIOS EN EL REPOSITORIO DE CÓDIGO FUENTE
+								NO HA HABIDO CAMBIOS EN EL REPOSITORIO DE C&amp;Oacute;DIGO FUENTE
 							</j:if>
 					</p>
 				</div>
@@ -544,7 +554,7 @@ input[type=checkbox]:checked + div {
 			<j:if test="${build.result=='SUCCESS' &amp;&amp; jacocoAction==null &amp;&amp; coberturaAction==null}">
 				<div class="seccion">
 	            	<h2>INFORME DE COBERTURA DE PRUEBAS UNITARIAS</h2>
-	            	<div class="subEstado">0% (el proyecto no dispone de información de cobertura)</div>
+	            	<div class="subEstado">0% (el proyecto no dispone de informaci&amp;oacute;n de cobertura)</div>
                 </div>
 			</j:if>
 			<!-- Resultados de Jacoco -->

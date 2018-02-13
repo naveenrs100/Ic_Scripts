@@ -65,8 +65,6 @@ def descargaLibrerias(File archivo, String pathDescarga, String pathDescargaLibr
 	println "===== Descarga Librerías ====="
 	def pathNexusRelease = build.getEnvironment().get("C_NEXUS_RELEASES_URL")
 	def pathNexus = build.getEnvironment().get("C_NEXUS_SNAPSHOTS_URL")
-	//def pathNexus 	= "http://nexus.elcorteingles.pre/content/repositories/eci-c-snapshots/"
-	//def pathNexusRelease = "http://nexus.elcorteingles.pre/content/repositories/eci-c-releases/"
 	def libs 		= new XmlSlurper().parse(archivo)
 	def librerias 	= libs.lib
 	for (int i=0; i<librerias.size(); i++){

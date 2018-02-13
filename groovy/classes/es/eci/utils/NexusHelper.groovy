@@ -382,7 +382,8 @@ class NexusHelper extends Loggable {
 	}
 	
 	/**
-	 * Este método sube un fichero a nexus usando la API REST 
+	 * Este método sube un fichero a nexus usando la API REST.
+	 * NO FUNCIONA CON VERSIONES SNAPSHOT
 	 * @param coordinates Coordenadas a subir
 	 * @param file Fichero a subir
 	 */

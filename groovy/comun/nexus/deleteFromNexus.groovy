@@ -29,7 +29,7 @@ if(groupId != null && !groupId.trim().equals("")) {
 
 	Pattern releasePattern = ~/.*(\d+\.)+0$/
 	Pattern fixPattern = ~/.*(\d+\.)+[1-9](\d*)$/
-	Pattern hotfixPattern = ~/.*(\d+\.)+[0-9]-(\d*)$/
+	Pattern hotfixPattern = ~/.*(\d+\.)+[0-9]+-(\d*)$/
 
 	Pattern versionPattern;
 

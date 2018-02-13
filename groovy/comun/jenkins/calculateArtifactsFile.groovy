@@ -17,6 +17,7 @@ if(artifactsJson != null && !artifactsJson.trim().equals("")) {
 	String path = build.getEnvironment(null).get("parentWorkspace")
 	File workspace = new File(path)
 	File artifacts = new File(workspace, "artifacts.json")
+	artifacts.createNewFile();
 	artifacts.text = artifactsJson
 	
 	def parent = new GlobalVars().getParentBuild(build);

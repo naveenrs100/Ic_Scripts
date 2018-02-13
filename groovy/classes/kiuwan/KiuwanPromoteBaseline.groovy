@@ -107,8 +107,9 @@ class KiuwanPromoteBaseline extends Loggable {
 						if(componentName.toLowerCase().endsWith("-properties") || componentName.toLowerCase().endsWith("-config")
 							|| componentName.toLowerCase().endsWith("- properties") || componentName.toLowerCase().endsWith("- config")
 							|| componentName.toLowerCase().endsWith("- cfg") || componentName.toLowerCase().endsWith("-cfg")
-							|| componentName.contains("- Config") || componentName.contains("-Config")) {
-							log("### WARNING: El componente \"${componentName}\" parece un properties o de configuración. "
+							|| componentName.contains("- Config") || componentName.contains("-Config")
+							|| componentName.toLowerCase().contains("- templates") || componentName.toLowerCase().contains("-templates")) {
+							log("### WARNING: El componente \"${componentName}\" parece un properties, de configuración o un templates. "
 								+ "No debería haber ningún análisis suyo en Kiuwan que promocionar a Baseline.")
 							
 						} else {

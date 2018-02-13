@@ -3,6 +3,7 @@ package jenkins
 import urbanCode.UrbanCodeApplicationProcess;
 import urbanCode.UrbanCodeExecutor;
 import es.eci.utils.StringUtil
+import es.eci.utils.SystemPropertyBuilder
 import urbanCode.Constants;
 
 /**
@@ -18,41 +19,57 @@ import urbanCode.Constants;
  * stream: Nombre de corriente para diferenciar nightlys.
  */
 
-// --- Variables de sistema ---
-def urbanCodeCommand = args[0]
-def urlUrbanCode = args[1]
-def userUrbanCode = args[2]
-def pwdUrbanCode = args[3]
+//def urbanCodeCommand = args[0]
+//def urlUrbanCode = args[1]
+//def userUrbanCode = args[2]
+//def pwdUrbanCode = args[3]
+//def urbanCodeApp = args[4]
+//def urbanCodeEnv = args[5]
+//def version = args[6]
+//def stream = args[7]
 
-// --- Variables entrantes ---
+// Variables de entrada
+SystemPropertyBuilder parameterBuilder = new SystemPropertyBuilder();
+def params = parameterBuilder.getSystemParameters();
 
-def urbanCodeApp = args[4] // OBLIGATORIO
-def urbanCodeEnv = args[5] // OBLIGATORIO
-def version = args[6] // OBLIGATORIO
-def stream = args[7]
+def urbanCodeCommand = params["urbanCodeCommand"]
+def urlUrbanCode = params["urlUrbanCode"]
+def userUrbanCode = params["userUrbanCode"]
+def pwdUrbanCode = params["pwdUrbanCode"]
+def urbanCodeApp = params["urbanCodeApp"]
+def urbanCodeEnv = params["urbanCodeEnv"]
+def version = params["version"]
+def stream = params["stream"]
 
 def isNull = { String s ->
 	return s == null || s.trim().length() == 0;
 }
 
 // Obtención de la última release en UrbanCode.
-private Object getLastReleaseSnapshot(UrbanCodeExecutor executor, String urbanCodeApp) {
+private Object getLastSnapshot(UrbanCodeExecutor executor, String urbanCodeApp, String version) {
 	def lista = []
-	
+
 	def jsonFile = executor.getSnapshotsInApplication(urbanCodeApp)
-	
+
 	jsonFile.each {
-		if (!it.name.startsWith('nightly')) {
-			lista.add(it)
+		if(version.equals("RELEASE")) {
+			if (it.description.equals("release") || it.description.equals("addFix")) {
+				lista.add(it)
+			}
+		}
+		if(version.equals("MANTENIMIENTO")) {
+			if (it.description.equals("addHotfix")) {
+				lista.add(it)
+			}
 		}
 	}
-	
+
 	Collections.sort(lista, new Comparator() {
-			public int compare(a, b) {
-				return new Date(b.created).compareTo(new Date(a.created))
-			}
-	})
-	
+				public int compare(a, b) {
+					return new Date(b.created).compareTo(new Date(a.created))
+				}
+			})
+
 	if (lista.size > 0) {
 		return lista[0]
 	} else {
@@ -66,15 +83,15 @@ private Object getLastReleaseSnapshot(UrbanCodeExecutor executor, String urbanCo
 boolean isThereOpenVersion = false;
 
 if ( !isNull(urbanCodeApp) && !isNull(urbanCodeEnv) && !isNull(version) ) {
-	
+
 	UrbanCodeExecutor exec = new UrbanCodeExecutor(
-		urbanCodeCommand,
-		urlUrbanCode,
-		userUrbanCode,
-		pwdUrbanCode)
-	
+			urbanCodeCommand,
+			urlUrbanCode,
+			userUrbanCode,
+			pwdUrbanCode)
+
 	exec.initLogger { println it }
-	
+
 	/*
 	 *  Si la versión es igual a DESARROLLO, buscaremos la última snapshot en urban de desarrollo.
 	 *  Si la versión es igual a RELEASE, buscaremos la última versión cerrada.
@@ -85,33 +102,33 @@ if ( !isNull(urbanCodeApp) && !isNull(urbanCodeEnv) && !isNull(version) ) {
 		} else {
 			version = "nightly_${StringUtil.normalize(stream)}"
 		}
-		
+
 		isThereOpenVersion = true;
-	} else if (version == "RELEASE") {
+	} else if (version == "RELEASE" || version == "MANTENIMIENTO") {
 		UrbanCodeExecutor executor = new UrbanCodeExecutor(
-			urbanCodeCommand,
-			urlUrbanCode,
-			userUrbanCode,
-			pwdUrbanCode)
+				urbanCodeCommand,
+				urlUrbanCode,
+				userUrbanCode,
+				pwdUrbanCode)
 		executor.initLogger{println it}
-		def snapshot = getLastReleaseSnapshot(executor, urbanCodeApp);
+		def snapshot = getLastSnapshot(executor, urbanCodeApp, version);
 		version = snapshot.get('name');
 	}
-	
+
 	// Valores antes de llamar al proceso de UrbanCode.
 	println "Aplicación: ${urbanCodeApp}"
 	println "Entorno: ${urbanCodeEnv}"
 	println "Versión: ${version}"
 	println "Es versión abierta: ${isThereOpenVersion}"
-	
+
 	UrbanCodeApplicationProcess process = new UrbanCodeApplicationProcess(
-		urbanCodeApp,
-		Constants.DEPLOY_PROCESS,
-		urbanCodeEnv,
-		true,
-		version,
-		isThereOpenVersion?["ETIQUETA":"-SNAPSHOT"]:[:]);
-	
+			urbanCodeApp,
+			Constants.DEPLOY_PROCESS,
+			urbanCodeEnv,
+			true,
+			version,
+			isThereOpenVersion?["ETIQUETA":"-SNAPSHOT"]:[:]);
+
 	// Lanzar el despliegue
 	try {
 		exec.requestApplicationProcess(process)
@@ -120,7 +137,7 @@ if ( !isNull(urbanCodeApp) && !isNull(urbanCodeEnv) && !isNull(version) ) {
 		e.printStackTrace()
 		throw new Exception('ERROR - al ejecutar el despliegue en Urban')
 	}
-	
+
 } else {
 	println "Aplicación: ${urbanCodeApp}"
 	println "Entorno: ${urbanCodeEnv}"

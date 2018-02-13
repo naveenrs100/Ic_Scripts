@@ -15,6 +15,7 @@ import org.apache.http.protocol.HTTP
 import org.apache.http.util.EntityUtils
 
 import ssh.KeystoreInformation
+import ssh.RESTClientHelper;
 import ssh.SecureRESTClientHelper
 import es.eci.utils.ParameterValidator
 import es.eci.utils.Stopwatch
@@ -104,14 +105,10 @@ class GitlabClient extends Loggable {
 		String ret = null;
 		HttpPost post = null;
 		long millis = Stopwatch.watch {
-			post = new HttpPost(urlGitlab + "/api/v3/" + entityName);
-			List<BasicNameValuePair> nvps = new ArrayList<BasicNameValuePair>();
-			for (String key: params.keySet()) {
-				nvps.add(new BasicNameValuePair(key, params[key]));
-			}
-			post.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
+			post = RESTClientHelper.initPostMethod(
+				urlGitlab + "/api/v3/" + entityName,
+				params);
 			HttpClient client = getHttpClient();
-			log("Lanzando $post ...");
 			post.addHeader("PRIVATE-TOKEN", privateToken);
 			log "Lanzando $post ..."
 			HttpResponse response = client.execute(post);
@@ -141,7 +138,6 @@ class GitlabClient extends Loggable {
 			}
 			put.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
 			HttpClient client = getHttpClient();
-			log("Lanzando $put ...");
 			put.addHeader("PRIVATE-TOKEN", privateToken);
 			log "Lanzando $put ..."
 			HttpResponse response = client.execute(put);
@@ -161,21 +157,9 @@ class GitlabClient extends Loggable {
 	 * @return Cadena JSON devuelta por gitlab.
 	 */
 	public String get(String entityName, Map<String, String> params) {
-		StringBuilder uri = new StringBuilder(urlGitlab + "/api/v3/" + entityName);
-		boolean first = true;
-		for (String key: params?.keySet()) {
-			if (first) {
-				uri.append("?");
-				first = false;
-			}
-			else {
-				uri.append("&")
-			}
-			uri.append(key);
-			uri.append("=");
-			uri.append(URLEncoder.encode(params[key].toString(), "UTF-8"));
-		}
-		HttpGet get = new HttpGet(uri.toString());
+		HttpGet get = RESTClientHelper.initGetMethod(
+				urlGitlab + "/api/v3/" + entityName,
+				params);
 		HttpClient client = getHttpClient();
 		// Autenticación propia de gitlab
 		// Se include un header PRIVATE-TOKEN

@@ -13,6 +13,7 @@ import buildtree.BuildTreeHelper
 import es.eci.utils.JobRootFinder
 import es.eci.utils.ParamsHelper
 import es.eci.utils.Stopwatch
+import es.eci.utils.StringUtil
 import es.eci.utils.base.Loggable
 import hudson.model.*
 
@@ -21,6 +22,7 @@ class SetMailParameters extends Loggable {
 	private Map params = [:]
 	File changeLogFile = null
 	File releaseNotesFile = null
+	private PrettyFormatter pretty = new PrettyFormatter();
 	
 	def resultsTable = new HashMap()
 	
@@ -30,15 +32,6 @@ class SetMailParameters extends Loggable {
 		resultsTable.put(Result.UNSTABLE.toString(),"INESTABLE")
 		resultsTable.put(Result.ABORTED.toString(),"ABORTADO")
 		resultsTable.put(Result.NOT_BUILT.toString(),"OMITIDO")
-	}
-
-	// Descompone una lista de destinatarios separada por comas en una lista de
-	//	cadenas de caracteres
-	private List<String> parseReceivers(String managersMail) {
-		List<String> ret = new LinkedList<String>()
-		def managers = managersMail.split(',')
-		managers.each { if (it != null && it.trim().size() > 0) { ret << it } }
-		return ret;
 	}
 	
 	/**
@@ -73,13 +66,14 @@ class SetMailParameters extends Loggable {
 			String userRTC,
 			String mailSubject,
 			String defaultManagersMail = null) {
+		pretty.initLogger(this);
 		boolean sendMail = true;
 		AbstractBuild buildInvoker = new JobRootFinder().getParentBuild(build);
 		if (buildInvoker != null || action == "GenerateReleaseNotes"){
 			// Ejecución -----------			
 			log "**** ACTION: " + action
 			// Añadir a la lista de destinatarios los indicados expresamente en el job
-			List<String> receivers = parseReceivers(managersMail)
+			List<String> receivers = MailAddressParser.parseReceivers(managersMail)
 			String buildType = null;
 			if (buildInvoker != null){
 				JobRootFinder finder = new JobRootFinder();
@@ -88,6 +82,7 @@ class SetMailParameters extends Loggable {
 				// Si el ancestro está en NOT_BUILT, sendMail <- false
 				if (ancestor.getResult().equals(Result.NOT_BUILT)
 					|| ancestor.getResult().equals(Result.ABORTED)) {
+					log "### Se cancela el envío puesto que el proceso invocante ha terminado sin realizar ninguna acción"
 					sendMail = false;
 				}
 				else {
@@ -114,6 +109,7 @@ class SetMailParameters extends Loggable {
 						}
 						else {						
 							log "Actual: job de componente"
+							log "### Se cancela el envío puesto que los componentes no deben enviar correo si se les invoca desde un job de grupo"
 							sendMail = false;
 						}				
 						// Información de cambios
@@ -135,7 +131,7 @@ class SetMailParameters extends Loggable {
 				prepareDataReleaseNotes(buildInvoker,build,userRTC)
 			}
 			if (sendMail) {
-				MailWriter writer = MailWriter.writer(buildType);
+				MailWriter writer = new MailWriter();
 				writer.initLogger(this)
 				log "Lista de correos 2: $receivers"
 				writeResult(buildInvoker,numeroLineas,mailSubject,build, receivers, writer)
@@ -143,6 +139,7 @@ class SetMailParameters extends Loggable {
 			else {
 				// Previene 
 				ParamsHelper.addParams(build, ["MAIL_BUILD_STATUS":"CANCELADO"])
+				build.setResult(Result.NOT_BUILT)
 			}
 		}
 		else{
@@ -262,6 +259,18 @@ class SetMailParameters extends Loggable {
 		return ret;
 	}
 	
+	// Da el formato apropiado a la presentación de una fecha para el registro de 
+	//	cambios
+	private String formatDate(def date) {
+		return pretty.formatDate(date);
+	}
+	
+	// Da el formato apropiado a la presentación de un workitem para el registro 
+	//	de cambios
+	private String formatWorkItem(def workItem) {
+		return pretty.formatInteger(workItem);
+	}
+	
 	/**
 	 * Construye el resumen HTML de la ejecución de los pasos de una construcción.
 	 * @param buildInvoker Ejecución en jenkins que nos interesa resumir (o bien es
@@ -301,88 +310,127 @@ class SetMailParameters extends Loggable {
 		// Elaborar una estructura de datos que permita recorrer por componente
 		List<BuildBean> executionByComponents = processExecutionTree(beans);
 		
-		executionByComponents.each { BuildBean componentBean ->
-			// Cabecera del componente
-			resumenHTML.append("<h3>")
-			writer.addHTML(resultsTable, resumenHTML, componentBean, linesNumber, true, false)
-			writer.addHTML(resultsTable, statusHTML, componentBean, linesNumber, false, true)
-			resumenHTML.append("</h3>")
-			List<BuildBean> children = componentBean.getChildren()
-			children.each { BuildBean child ->
-				// Líneas para cada paso de construcción
-				writer.addHTML(resultsTable, resumenHTML, child, linesNumber, true, false)
-				writer.addHTML(resultsTable, statusHTML, child, linesNumber, false, true)
+		if (executionByComponents == null || executionByComponents.size() == 0) {
+			log "No se ha ejecutado ningún componente"
+			log "Resultado de job principal -> " + buildInvoker.getResult()
+			// No se han llegado a ejecutar componentes
+			if (buildInvoker.getResult().equals(Result.FAILURE)) {
+				log "Fallo de ejecución en el job principal"
+				log "Poblando el statusHTML con el error del job de corriente..."
+				// Sí se ha producido algún error
+				writer.appendMainBuildLog(statusHTML, linesNumber, buildInvoker)
 			}
-			
-			//log "Compo: " + buildPaso.getComponent()
-			CoverageTestsInfoAction coverageTestInfoAction = buildInvoker.getAction(
-				org.jenkinsci.plugins.testsreportaggregator.beans.CoverageTestsInfoAction.class)
-			if (coverageTestInfoAction != null) {
-				Map<String, TestResultBean> mapaTestResults = coverageTestInfoAction.getResults()
-	
-				// Resultados Test Junit
-				TestResultBean resultadosTest = mapaTestResults.get(componentBean.getComponent())
-				if (resultadosTest != null) {
-					resumenHTML.append('<label for="' + componentBean.getComponent() + '_junit">' + 
-						'<p style="text-indent:5em"><span>Resumen de pruebas unitarias (expandir)</span></p></label><input type="checkbox" id="' + 
-						componentBean.getComponent() + '_junit" checked><div class="hide"><table class="datos"><thead>' + 
-						'<tr><td>Fallados</td><td>Correctos</td><td>Omitidos</td><td>Total</td></tr></thead><tbody><tr><td>' + 
-						resultadosTest.getFailCount() + '</td><td>' + 
-						(resultadosTest.getTotalCount() - (resultadosTest.getFailCount()+resultadosTest.getSkipCount())) +
-						'</td><td>' + resultadosTest.getSkipCount() + '</td><td>' + resultadosTest.getTotalCount() +
-						'</td></tr></tbody></table></div>')
+		}
+		else {
+			executionByComponents.each { BuildBean componentBean ->
+				// Cabecera del componente
+				resumenHTML.append("<h3>")
+				writer.addHTML(resultsTable, true, resumenHTML, componentBean, linesNumber, true, false)
+				writer.addHTML(resultsTable, true, statusHTML, componentBean, linesNumber, false, true)
+				resumenHTML.append("</h3>")
+				List<BuildBean> children = componentBean.getChildren()
+				children.each { BuildBean child ->
+					// Líneas para cada paso de construcción
+					writer.addHTML(resultsTable, false, resumenHTML, child, linesNumber, true, false)
+					writer.addHTML(resultsTable, false, statusHTML, child, linesNumber, false, true)
 				}
 				
-				// Resultados Cobertura
-				Map<String, CoverageInfoBean> mapaCoverageInfo = coverageTestInfoAction.getCoverage()
-				
-				CoverageInfoBean resultadosCoverage = mapaCoverageInfo.get(componentBean.getComponent())
-				
-				if (resultadosCoverage != null) {
-					resumenHTML.append('<label for="' + componentBean.getComponent() + '_cover">' + 
-						'<p style="text-indent:5em"><span>Resumen de Cobertura de Proyecto (expandir)</span></p></label><input type="checkbox" id="' + componentBean.getComponent() + 
-						'_cover" checked><div class="hide"><table class="datos"><thead><tr><td>Package</td><td>Branches</td>' +
-						'<td>Complexity</td><td>Instructions</td><td>Methods</td><td>Lines</td><td>Classes</td></tr></thead><tbody>')
-					resultadosCoverage.getMetricsByPackage().each { paquete, metricasMap ->
-						resumenHTML.append('<tr><td>' + paquete + '</td>')
-						resumenHTML.append('<td>' + metricasMap.branches.round(2) + '%</td>')
-						resumenHTML.append('<td>' + metricasMap.complexity.round(2) + '%</td>')
-						resumenHTML.append('<td>' + metricasMap.instructions.round(2) + '%</td>')
-						resumenHTML.append('<td>' + metricasMap.methods.round(2) + '%</td>')
-						resumenHTML.append('<td>' + metricasMap.lines.round(2) + '%</td>')
-						resumenHTML.append('<td>' + metricasMap.classes.round(2) + '%</td></tr>')
+				//log "Compo: " + buildPaso.getComponent()
+				CoverageTestsInfoAction coverageTestInfoAction = buildInvoker.getAction(
+					org.jenkinsci.plugins.testsreportaggregator.beans.CoverageTestsInfoAction.class)
+				if (coverageTestInfoAction != null) {
+					Map<String, TestResultBean> mapaTestResults = coverageTestInfoAction.getResults()
+		
+					// Resultados Test Junit
+					TestResultBean results = mapaTestResults.get(componentBean.getComponent())
+					if (results != null) {
+						resumenHTML.append( 
+							'<div class="resultsTable">'+
+							'<details><summary><span class="tableHeader">Resumen de pruebas unitarias</span></summary>' +
+							'<p>'+
+								'<table class="datos">'+
+									'<thead>' + 
+										'<tr><td>Fallados</td><td>Correctos</td><td>Omitidos</td><td>Total</td></tr>'+
+									'</thead>'+
+									'<tbody>'+
+										'<tr>'+
+											'<td>' + 
+											results.getFailCount() + '</td><td>' + 
+											(results.getTotalCount() - (results.getFailCount()+results.getSkipCount())) +
+											'</td><td>' + results.getSkipCount() + '</td><td>' + results.getTotalCount() +
+											'</td>'+
+										'</tr>'+
+									'</tbody>'+
+								'</table>'+
+							'</p>'
+							+ '</details>'
+							+ '</div>')
 					}
-					resumenHTML.append('<tr><td><b>Overall</b></td>')
-					resumenHTML.append('<td>' + resultadosCoverage.getTotals().branches.round(2) + '%</td>')
-					resumenHTML.append('<td>' + resultadosCoverage.getTotals().complexity.round(2) + '%</td>')
-					resumenHTML.append('<td>' + resultadosCoverage.getTotals().instructions.round(2) + '%</td>')
-					resumenHTML.append('<td>' + resultadosCoverage.getTotals().methods.round(2) + '%</td>')
-					resumenHTML.append('<td>' + resultadosCoverage.getTotals().lines.round(2) + '%</td>')
-					resumenHTML.append('<td>' + resultadosCoverage.getTotals().classes.round(2) + '%</td></tr>')
-					resumenHTML.append('</tbody></table></div>')
-				}
-			}
-			
-			// Resultados ChangeSet
-			ComponentsChangesAction componentsChangesAction = buildInvoker.getAction(
-				org.jenkinsci.plugins.jobexecutors.toplevelitems.ComponentsChangesAction.class)
-			if (componentsChangesAction != null) {
-				List<ComponentChangesBean> listaChanges = componentsChangesAction.getCompoChangesBean();
-				listaChanges.each { elemento ->
-					// Tenemos que recorrer la lista en cada iteración
-					if (elemento.componentName == componentBean.getComponent()) {
-						resumenHTML.append('<label for="' + componentBean.getComponent() + '_chang">' +
-							'<p style="text-indent:5em"><span>Resumen de Cambios (expandir)</span></p></label>' +
-							'<input type="checkbox" id="' + componentBean.getComponent() + '_chang" checked><div class="hide">')
-						elemento.changeSetBean.each {
-								resumenHTML.append('<p class="normal">Workitem: <b>' + it.WorkItem + '</b> por <b>' + it.Autor + '</b> - ' + it.Fecha +
-								' (' + it.Comentario + ')</p>')
+					
+					// Resultados Cobertura
+					Map<String, CoverageInfoBean> mapaCoverageInfo = coverageTestInfoAction.getCoverage()
+					
+					CoverageInfoBean resultadosCoverage = mapaCoverageInfo.get(componentBean.getComponent())
+					
+					if (resultadosCoverage != null) {
+						resumenHTML.append('<div class="resultsTable">')
+						resumenHTML.append( 
+							'<details><summary><span class="tableHeader">Resumen de Cobertura de Proyecto</span></summary>' + 
+							'<p><table class="datos"><thead><tr><td>Package</td><td>Branches</td>' +
+							'<td>Complexity</td><td>Instructions</td><td>Methods</td><td>Lines</td><td>Classes</td></tr></thead><tbody>')
+						resultadosCoverage.getMetricsByPackage().each { paquete, metricasMap ->
+							resumenHTML.append('<tr><td>' + paquete + '</td>')
+							resumenHTML.append('<td>' + metricasMap.branches.round(2) + '%</td>')
+							resumenHTML.append('<td>' + metricasMap.complexity.round(2) + '%</td>')
+							resumenHTML.append('<td>' + metricasMap.instructions.round(2) + '%</td>')
+							resumenHTML.append('<td>' + metricasMap.methods.round(2) + '%</td>')
+							resumenHTML.append('<td>' + metricasMap.lines.round(2) + '%</td>')
+							resumenHTML.append('<td>' + metricasMap.classes.round(2) + '%</td></tr>')
 						}
+						resumenHTML.append('<tr><td><b>Overall</b></td>')
+						resumenHTML.append('<td>' + resultadosCoverage.getTotals().branches.round(2) + '%</td>')
+						resumenHTML.append('<td>' + resultadosCoverage.getTotals().complexity.round(2) + '%</td>')
+						resumenHTML.append('<td>' + resultadosCoverage.getTotals().instructions.round(2) + '%</td>')
+						resumenHTML.append('<td>' + resultadosCoverage.getTotals().methods.round(2) + '%</td>')
+						resumenHTML.append('<td>' + resultadosCoverage.getTotals().lines.round(2) + '%</td>')
+						resumenHTML.append('<td>' + resultadosCoverage.getTotals().classes.round(2) + '%</td></tr>')
+						resumenHTML.append('</tbody></table></p>')
+						resumenHTML.append("</details>");
 						resumenHTML.append('</div>')
 					}
 				}
+				
+				// Resultados ChangeSet
+				ComponentsChangesAction componentsChangesAction = buildInvoker.getAction(
+					org.jenkinsci.plugins.jobexecutors.toplevelitems.ComponentsChangesAction.class)
+				if (componentsChangesAction != null) {
+					List<ComponentChangesBean> listaChanges = componentsChangesAction.getCompoChangesBean();
+					listaChanges.each { elemento ->
+						// Tenemos que recorrer la lista en cada iteración
+						if (elemento.componentName == componentBean.getComponent()) {
+							resumenHTML.append('<div class="resultsTable">')
+							resumenHTML.append('<details>')
+							resumenHTML.append('<summary><span class="tableHeader">Resumen de Cambios</span></summary>' +
+								'<p>')
+							elemento.changeSetBean.each {
+								if (StringUtil.isNull(it.WorkItem)) {
+									resumenHTML.append(
+									'<p class="normal"><b>' + it.Autor + '</b> - ' + formatDate(it.Fecha) +
+									' - ' + it.Comentario + '</p>')
+								}
+								else {
+									resumenHTML.append(
+									'<p class="normal"><b>' + it.Autor + '</b> - <b>WorkItem: ' + formatWorkItem(it.WorkItem) + '</b> - ' 
+									+ formatDate(it.Fecha) + ' - ' + it.Comentario + '</p>')
+								}
+							}
+							resumenHTML.append('</p></details>')
+							resumenHTML.append('</div>')
+						}
+					}
+				}
+	
 			}
-
 		}
 		
 		// Añade los parametros para ser pintados en el mail
