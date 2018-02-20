@@ -5,7 +5,7 @@
   <version>9.56.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>dic-scripts</name>
-  <!-- Actualización 20/02/2018 -->
+  <!-- Actualización 20/02/2018 10.24-->
   <developers>
   	<developer>
   		<organization>ECI</organization>
