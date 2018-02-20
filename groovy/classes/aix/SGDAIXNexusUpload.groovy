@@ -9,90 +9,57 @@ import es.eci.utils.Utiles;
 
 class SGDAIXNexusUpload extends Loggable {
 	
-	private String stream;
 	private String artifactId;
 	private String groupId;
 	private String workspace;
-	private String urlRTC;
-	private String userRTC;
-	private String pwdRTC;
 	private String urlNexusC;
 	private String nexusSnapshotsC;
 	private String nexusReleaseC;
 	private String userNexus;
 	private String pwdNexus;
 	private String gradleHome;
-	private String scriptsHome;	
+	private String scriptsHome;
+	private String builtVersion;
 	
 	public void execute() {
 		
 		// Validación de obligatorios
 		ParameterValidator.builder()
-			.add("stream", stream)
 			.add("artifactId", artifactId)
 			.add("groupId", groupId)
 			.add("workspace", workspace)
-			.add("urlRTC", urlRTC)
-			.add("userRTC", userRTC)
-			.add("pwdRTC", pwdRTC)
 			.add("urlNexusC", urlNexusC)
 			.add("nexusSnapshotsC", nexusSnapshotsC)
 			.add("nexusReleaseC", nexusReleaseC)
 			.add("userNexus", userNexus)
 			.add("pwdNexus", pwdNexus)
 			.add("gradleHome", gradleHome)
-			.add("scriptsHome", scriptsHome).build().validate();
+			.add("scriptsHome", scriptsHome)
+			.add("builtVersion", builtVersion).build().validate();
 		
 		long millis = Stopwatch.watch {
-			
-			ComponentVersionHelper componentVersionHelper = new ComponentVersionHelper()
-			String version = componentVersionHelper.getVersion(artifactId, stream, userRTC, pwdRTC, urlRTC)
-			
-			// Almacenar la versión en el fichero version.txt
-			Utiles.creaVersionTxt(version, groupId, workspace.toString())
-			
+						
 			String destinoNexus = nexusReleaseC
-			boolean isRelease = true;
+			String isRelease = "true"
 			
 			// Cambio de destino
-			if (version.endsWith("-SNAPSHOT")) {
+			if (builtVersion.endsWith("-SNAPSHOT")) {
 				destinoNexus = nexusSnapshotsC
-				isRelease = false
+				isRelease = "false"
 			}
 			
 			// Ruta del tar
 			String artifactPath = workspace + '/' + artifactId + '.tar'
-			File filePath = new File(artifactPath)
 			
-			log "--- INFO: Subiendo a Nexus..."
-			log "--- R: ${destinoNexus}"
-			log "--- G: ${groupId}"
-			log "--- A: ${artifactId}"
-			log "--- V: ${version}"
-			log "--- P: tar"
-			
+			// Gradle
 			String gradleBin = gradleHome + "/bin/gradle"
 			
 			NexusHelper.uploadTarNexus(userNexus, pwdNexus, gradleBin, scriptsHome, 
-				urlNexusC, groupId, artifactId, version, destinoNexus, isRelease, 
-				filePath, "tar")
+				urlNexusC, groupId, artifactId, builtVersion, destinoNexus, isRelease, 
+				artifactPath, "tar", { println it })
 			
 		}
 		
-	}
-	
-	/**
-	 * @return the stream
-	 */
-	public String getStream() {
-		return stream;
-	}
-	
-	/**
-	 * @param stream the stream to set
-	 */
-	public void setStream(String stream) {
-		this.stream = stream;
 	}
 	
 	/**
@@ -136,49 +103,7 @@ class SGDAIXNexusUpload extends Loggable {
 	public void setWorkspace(String workspace) {
 		this.workspace = workspace;
 	}
-	
-	/**
-	 * @return the urlRTC
-	 */
-	public String getUrlRTC() {
-		return urlRTC;
-	}
-	
-	/**
-	 * @param urlRTC the urlRTC to set
-	 */
-	public void setUrlRTC(String urlRTC) {
-		this.urlRTC = urlRTC;
-	}
-	
-	/**
-	 * @return the userRTC
-	 */
-	public String getUserRTC() {
-		return userRTC;
-	}
-	
-	/**
-	 * @param userRTC the userRTC to set
-	 */
-	public void setUserRTC(String userRTC) {
-		this.userRTC = userRTC;
-	}
-	
-	/**
-	 * @return the pwdRTC
-	 */
-	public String getPwdRTC() {
-		return pwdRTC;
-	}
-	
-	/**
-	 * @param pwdRTC the pwdRTC to set
-	 */
-	public void setPwdRTC(String pwdRTC) {
-		this.pwdRTC = pwdRTC;
-	}
-	
+
 	/**
 	 * @return the urlNexusC
 	 */
@@ -275,6 +200,20 @@ class SGDAIXNexusUpload extends Loggable {
 	 */
 	public void setScriptsHome(String scriptsHome) {
 		this.scriptsHome = scriptsHome;
+	}
+
+	/**
+	 * @return the builtVersion
+	 */
+	public String getBuiltVersion() {
+		return builtVersion;
+	}
+
+	/**
+	 * @param builtVersion the builtVersion to set
+	 */
+	public void setBuiltVersion(String builtVersion) {
+		this.builtVersion = builtVersion;
 	}
 
 }

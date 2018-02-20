@@ -913,7 +913,7 @@ class GetJobsUtils extends Loggable {
 		} else if(projectNature.equals("git")) {
 			scmGroup = gitGroup;
 		}
-		def componentsUrban = "";
+		def componentsUrban = [];
 		if(scmComponentsList != null) {
 			scmComponentsList.each { String thisCompo ->
 				def thisJob = "${scmGroup} -COMP- ${thisCompo}";
@@ -937,13 +937,13 @@ class GetJobsUtils extends Loggable {
 					} else {
 						componentUrban = "${thisCompo}:NULL";
 					}
-					componentsUrban = componentsUrban + componentUrban +","
+					componentsUrban.add(componentUrban);
 				} else {
 					componentUrban = "${thisCompo}:NULL";
 				}
 			}
 		}
-		return removeLastComma(componentsUrban);
+		return componentsUrban.join(",");
 	}
 
 	/**
@@ -966,25 +966,6 @@ class GetJobsUtils extends Loggable {
 		}
 
 		return jobParameters;
-	}
-
-
-	/**
-	 * Elimina el último carácter de un String si éste
-	 * es una coma.
-	 * Lo usamos porque la lista de jobs vendrá
-	 * con una coma al final que hay que eliminar.
-	 * @param (String)text
-	 * @return (String)result
-	 */
-	private String removeLastComma(String text) {
-		def result;
-		if(text.endsWith(",")) {
-			result = text.substring(0, text.length() - 1);
-		} else {
-			result = text;
-		}
-		return result;
 	}
 
 	/**

@@ -1,3 +1,5 @@
+package omnistore;
+
 import es.eci.utils.NexusHelper;
 import es.eci.utils.ParamsHelper;
 import es.eci.utils.StringUtil;

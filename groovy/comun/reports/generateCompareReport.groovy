@@ -1,3 +1,5 @@
+package reports;
+
 import java.io.File;
 
 import es.eci.utils.StringUtil;

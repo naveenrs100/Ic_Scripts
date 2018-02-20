@@ -24,6 +24,12 @@ class BaseTest {
 	protected String gitlabPrivateToken = null;
 	protected String gitURL = null;
 	
+	// Propiedades de BitBucket
+	protected String urlAtlassian;
+	protected String atlassianUser;
+	protected String atlassianPass;
+	protected String atlassianKeystoreVersion;
+	
 	// Propiedades de LDAP
 	protected String ldapHost = null;
 	protected String ldapUser = null;
@@ -113,6 +119,12 @@ class BaseTest {
 		gitUser = System.getProperty("userGit");
 		gitlabPrivateToken = System.getProperty("GITLAB_PRIVATE_TOKEN");
 		gitURL = System.getProperty("GITLAB_URL");
+		
+		// Propiedades de Atlassian
+		urlAtlassian = System.getProperty("ATLASSIAN_URL");
+		atlassianUser = System.getProperty("ATLASSIAN_PRE_USER");
+		atlassianPass = System.getProperty("ATLASSIAN_PRE_PASS");
+		atlassianKeystoreVersion = System.getProperty("ATLASSIAN_KEYSTORE_VERSION");
 		
 		// Propiedades de LDAP
 		ldapHost = System.getProperty("LDAP_URL");

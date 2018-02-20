@@ -1,3 +1,5 @@
+package jenkins;
+
 import buildtree.BuildBean
 import buildtree.BuildTreeHelper
 import hudson.model.ParametersAction

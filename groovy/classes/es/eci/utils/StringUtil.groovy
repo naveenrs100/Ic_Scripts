@@ -39,17 +39,7 @@ class StringUtil {
 	def static boolean notNull(String s) {
 		return !isNull(s);
 	}
-	
-	def static removeLastComma(String text) {
-		def result;
-		if(text.endsWith(",")) {
-			result = text.substring(0, text.length() - 1);
-		} else {
-			result = text;
-		}
-		return result;
-	}
-	
+			
 	// Normaliza un nombre con espacios a guiones bajos
 	def static String normalize(String s) {
 		return s.

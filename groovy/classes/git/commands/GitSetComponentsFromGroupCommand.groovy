@@ -199,33 +199,15 @@ class GitSetComponentsFromGroupCommand extends Loggable {
 	 * @return commitsId
 	 */
 	private String getStoredCommitsId(componentsArray, parentWorkspace) {
-		def commitsId ="";
+		def commitsId = [];
 		componentsArray.each { String component ->
 			def lastCommitFile = new File("${parentWorkspace}/${component}_lastCommit.txt");
-			if(lastCommitFile.exists()) {
-				commitsId = commitsId + "${component}:${lastCommitFile.text},"
+			if(lastCommitFile.exists()) {				
+				commitsId.add("${component}:${lastCommitFile.text}");
 			}
 		}
-		return removeLastComma(commitsId);
+		return commitsId.join(",");
 	}
-
-	/**
-	 * Elimina el último carácter de un String.
-	 * Lo usamos porque la lista de jobs vendrá
-	 * con una coma al final que hay que eliminar.
-	 * @param (String)text
-	 * @return (String)result
-	 */
-	private String removeLastComma(String text) {
-		def result;
-		if(text.endsWith(",")) {
-			result = text.substring(0, text.length() - 1);
-		} else {
-			result = text;
-		}
-		return result;
-	}
-
 
 	/**
 	 * Comprueba qué componentes están actualizados.

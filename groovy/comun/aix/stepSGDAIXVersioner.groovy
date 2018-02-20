@@ -1,15 +1,15 @@
 package aix
 
-import aix.SGDAIXNexusUpload;
+import aix.SGDAIXVersioner;
 import es.eci.utils.SystemPropertyBuilder;
 
 /**
- * Ver el funcionamiento en SGDAIXNexusUpload.groovy.
+ * Ver el funcionamiento en SGDAIXVersioner.groovy.
  */
 
 SystemPropertyBuilder propertyBuilder = new SystemPropertyBuilder();
 
-SGDAIXNexusUpload command = new SGDAIXNexusUpload();
+SGDAIXVersioner command = new SGDAIXVersioner();
 
 command.initLogger { println it }
 

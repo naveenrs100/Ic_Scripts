@@ -19,34 +19,36 @@ import es.eci.utils.SystemPropertyBuilder
  *  rtcPwd - Password del usuario en RTC
  *  parentWorkspace - Directorio de trabajo
  *  targetFile - [opcional] si no se informa, el fichero se llama permissions.json
+ *  beautify - [opcional] Por defecto, false.  Si se informa a true, se embellecen los
+ *  	nombres de áras de proyecto para pasarlas a Kiuwan
  *  
  *  Ejemplo de fichero de salida:
 {
   "projectAreas": {
-    "id_project_area_1": {
-      "id": "la primera área de proyecto",
+    "uuid_project_area_1": {
+      "id": "uuid_project_area_1",
       "name": "la primera área de proyecto",
       "users": {
         "123456": {
           "eciCode": "123456",
           "name": "foo bar",
-          "email": null
+          "email": foo@bar.es
         },
         "654321": {
           "eciCode": "654321",
           "name": "bar baz",
-          "email": null
+          "email": bar@baz.com
         }
       }
     },
-    "la segunda área de proyecto": {
-      "id": "id_project_area_2",
+    "uuid_project_area_2": {
+      "id": "uuid_project_area_2",
       "name": "la segunda área de proyecto",
       "users": {
         "123456": {
           "eciCode": "123456",
           "name": "foo bar",
-          "email": null
+          "email": foo@bar.es
         }
       }
     }

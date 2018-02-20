@@ -1,3 +1,5 @@
+package jenkins;
+
 import es.eci.utils.NexusHelper;
 import es.eci.utils.pom.MavenCoordinates
 import es.eci.utils.ParamsHelper;

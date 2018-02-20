@@ -1,3 +1,5 @@
+package nexus;
+
 import groovy.json.JsonSlurper;
 import hudson.model.ParametersAction;
 

@@ -49,28 +49,13 @@ ParamsHelper.addParams(build, paramsMap);
 /********************************/
 
 /**
- * Quita la coma final a un texto.
- * @param text
- * @return String sin coma final.
- */
-public String removeLastComma(String text) {
-	def result;
-	if(text.endsWith(",")) {
-		result = text.substring(0, text.length() - 1);
-	} else {
-		result = text;
-	}
-	return result;
-}
-
-/**
  * Devuelve un String con los componentesUrbancode de cada job (si este está definido)
  * @param jobs
  * @return String componentsUrban
  */
 def getComponentsUrban(jobs) {
 	def jobsObject = new JsonSlurper().parseText(jobs)
-	def componentsUrban = "";
+	def componentsUrban = [];
 	jobsObject.each { List<String> thisJobList ->
 		thisJobList.each { String thisJob ->
 			def component = thisJob.split("-COMP- ")[1];
@@ -94,10 +79,10 @@ def getComponentsUrban(jobs) {
 			} else {
 				componentUrban = "${component}:NULL";
 			}
-			componentsUrban = componentsUrban + componentUrban +","
+			componentsUrban.add(componentUrban);
 		}
 	}
-	return removeLastComma(componentsUrban);
+	return componentsUrban.join(",");
 }
 
 /**

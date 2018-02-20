@@ -1,3 +1,5 @@
+package jenkins;
+
 import hudson.model.*
 import java.util.regex.*
 import groovy.xml.*

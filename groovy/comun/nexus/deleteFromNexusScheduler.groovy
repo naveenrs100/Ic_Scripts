@@ -1,3 +1,5 @@
+package nexus;
+
 import es.eci.utils.SystemPropertyBuilder
 import groovy.json.JsonOutput;
 

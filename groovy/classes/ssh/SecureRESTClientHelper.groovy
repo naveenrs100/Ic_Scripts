@@ -51,10 +51,9 @@ class SecureRESTClientHelper extends Loggable {
 			CredentialsProvider provider = null) {
 		HttpClientBuilder builder = HttpClientBuilder.create();
 		if (provider != null) {
-			builder.setDefaultCredentialsProvider(provider);
+			builder = builder.setDefaultCredentialsProvider(provider);
 		}
-		builder.setSslcontext(getContext(keystoreInfo, keystore));
-		return builder.build();
+		return builder.setSslcontext(getContext(keystoreInfo, keystore)).build();
 	}
 	
 	/**

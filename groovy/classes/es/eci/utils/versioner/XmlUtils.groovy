@@ -585,7 +585,7 @@ public class XmlUtils extends Loggable {
 	 * @param action Acción a realizar sobre la version.
 	 * @return newVersion Versión modificada.
 	 */
-	public String increaseVersionDigit(String versionText, String action, String releaseMantenimiento) {
+	public String increaseVersionDigit(String versionText, String action, String releaseMantenimiento = null) {
 		def isSnapshot = versionText.contains("-SNAPSHOT");
 		def version = versionText.split("-SNAPSHOT")[0];
 		List versionDigits = version.split("\\.");		
@@ -593,7 +593,7 @@ public class XmlUtils extends Loggable {
 		def penultimateDigit = versionDigits[versionDigits.size() - 2];		
 		def newVersion = "";
 		
-		if(action.toLowerCase().equals("release") && !releaseMantenimiento.equals("true")) {
+		if(action.toLowerCase().equals("release") && (releaseMantenimiento == null || !releaseMantenimiento.equals("true"))) {
 			def increasedDigit = penultimateDigit.toInteger() + 1;
 			versionDigits.set(versionDigits.size() - 2, increasedDigit);
 			// Se pone el último dígito a 0.
@@ -611,7 +611,7 @@ public class XmlUtils extends Loggable {
 			}			
 		}
 		
-		if(action.toLowerCase().equals("addfix") || (releaseMantenimiento.equals("true") && action.equals("release"))) {
+		if(action.toLowerCase().equals("addfix") || (releaseMantenimiento != null && releaseMantenimiento.equals("true") && action.equals("release"))) {
 			def increasedDigit = lastDigit.split("-")[0].toInteger() + 1;
 			versionDigits.set(versionDigits.size() - 1, increasedDigit);			
 			for(int i = 0; i < versionDigits.size(); i++) {

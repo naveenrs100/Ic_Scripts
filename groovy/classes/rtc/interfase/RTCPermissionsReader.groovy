@@ -68,6 +68,8 @@ class RTCPermissionsReader extends Loggable {
 	private String parentWorkspace;
 	// Opcional - nombre de fichero a generar
 	private String targetFile;
+	// Opcional - embellecer áreas de proyecto de Kiuwan
+	private Boolean beautify = Boolean.FALSE;
 	
 	
 	//-----------------------------------------------------------
@@ -107,7 +109,8 @@ class RTCPermissionsReader extends Loggable {
 		RTCClient client = new RTCClient(rtcURL, rtcUser, rtcPwd, keystoreVersion, nexusURL);
 		client.initLogger(this)
 		String ret = client.get("rpt/repository/foundation", 
-			["fields":"foundation/projectArea/(name|itemId|allTeamAreas/teamMembers/(userId|name|emailAddress)|teamMembers/(userId|name|emailAddress))"]);
+			["size":"1000",
+			 "fields":"foundation/projectArea/(name|itemId|allTeamAreas/teamMembers/(userId|name|emailAddress)|teamMembers/(userId|name|emailAddress))"]);
 		def xml = new XmlParser().parseText(ret)
 		Map info = [:]
 		Map projectAreas = [:]
@@ -121,7 +124,12 @@ class RTCPermissionsReader extends Loggable {
 			def base64string = projectArea.itemId[0].text();
 			// Recortar el '_' del principio
 			record['id'] = UtilUUID.getUUIDFromBase64String(base64string, true)
-			record['name'] = projectArea.name[0].text();
+			if (!beautify) {
+				record['name'] = projectArea.name[0].text();
+			}
+			else {
+				record['name'] = StringUtil.normalizeProjectArea(projectArea.name[0].text());
+			}
 			record['users'] = [:]
 			def users = []
 			projectArea.teamMembers?.each { def teamMember ->
@@ -155,14 +163,12 @@ class RTCPermissionsReader extends Loggable {
 		return nexusURL;
 	}
 
-
 	/**
 	 * @param nexusURL the nexusURL to set
 	 */
 	public void setNexusURL(String nexusURL) {
 		this.nexusURL = nexusURL;
 	}
-
 
 	/**
 	 * @return the keystoreVersion
@@ -171,14 +177,12 @@ class RTCPermissionsReader extends Loggable {
 		return keystoreVersion;
 	}
 
-
 	/**
 	 * @param keystoreVersion the keystoreVersion to set
 	 */
 	public void setKeystoreVersion(String keystoreVersion) {
 		this.keystoreVersion = keystoreVersion;
 	}
-
 
 	/**
 	 * @return the rtcURL
@@ -187,14 +191,12 @@ class RTCPermissionsReader extends Loggable {
 		return rtcURL;
 	}
 
-
 	/**
 	 * @param rtcURL the rtcURL to set
 	 */
 	public void setRtcURL(String rtcURL) {
 		this.rtcURL = rtcURL;
 	}
-
 
 	/**
 	 * @return the rtcUser
@@ -203,14 +205,12 @@ class RTCPermissionsReader extends Loggable {
 		return rtcUser;
 	}
 
-
 	/**
 	 * @param rtcUser the rtcUser to set
 	 */
 	public void setRtcUser(String rtcUser) {
 		this.rtcUser = rtcUser;
 	}
-
 
 	/**
 	 * @return the rtcPwd
@@ -219,14 +219,12 @@ class RTCPermissionsReader extends Loggable {
 		return rtcPwd;
 	}
 
-
 	/**
 	 * @param rtcPwd the rtcPwd to set
 	 */
 	public void setRtcPwd(String rtcPwd) {
 		this.rtcPwd = rtcPwd;
 	}
-
 
 	/**
 	 * @return the parentWorkspace
@@ -235,14 +233,12 @@ class RTCPermissionsReader extends Loggable {
 		return parentWorkspace;
 	}
 
-
 	/**
 	 * @param parentWorkspace the parentWorkspace to set
 	 */
 	public void setParentWorkspace(String parentWorkspace) {
 		this.parentWorkspace = parentWorkspace;
 	}
-
 
 	/**
 	 * @return the targetFile
@@ -251,12 +247,19 @@ class RTCPermissionsReader extends Loggable {
 		return targetFile;
 	}
 
-
 	/**
 	 * @param targetFile the targetFile to set
 	 */
 	public void setTargetFile(String targetFile) {
 		this.targetFile = targetFile;
+	}
+
+	public Boolean getBeautify() {
+		return beautify;
+	}
+
+	public void setBeautify(Boolean beautify) {
+		this.beautify = beautify;
 	}
 	
 	
