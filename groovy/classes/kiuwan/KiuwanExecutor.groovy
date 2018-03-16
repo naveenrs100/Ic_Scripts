@@ -142,12 +142,13 @@ class KiuwanExecutor extends Loggable {
 	 * 
 	 * · 20 - declarado obsoleto desde septiembre de 2017
 	 * · 24 - Novedad desde septiembre de 2017
+	 * · 30 - Novedad desde marzo de 2018
 	 * 
 	 * @param returnCode Código de retorno de Kiuwan
 	 * @return Cierto si el proyecto no existe
 	 */
 	private boolean projectNonExistant(int returnCode) {
-		return [20, 24].contains(returnCode);
+		return [20, 24, 30].contains(returnCode);
 	}
 	
 	/**
@@ -174,6 +175,7 @@ class KiuwanExecutor extends Loggable {
 			command += ".kiuwan.application.portfolio.Plataforma=Distribuido "
 			command += "\".kiuwan.application.portfolio.Producto=${product}\" "
 			command += "\".kiuwan.application.portfolio.Subsistema=${product}_${subsystem}\" "
+			command += "\".kiuwan.application.portfolio.SquareQA_ECI=ECI\" "
 			command += "\".kiuwan.application.provider=${provider}\" "
 			command += "\".kiuwan.application.businessValue=MEDIUM\" "
 			command += "\"exclude.patterns=${kiuwanExclusions}\" "
@@ -228,6 +230,7 @@ class KiuwanExecutor extends Loggable {
 				command += ".kiuwan.application.portfolio.Plataforma=Distribuido "
 				command += "\".kiuwan.application.portfolio.Producto=${product}\" "
 				command += "\".kiuwan.application.portfolio.Subsistema=${product}_${subsystem}\" "
+				command += "\".kiuwan.application.portfolio.SquareQA_ECI=ECI\" "
 				command += "\".kiuwan.application.provider=${provider}\" "
 				command += "\"exclude.patterns=${kiuwanExclusions}\" "
 				command += "-Dencoding=UTF-8 "

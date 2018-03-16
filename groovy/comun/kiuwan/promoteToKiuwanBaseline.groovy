@@ -1,5 +1,7 @@
 package kiuwan;
 
+@Grab(group='org.apache.httpcomponents', module='httpclient', version='4.4')
+
 import es.eci.utils.SystemPropertyBuilder
 import kiuwan.KiuwanPromoteBaseline;
 

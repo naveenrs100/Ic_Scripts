@@ -19,7 +19,6 @@ package kiuwan
  * 
  */
 
-@GrabResolver (name='nexus', root='http://nexus.elcorteingles.int/content/groups/public/')
 @Grab(group='commons-net', module='commons-net', version='3.3')
 
 import groovy.json.*

@@ -4,7 +4,7 @@ import java.io.File;
 
 import es.eci.utils.StringUtil;
 import es.eci.utils.NexusHelper
-@GrabResolver(name='nexuseci', root='http://nexus.elcorteingles.int/content/groups/public/')
+
 @Grab(group='org.apache.poi', module='poi', version='3.6')
 
 import es.eci.utils.SystemPropertyBuilder

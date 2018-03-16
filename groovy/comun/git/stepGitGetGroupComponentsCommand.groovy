@@ -1,6 +1,5 @@
 package git
 
-@GrabResolver (name='nexus', root='http://nexus.elcorteingles.int/content/groups/public/')
 @Grab(group='org.apache.httpcomponents', module='httpclient', version='4.3.6')
 
 import es.eci.utils.SystemPropertyBuilder;

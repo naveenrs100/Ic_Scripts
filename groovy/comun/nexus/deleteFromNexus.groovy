@@ -1,6 +1,5 @@
 package nexus;
 
-@GrabResolver(name='public', root='http://nexus.elcorteingles.int/groups/public')
 @Grab(group='org.codehaus.groovy.modules.http-builder', module='http-builder', version='0.7.1')
 @Grab(group='org.apache.xmlbeans', module='xmlbeans', version='2.6.0')
 

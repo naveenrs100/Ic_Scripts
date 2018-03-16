@@ -52,13 +52,19 @@ helper.initLogger { println it }
 String ret = null;
 long millis = Stopwatch.watch {
 	def entity = new StringEntity(new File(permissionsFile).text, ContentType.APPLICATION_JSON);
-	ret = helper.sendQuve(quveURL + "/", "permissions/update", entity, "application/json")	
+	try {
+		ret = helper.sendQuve(quveURL + "/", "permissions/update", entity, "application/json")
+	}	
+	catch(Exception e) {
+		println e.getMessage()
+		ret = null;
+	}
 }
 println "Actualización completa -> $millis msec."
 
 if (ret == null) {
 	println "No ha dado retorno, ha habido algún problema"
-	println "Consultar el log de QUVE"
+	println "Consultar el log de QUVE mediante el comando tail -f /weblog85/icqaportal/SystemOut.log | grep '\\[perm\\]'"
 }
 else {
 	println JsonOutput.prettyPrint(ret)

@@ -5,6 +5,7 @@ import java.util.List;
 
 import components.MavenComponent
 import es.eci.utils.GitBuildFileHelper;
+import es.eci.utils.StringUtil
 import es.eci.utils.base.Loggable;
 import es.eci.utils.TmpDir;
 import git.GitlabClient;
@@ -34,33 +35,42 @@ class GitGetGroupComponentsCommand extends Loggable {
 	
 	// URL de nexus para bajar el keystore
 	String urlNexus;	
-	
+		
 	String branch;
+	
+	// Lista de componentes del scm
+	String scmComponentsList;
 
 	public void execute() {
 		
-		branch = getProperBranchName(branch); 		
+		this.initLogger({ println it })
 		
-		GitlabClient gitLabClient = new GitlabClient(urlGitlab, privateGitLabToken, keystoreVersion, urlNexus);
-		gitLabClient.initLogger(this);
-		
-		def entity = "groups/${gitGroup}";
-		def jsonResponse = gitLabClient.get(entity, null);
-		
-		def jsonSlurper = new JsonSlurper()
-		def jsonObject = jsonSlurper.parseText(jsonResponse);
-		
-		def jenkinsComponents = new File("${parentWorkspace}/jenkinsComponents.txt");
-		jenkinsComponents.text = "";
-		
-		def ls = System.getProperty("line.separator");
-		def compoObjects = jsonObject.projects;
-		for(int i = 0; i < compoObjects.size(); i++) {
-			if(i != (compoObjects.size() -1)) {
-				jenkinsComponents.append(compoObjects[i].name + ls)
-			} else {
-				jenkinsComponents.append(compoObjects[i].name)
+		if(StringUtil.isNull(scmComponentsList) || scmComponentsList.equals("null")) {
+			branch = getProperBranchName(branch);
+			
+			GitlabClient gitLabClient = new GitlabClient(urlGitlab, privateGitLabToken, keystoreVersion, urlNexus);
+			gitLabClient.initLogger(this);
+			
+			def entity = "groups/${gitGroup}";
+			def jsonResponse = gitLabClient.get(entity, null);
+			
+			def jsonSlurper = new JsonSlurper()
+			def jsonObject = jsonSlurper.parseText(jsonResponse);
+			
+			def jenkinsComponents = new File("${parentWorkspace}/jenkinsComponents.txt");
+			jenkinsComponents.text = "";
+			
+			def ls = System.getProperty("line.separator");
+			def compoObjects = jsonObject.projects;
+			for(int i = 0; i < compoObjects.size(); i++) {
+				if(i != (compoObjects.size() -1)) {
+					jenkinsComponents.append(compoObjects[i].name + ls)
+				} else {
+					jenkinsComponents.append(compoObjects[i].name)
+				}
 			}
+		} else {
+			log "Ya viene la variable \"scmComponentsList\" establecida con el valor \"${scmComponentsList}\". No se crea el jenkinsComponents.txt"
 		}
 	}
 	
@@ -132,6 +142,14 @@ class GitGetGroupComponentsCommand extends Loggable {
 
 	public void setUrlNexus(String urlNexus) {
 		this.urlNexus = urlNexus;
+	}
+
+	public String getScmComponentsList() {
+		return scmComponentsList;
+	}
+
+	public void setScmComponentsList(String scmComponentsList) {
+		this.scmComponentsList = scmComponentsList;
 	}
 	
 }

@@ -1,6 +1,5 @@
 package es.eci.utils
 
-@GrabResolver(name='public', root='http://nexus.elcorteingles.int/groups/public')
 @Grab(group='org.apache.commons', module='commons-vfs2', version='2.0')
 @Grab(group='com.jcraft', module='jsch', version='0.1.50')
 @Grab(group='org.hamcrest', module='hamcrest-core', version='1.3')

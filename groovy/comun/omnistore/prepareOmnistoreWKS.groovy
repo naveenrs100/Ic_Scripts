@@ -5,6 +5,7 @@ import es.eci.utils.ZipHelper;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import es.eci.utils.commandline.CommandLineHelper;
+import es.eci.utils.pom.MavenCoordinates
 import es.eci.utils.TmpDir;
 
 
@@ -15,23 +16,14 @@ String parentWorkspace = build.buildVariableResolver.resolve("parentWorkspace");
 String artifactId = "OmniStore-Code";
 String extension = "zip";
 
-def wgetCommand(String urlOrigen, String pathDestino) {
-	def returnCode;
-	TmpDir.tmp { File dir ->
-		def command = "wget ${urlOrigen} -O ${pathDestino}";
-		println("Ejecutando comando: \"${command}\"")
-		CommandLineHelper buildCommandLineHelper = new CommandLineHelper(command);
-		returnCode = buildCommandLineHelper.execute(dir);
-	}
-	return returnCode;
-}
-
 println("Se baja el zip...");
-def urlOrigen = pathNexus + groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/" + "${artifactId}-${version}.${extension}"
 def pathDestino = "${parentWorkspace}/${artifactId}.${extension}";
-wgetCommand(urlOrigen, pathDestino);
+
+NexusHelper helper = new NexusHelper(pathNexus);
+helper.initLogger { println it }
+MavenCoordinates coords = new MavenCoordinates(groupId, artifactId, version, extension);
+File downloadedFile = helper.download(coords, new File(parentWorkspace)); 
 
 println("Se descomprime el zip...");
-ZipHelper.unzipFile(new File("${parentWorkspace}/OmniStore-Code.zip"),
-		new File("${parentWorkspace}/OmniStore"));
+ZipHelper.unzipFile(downloadedFile,	new File("${parentWorkspace}/OmniStore"));
 

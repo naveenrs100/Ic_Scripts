@@ -1,5 +1,7 @@
 package jenkins
 
+import es.eci.utils.StringUtil
+
 /**
  * Este script genera un fichero de despligue de Urban que posteriormente utilizará
  * el job de SCHEDULE_URBAN que corresponda.
@@ -21,23 +23,28 @@ def urbanCodeApp = args[0] // OBLIGATORIO
 def urbanCodeEnv = args[1] // OBLIGATORIO
 def productId = args[2] // OGLIGATORIO
 def version = args[3]
-def stream = args[4] // OBLIGATORIO
-def ficheroUrban = ""
+def stream = args[4]
 
-// --- Módulos ---
-def isNull = { String s ->
-	return s == null || s.trim().length() == 0;
+def timeDelay = null  // OPCIONAL
+if (args.size() > 5) {
+	timeDelay = args[5]
 }
+
+File ficheroUrban = null
 
 // --- Lógica ---
 
-if ( !isNull(productId) && !isNull(urbanCodeEnv) && !isNull(urbanCodeApp) ) {
+if ( !StringUtil.isNull(productId) && !StringUtil.isNull(urbanCodeEnv) && !StringUtil.isNull(urbanCodeApp) ) {
 	ficheroUrban = new File("${productId}_${urbanCodeEnv}_plan.txt")
 	
 	// Compobamos que hay version
-	if ( !isNull(version) ) {
+	if ( !StringUtil.isNull(version) ) {
 		// Update del fichero
-		ficheroUrban << "environment=${urbanCodeEnv}\naplicacionUrbanCode=${urbanCodeApp}\nversion=${version}\nstream=${stream}"
+		ficheroUrban.setText("");
+		ficheroUrban.text = "environment=${urbanCodeEnv}\naplicacionUrbanCode=${urbanCodeApp}\nversion=${version}\nstream=${stream}"
+		if (timeDelay != null) {
+			ficheroUrban.text += "\ntimeDelay=${timeDelay}"
+		}
 	} else {
 		println "AVISO - Version vacia borrando fichero..."
 		ficheroUrban.delete();

@@ -96,6 +96,19 @@ class MavenCoordinates {
 		version = theVersion;
 		packaging = thePackaging;
 	}
+	
+	/**
+	 * Constructor de copia.
+	 * @param coords Coordenadas originales a copiar
+	 */
+	public MavenCoordinates(MavenCoordinates coords) {
+		this.groupId = coords.groupId;
+		this.artifactId = coords.artifactId;
+		this.version = coords.version;
+		this.packaging = coords.packaging;
+		this.repository = coords.repository;
+		this.classifier = coords.classifier;
+	}
 
 	/**
 	 * @return the packaging

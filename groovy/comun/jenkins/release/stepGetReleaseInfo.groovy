@@ -2,7 +2,6 @@ package jenkins.release
 
 import release.GetReleaseInfo;
 
-@GrabResolver (name='nexus', root='http://nexus.elcorteingles.int/content/groups/public/')
 @Grab(group='org.apache.httpcomponents', module='httpclient', version='4.4')
 
 import es.eci.utils.SystemPropertyBuilder;

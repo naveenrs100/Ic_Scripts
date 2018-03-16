@@ -66,6 +66,7 @@ public class JobCreator extends Loggable {
 				String aplicacionUrbanCode = componentsParams.getAt("aplicacionUrbanCode");	
 				String managersMail = componentsParams.getAt("managersMail");
 				String ordenacion = componentsParams.getAt("ordenacion");
+				String permisoClarive = componentsParams.getAt("permisoClarive");
 				
 
 				// Creación de job de build de corriente:
@@ -129,6 +130,8 @@ public class JobCreator extends Loggable {
 
 				Node releaseParametersNode = xmlUtils.xpathNode(releaseDoc, "/project/properties/hudson.model.ParametersDefinitionProperty/parameterDefinitions");
 				
+				Node getPermisoClariveNode = JobCreatorUtils.modifyParameterNode("permisoClarive", permisoClarive, releaseParametersNode, xmlUtils);
+				
 				getOrderedNode = JobCreatorUtils.modifyParameterNode("getOrdered", ordenacion, releaseParametersNode, xmlUtils);
 				
 				streamParameterNode = JobCreatorUtils.modifyParameterNode("stream", product + " - DESARROLLO", releaseParametersNode, xmlUtils);
@@ -180,6 +183,8 @@ public class JobCreator extends Loggable {
 				}
 
 				Node deployParametersNode = xmlUtils.xpathNode(deployDoc, "/project/properties/hudson.model.ParametersDefinitionProperty/parameterDefinitions");
+				
+				getPermisoClariveNode = JobCreatorUtils.modifyParameterNode("permisoClarive", permisoClarive, deployParametersNode, xmlUtils);
 				
 				getOrderedNode = JobCreatorUtils.modifyParameterNode("getOrdered", ordenacion, deployParametersNode, xmlUtils);
 				
@@ -234,6 +239,8 @@ public class JobCreator extends Loggable {
 
 				Node addFixParametersNode = xmlUtils.xpathNode(addFixDoc, "/project/properties/hudson.model.ParametersDefinitionProperty/parameterDefinitions");
 				
+				getPermisoClariveNode = JobCreatorUtils.modifyParameterNode("permisoClarive", permisoClarive, addFixParametersNode, xmlUtils);
+				
 				getOrderedNode = JobCreatorUtils.modifyParameterNode("getOrdered", ordenacion, addFixParametersNode, xmlUtils);
 				
 				streamParameterNode = JobCreatorUtils.modifyParameterNode("stream", product + " - RELEASE", addFixParametersNode, xmlUtils);
@@ -285,6 +292,8 @@ public class JobCreator extends Loggable {
 				}
 
 				Node addHotfixParametersNode = xmlUtils.xpathNode(addHotfixDoc, "/project/properties/hudson.model.ParametersDefinitionProperty/parameterDefinitions");
+				
+				getPermisoClariveNode = JobCreatorUtils.modifyParameterNode("permisoClarive", permisoClarive, addHotfixParametersNode, xmlUtils);
 				
 				getOrderedNode = JobCreatorUtils.modifyParameterNode("getOrdered", ordenacion, addHotfixParametersNode, xmlUtils);
 				

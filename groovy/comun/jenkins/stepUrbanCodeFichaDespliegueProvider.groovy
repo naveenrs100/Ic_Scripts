@@ -43,6 +43,8 @@ String jobInvokerType =		build.buildVariableResolver.resolve("jobInvokerType");
 String jobAction =			build.getEnvironment(null).get("action");
 String parentWorkspace =	build.getEnvironment(null).get("parentWorkspace");
 String systemWorkspace =	build.getEnvironment(null).get("WORKSPACE");
+String scmComponentsList = 	build.getEnvironment(null).get("scmComponentsList");
+
 // Clase - Lanzamiento desde componente
 boolean componentLauch =	false;
 // Conexión con git
@@ -184,6 +186,7 @@ if ( (ancestor.getResult() == Result.SUCCESS) || (forceLaunch) ) {
 		generateJsonDesc.setBeanListTree(beanListTree)
 		generateJsonDesc.setForceLaunch(forceLaunch)
 		generateJsonDesc.setManagersMail(managersMail)
+		generateJsonDesc.setScmComponentsList(scmComponentsList)
 		if (releaseManagement && !StringUtil.isNull(releaseId)) {
 			println "Gestión de release"
 			try {

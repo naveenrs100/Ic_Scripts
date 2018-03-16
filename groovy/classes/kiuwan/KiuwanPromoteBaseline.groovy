@@ -1,6 +1,9 @@
 package kiuwan;
 
 import rtc.RTCUtils;
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.Date;
 import es.eci.utils.TmpDir;
 import es.eci.utils.NexusHelper
 import es.eci.utils.StringUtil;
@@ -23,7 +26,7 @@ class KiuwanPromoteBaseline extends Loggable {
 	String rtcUrl;
 	String kiuwanPath;
 	String slaveWorkspace;
-	
+
 	String kiuwanGroupsCache;
 
 	/**
@@ -40,7 +43,7 @@ class KiuwanPromoteBaseline extends Loggable {
 		String version;
 		String projectArea;
 		def jsonObject;
-		
+
 		TmpDir.tmp { File tmpDir ->
 			File descriptorFile = nxHelper.download(coordinates, tmpDir);
 			ZipHelper zipHelper = new ZipHelper();
@@ -48,8 +51,8 @@ class KiuwanPromoteBaseline extends Loggable {
 
 			File rtcJsonFile = new File(tmpDir,"rtc.json");
 			File gitJsonFile = new File(tmpDir,"git.json");
-			
-			String scmSource;			
+
+			String scmSource;
 			if(rtcJsonFile.exists()) {
 				jsonObject = (new JsonSlurper()).parseText(rtcJsonFile.text);
 				scmSource = "rtc";
@@ -60,37 +63,37 @@ class KiuwanPromoteBaseline extends Loggable {
 
 			streamOrGroup = jsonObject.source;
 			def failedAttempts = [];
-			jsonObject.versions.each { versionObject ->				
+			jsonObject.versions.each { versionObject ->
 				versionObject.keySet().each { String key ->
 					componentName = key;
 					version = versionObject.get(key);
 
 					KiuwanExecutor ke = new KiuwanExecutor();
-					
+
 					if(scmSource.equals("rtc")) {
 						RTCUtils ru = new RTCUtils();
 						ru.initLogger(this);
 						projectArea = ru.getProjectArea(streamOrGroup, rtcUser, rtcPass, rtcUrl);
 						product = StringUtil.normalizeProjectArea(projectArea);
-						
-					} else if(scmSource.equals("git")) {						
+
+					} else if(scmSource.equals("git")) {
 						File cacheKiuwanFile = new File("${slaveWorkspace}/groups");
-						 
+
 						def jsonCache = new JsonSlurper().parseText(cacheKiuwanFile.text);
 						product = jsonCache[streamOrGroup];
-					
+
 					} else {
 						throw new Exception("-- El parámetro calculado \"scmSource\" vale \"${scmSource}\" y es desconocido.");
 					}
-					
+
 					log "-- Pasando a baseline la versión \"${version}\" del componente \"${componentName}\"..."
 
-					def command = "${kiuwanPath} "					
+					def command = "${kiuwanPath} "
 					command += "-n \"${componentName}\" "
-					command += "-cr \"${product}\" "					
+					command += "-cr \"${product}\" "
 					command += "-l \"${version}\" "
 					command += "--promote-to-baseline "
-					command += "-pbl \"${version}\" "					
+					command += "-pbl \"${version}\" "
 
 					log "Lanzando el comando kiuwan. \"${command}\""
 
@@ -101,29 +104,82 @@ class KiuwanPromoteBaseline extends Loggable {
 						if (result != 0) {
 							ke.reportError(result);
 						}
-						
+
+						// Actualizamos el log de componentes promocionados
+						updateKiuwanLogFile(slaveWorkspace, product, componentName, version, instantanea);
+
 					} catch (Exception e) {
-						
+
 						if(componentName.toLowerCase().endsWith("-properties") || componentName.toLowerCase().endsWith("-config")
-							|| componentName.toLowerCase().endsWith("- properties") || componentName.toLowerCase().endsWith("- config")
-							|| componentName.toLowerCase().endsWith("- cfg") || componentName.toLowerCase().endsWith("-cfg")
-							|| componentName.contains("- Config") || componentName.contains("-Config")
-							|| componentName.toLowerCase().contains("- templates") || componentName.toLowerCase().contains("-templates")) {
+						|| componentName.toLowerCase().endsWith("- properties") || componentName.toLowerCase().endsWith("- config")
+						|| componentName.toLowerCase().endsWith("- cfg") || componentName.toLowerCase().endsWith("-cfg")
+						|| componentName.contains("- Config") || componentName.contains("-Config")
+						|| componentName.toLowerCase().contains("- templates") || componentName.toLowerCase().contains("-templates")) {
 							log("### WARNING: El componente \"${componentName}\" parece un properties, de configuración o un templates. "
-								+ "No debería haber ningún análisis suyo en Kiuwan que promocionar a Baseline.")
-							
+									+ "No debería haber ningún análisis suyo en Kiuwan que promocionar a Baseline.")
+
 						} else {
 							log(e.getMessage());
 							log("-- Ha habido fallo al intentar promocionar ${componentName}:${version} a baseline.");
 							failedAttempts.add(componentName);
-						}												
-					}					
-				}				
+						}
+					}
+				}
 			}
 			if(failedAttempts.size() > 0) {
 				throw new Exception("--- Los siguientes componentes no han podido promocionarse a Baseline: $failedAttempts")
 			}
+
+		}
+	}
+
+
+	private updateKiuwanLogFile(String slaveWorkspace, String product, String componentName, String version, String instantanea) {
+		try {
+			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			Date date = new Date();
+
+			String nowDate = dateFormat.format(date);
+
+			String logLocation = "${slaveWorkspace}/kiuwanLog.txt";
+			File logKiuwanFile = new File(logLocation);
+			System.out.println("Rellenando el logFile en \"${logLocation}\".");
+
+			/** TODO: Si funciona modificar para sacar las variables **/
+			def auditResult="";
+			try {
+				def urlKiuwanApi = "https://api.kiuwan.com";
+				def kiuwanUser = "ujenkins";
+				def kiuwanPass = "MjZ5pDrH4VUuYI8Qn8JZ";
+				KiuwanApiClient client = new KiuwanApiClient(urlKiuwanApi, kiuwanUser, kiuwanPass);
+				
+				String url = "apps/${componentName}/deliveries";
+				//String encodedUrl = java.net.URLEncoder.encode(url, "UTF-8");
+				String encodedUrl = url.replaceAll(" ", "%20");
+				
+				String response = client.get(encodedUrl);
+				
+				System.out.println("Response desde Kiuwan: \n" + response);
+
+				def jsonObject = new JsonSlurper().parseText(response);
+
+				if(jsonObject != null) {
+					jsonObject.each { analysis ->
+						def analysisVersion = analysis.label;
+						if(analysisVersion.equals(version)) {
+							auditResult = analysis.auditResult;
+						}
+					}
+				}
+			} catch (Exception e) {
+				System.out.println("###### Ha habido problemas calculando el \"auditResult\":\n " + e.getMessage());
+			}
+		
+			logKiuwanFile.append("${dateFormat.format(date)},${product},${componentName},${version},${auditResult},${instantanea}\n");
 			
+		} catch (Exception e) {
+			System.out.println("### Ha habido algún error modificando el log de kiuwan.");
+			System.out.println(e.getMessage());
 		}
 	}
 

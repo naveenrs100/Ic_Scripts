@@ -55,6 +55,7 @@ class UrbanCodeGenerateJsonDescriptor extends Loggable {
 	private String streamTarget;
 	private String stream;
 	private String streamFicha;
+	private String scmComponentsList;
 	
 	// Conexión con RTC
 	private String rtcUser;
@@ -159,20 +160,27 @@ class UrbanCodeGenerateJsonDescriptor extends Loggable {
 				
 				} else { // fin bloque RTC, inicio del bloque GIT
 					
-					List<String> gitGrouopComponentsList = [];
+					List<String> gitGroupComponentsList = [];
 					
-					File jenkinsComponentsFile = new File("${parentWorkspace}/jenkinsComponents.txt");
-					// Si es un lanzamiento manual, el fichero lo generamos en el momento y no estará 
-					// en el parentWorkspace
-					if (isForceLaunch()) {
-						jenkinsComponentsFile = new File("${systemWorkspace}/jenkinsComponents.txt");
+					if(StringUtil.notNull(scmComponentsList)) {
+						log("## Detectamos una variable \"scmComponentsList\" = ${scmComponentsList}.");
+						gitGroupComponentsList = scmComponentsList.split(",");
 					}
-					jenkinsComponentsFile.eachLine { String line ->
-						// log "CompoGit: " + line
-						gitGrouopComponentsList.add(line);
+					else {
+						log("## No se detectamos una variable \"scmComponentsList\". Se intenta usar el jenkinsComponents.txt (si existe...)");
+						File jenkinsComponentsFile = new File("${parentWorkspace}/jenkinsComponents.txt");
+						// Si es un lanzamiento manual, el fichero lo generamos en el momento y no estará
+						// en el parentWorkspace
+						if (isForceLaunch()) {
+							jenkinsComponentsFile = new File("${systemWorkspace}/jenkinsComponents.txt");
+						}
+						jenkinsComponentsFile.eachLine { String line ->
+							// log "CompoGit: " + line
+							gitGroupComponentsList.add(line);
+						}
 					}
 					
-					gitGrouopComponentsList.each { String componentName ->
+					gitGroupComponentsList.each { String componentName ->
 						String compVersion = new GitUtils(gitUser, gitHost, gitCommand).getRepositoryLastTag(gitGroup, 
 							componentName, "RELEASE");
 														
@@ -806,6 +814,14 @@ class UrbanCodeGenerateJsonDescriptor extends Loggable {
 	 */
 	public void setReleaseId(String releaseId) {
 		this.releaseId = releaseId;
+	}
+
+	public String getScmComponentsList() {
+		return scmComponentsList;
+	}
+
+	public void setScmComponentsList(String scmComponentsList) {
+		this.scmComponentsList = scmComponentsList;
 	}
 	
 	

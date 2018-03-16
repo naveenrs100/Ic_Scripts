@@ -191,8 +191,18 @@ class RTCDownloaderCommand extends AbstractRTCCommand {
 					RTCUtils.exitOnError(command.getLastResult(), "Adding component baseline ${baseline}");
 				}
 				else if (RTCUtils.isSet(stream)){
-					executeScmCommand(command, "workspace add-components \"${workspaceRTC}\" -s \"$stream\" \"$component\" ");
-					RTCUtils.exitOnError(command.getLastResult(), "Adding component");
+					try {
+						executeScmCommand(command, "workspace add-components \"${workspaceRTC}\" -s \"$stream\" \"$component\" ");
+						RTCUtils.exitOnError(command.getLastResult(), "Adding component");
+						
+					} catch (Exception e) {
+						// Si ha habido algún problema añadiendo el componente probamos a añadir uno vacío y a hacer accept.
+						executeScmCommand(command, "workspace add-components \"${workspaceRTC}\" \"$component\" ");
+						RTCUtils.exitOnError(command.getLastResult(), "Adding empty component");
+						
+						executeScmCommand(command, "accept -C \"$component\" --target \"${workspaceRTC}\" --source \"${stream}\" ");
+						RTCUtils.exitOnError(command.getLastResult(), "Accepting changes into component");
+					}
 				}
 				else {
 					log "Component \"${component}\" does not exist in the repository workspace!"
@@ -275,16 +285,21 @@ class RTCDownloaderCommand extends AbstractRTCCommand {
 									new ScmCommand(true, scmToolsHome, daemonsConfigDir.getCanonicalPath());
 									removeCommand.initLogger(this);
 									try {
-										executeScmCommand(removeCommand, 
-											"remove component --ignore-uncommitted \"${workspaceRTC}\" \"$component\" ", 
-											dirRemove);
-										RTCUtils.exitOnError(
-											removeCommand.getLastResult(), "Removing component");
-										executeScmCommand(removeCommand, 
-											"workspace add-components \"${workspaceRTC}\" -s \"$stream\" \"$component\" ", 
-											dirRemove);
-										RTCUtils.exitOnError(
-											removeCommand.getLastResult(), "Adding component");
+										executeScmCommand(removeCommand, "remove component --ignore-uncommitted \"${workspaceRTC}\" \"$component\" ", dirRemove);
+										RTCUtils.exitOnError(removeCommand.getLastResult(), "Removing component");
+										
+										try {
+											executeScmCommand(removeCommand, "workspace add-components \"${workspaceRTC}\" -s \"$stream\" \"$component\" ",	dirRemove);
+											RTCUtils.exitOnError(removeCommand.getLastResult(), "Adding component");
+											
+										} catch (Exception e) {
+											// Si ha habido problema añadiendo el componente se prueba a crear vacío y a hacerle accept
+											executeScmCommand(removeCommand, "workspace add-components \"${workspaceRTC}\" \"$component\" ", dirRemove);
+											RTCUtils.exitOnError(removeCommand.getLastResult(), "Adding empty component");
+											
+											executeScmCommand(removeCommand, "accept -C \"$component\" --target \"${workspaceRTC}\" --source \"${stream}\" ", dirRemove);
+											RTCUtils.exitOnError(removeCommand.getLastResult(), "Accepting changes into component");
+										}
 									}
 									finally {
 										removeCommand.detenerDemonio(dirRemove);

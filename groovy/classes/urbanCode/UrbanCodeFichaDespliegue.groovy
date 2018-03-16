@@ -7,6 +7,7 @@ import es.eci.utils.NexusHelper
 import es.eci.utils.ParameterValidator;
 import es.eci.utils.TmpDir;
 import es.eci.utils.Stopwatch;
+import es.eci.utils.StringUtil
 import es.eci.utils.ZipHelper
 import groovy.json.JsonSlurper
 
@@ -76,7 +77,8 @@ class UrbanCodeFichaDespliegue extends Loggable {
 					} else {
 						// Obtener el descriptor de Nexus
 						log "--- INFO: Obteniendo descriptor para [${instantaneaUrban}] de Nexus..."
-						String artifactId = nombreAplicacionUrban.replace(" - ", "_").replace(" -", "_").replace("- ", "_").replace(" ", "_");
+						
+						String artifactId = StringUtil.normalize(nombreAplicacionUrban);
 						MavenCoordinates coordenadasMaven = new MavenCoordinates("es.eci.fichas_urbancode", artifactId, 
 							instantaneaUrban)
 						coordenadasMaven.setRepository("fichas_despliegue")

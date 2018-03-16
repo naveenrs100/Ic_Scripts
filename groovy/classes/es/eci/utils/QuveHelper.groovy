@@ -1,11 +1,12 @@
 package es.eci.utils
 
-import java.io.File
-
 import static groovyx.net.http.ContentType.*
+import static groovyx.net.http.Method.*
+
+import org.apache.http.HttpEntity
+
 import es.eci.utils.base.Loggable
 import groovyx.net.http.HTTPBuilder
-import static groovyx.net.http.Method.*
 
 /**
  * Esta clase agrupa funciones de utilidad para comunicarse con QUVE
@@ -50,7 +51,7 @@ class QuveHelper extends Loggable {
 	}
 
 	// Llama a un servicio de QUVE
-	public String sendQuve(baseurl,path,entity,contentType){
+	public String sendQuve(String baseurl, String path, HttpEntity entity, String contentType){
 		def query = [:]
 		query.put("quvetoken", getToken())
 		def http = new HTTPBuilder(baseurl)
@@ -60,12 +61,16 @@ class QuveHelper extends Loggable {
 			uri.query = query
 			requestContentType = contentType
 			req.entity = entity
+			log "Enviando POST -> ${baseurl}/${uri.path}/${uri.query}"
+			log "Content-type: ${contentType}"
 			response.failure = { resp, reader ->
+				log "Server Error: ${resp.status}"
 				if (reader!=null)
 					println reader.text
 				throw new Exception("Server Error: ${resp.status}")
 			}
 			response.success = { resp, reader ->
+				log "[${resp.status}] <- ${baseurl}"
 				return reader.text
 			}
 		}

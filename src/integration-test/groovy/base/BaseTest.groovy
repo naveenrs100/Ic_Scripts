@@ -24,11 +24,17 @@ class BaseTest {
 	protected String gitlabPrivateToken = null;
 	protected String gitURL = null;
 	
-	// Propiedades de BitBucket
-	protected String urlAtlassian;
-	protected String atlassianUser;
-	protected String atlassianPass;
-	protected String atlassianKeystoreVersion;
+	// Propiedades de Jira
+	protected String urlJira;
+	protected String jiraUser;
+	protected String jiraPass;
+	protected String jiraKeystoreVersion;
+	
+	// Propiedades de Bitbucket
+	protected String urlBitbucket;
+	protected String bitbucketUser;
+	protected String bitbucketPass;
+	protected String bitbucketKeystoreVersion;
 	
 	// Propiedades de LDAP
 	protected String ldapHost = null;
@@ -115,16 +121,22 @@ class BaseTest {
 			gitCommand = "git";
 		}
 		gitHost = System.getProperty("GIT_HOST");
-		gitlabKeystoreVersion = System.getProperty("GITLAB_KEYSTORE_VERSION");
+		gitURL = System.getProperty("GITLAB_URL");
 		gitUser = System.getProperty("userGit");
 		gitlabPrivateToken = System.getProperty("GITLAB_PRIVATE_TOKEN");
-		gitURL = System.getProperty("GITLAB_URL");
+		gitlabKeystoreVersion = System.getProperty("GITLAB_KEYSTORE_VERSION");
 		
-		// Propiedades de Atlassian
-		urlAtlassian = System.getProperty("ATLASSIAN_URL");
-		atlassianUser = System.getProperty("ATLASSIAN_PRE_USER");
-		atlassianPass = System.getProperty("ATLASSIAN_PRE_PASS");
-		atlassianKeystoreVersion = System.getProperty("ATLASSIAN_KEYSTORE_VERSION");
+		// Propiedades de Jira
+		urlJira = System.getProperty("JIRA_URL_PRE");
+		jiraUser = System.getProperty("JIRA_USER_PRE");
+		jiraPass = System.getProperty("JIRA_PASS_PRE");
+		jiraKeystoreVersion = System.getProperty("JIRA_KEYSTORE_VERSION_PRE");
+		
+		// Propiedades de Bitbucket
+		urlBitbucket = System.getProperty("BITBUCKET_URL_PRE");
+		bitbucketUser = System.getProperty("BITBUCKET_USER_PRE");
+		bitbucketPass = System.getProperty("BITBUCKET_PASS_PRE");
+		bitbucketKeystoreVersion = System.getProperty("BITBUCKET_KEYSTORE_VERSION_PRE");
 		
 		// Propiedades de LDAP
 		ldapHost = System.getProperty("LDAP_URL");

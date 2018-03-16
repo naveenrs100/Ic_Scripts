@@ -6,19 +6,23 @@ import groovy.xml.*
 import groovy.util.Node
 import java.io.*
 import java.nio.charset.Charset
+
 // Este script lee la lista de jobs, decide si debe o no intervenir sobre cada uno de ellos
 //  y almacena en su propio workspace de repositorio la configuración modificada, es decir:
 //  es inocuo en cuanto a la configuración de jenkins.  El resultado debe recogerse desde el
 //  workspace del job e importarse a jenkins por algún medio (p. ej. jenkins-cli)
 def resolver = build.buildVariableResolver
+
 // Parámetros de entrada
 def jobList = resolver.resolve("jobList")
 def parameterName = resolver.resolve("parameterName")
 def paramType = resolver.resolve("paramType")
 def defaultValue = resolver.resolve("defaultValue")
+
 // Entorno del job
 final home = build.getEnvironment().get("JENKINS_HOME")
 final workspace = build.workspace
+
 // Esta función escribe un config.xml en la 'mochila' del job de modificación masiva
 def writeConfig(text, jobName, workspace){
 	println "cambiando ${jobName}..."
@@ -48,7 +52,7 @@ def notNull(String s) {
 
 // Implementar en esta función la acción a realizar sobre el xml
 def change(xml, parameterName, defaultValue, paramType) {
-	
+
 	def newBooleanParameterXML = """
 <hudson.model.BooleanParameterDefinition>
 <name>${parameterName}</name>
@@ -56,7 +60,7 @@ def change(xml, parameterName, defaultValue, paramType) {
 <defaultValue>${defaultValue}</defaultValue>
 </hudson.model.BooleanParameterDefinition>
 """
-	
+
 	def newStringParameterXML = """
 <hudson.model.StringParameterDefinition>
 <name>${parameterName}</name>
@@ -64,15 +68,15 @@ def change(xml, parameterName, defaultValue, paramType) {
 <defaultValue>${defaultValue}</defaultValue>
 </hudson.model.StringParameterDefinition>
 """
-	
-def newParameterXML = "";
 
-if(paramType.equals("boolean")) {
-	newParameterXML = newBooleanParameterXML;
-} 
-else if(paramType.equals("string")) {
-	newParameterXML = newStringParameterXML;
-}	
+	def newParameterXML = "";
+
+	if(paramType.equals("boolean")) {
+		newParameterXML = newBooleanParameterXML;
+	}
+	else if(paramType.equals("string")) {
+		newParameterXML = newStringParameterXML;
+	}
 
 
 	def newParameterGroupXML = """
@@ -90,8 +94,17 @@ ${newParameterXML}
 			def parameterDefinitions = parameters.parameterDefinitions;
 			if (parameterDefinitions != null && parameterDefinitions.size() > 0) {
 				def stringParameters = parameterDefinitions["hudson.model.StringParameterDefinition"]
+				def booleanParameters = parameterDefinitions["hudson.model.BooleanParameterDefinition"]
 				// Recorrer todos los parámetros de cadena
 				stringParameters?.each { def parameterDefinition ->
+					if (parameterDefinition.name.text().equals(parameterName) && notNull(defaultValue)) {
+						found = true;
+						println "Actualizando el valor de $parameterName ..."
+						parameterDefinition.defaultValue[0].setValue(defaultValue);
+					}
+				}
+				// Recorrer todos los parámetros de cadena
+				booleanParameters?.each { def parameterDefinition ->
 					if (parameterDefinition.name.text().equals(parameterName) && notNull(defaultValue)) {
 						found = true;
 						println "Actualizando el valor de $parameterName ..."

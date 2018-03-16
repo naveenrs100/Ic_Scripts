@@ -217,7 +217,7 @@ class PomXmlOperations {
 							getNode().getTextContent() : mainVersion;
 					if(!resolvedMainVersion.trim().endsWith("-SNAPSHOT")) {
 						throw new NumberFormatException(
-							"La versión del pom \"${file.getCanonicalPath()}\" debe estar abierta. Ahora mismo es ${mainVersion}");
+							"La versión del pom \"${file.getCanonicalPath()}\" debe estar abierta. Ahora mismo es ${resolvedMainVersion}");
 					}
 				}
 			}

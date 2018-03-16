@@ -125,7 +125,7 @@ if ( !isNull(urbanCodeApp) && !isNull(urbanCodeEnv) && !isNull(version) ) {
 			urbanCodeApp,
 			Constants.DEPLOY_PROCESS,
 			urbanCodeEnv,
-			true,
+			false,
 			version,
 			isThereOpenVersion?["ETIQUETA":"-SNAPSHOT"]:[:]);
 
