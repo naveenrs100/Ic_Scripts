@@ -1,0 +1,23 @@
+import groovy.json.JsonSlurper
+
+def textJson = new File("wkps.json").text
+def jsonSlurper = new JsonSlurper()
+
+def list = jsonSlurper.parseText(textJson)
+
+def printout = { item ->
+    println item.name + ' - ' + item.name
+    println item.name + ' - ' + item.uuid
+
+ // get ss for each workspace
+    def textJson1 = new File("listss.json").text
+
+    def list1 = jsonSlurper.parseText(textJson1)
+    list1.each {
+    def printout1 = { item1 ->
+        println item1.name.ownedby.uuiduuid + ' - ' + item1.name.ownedby.uuid
+
+    }}
+}
+
+list.each printout
