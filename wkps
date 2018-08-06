@@ -1,0 +1,30 @@
+[
+  {
+    "name": "17.10.0_mddb_ttcn_irat_SA",
+    "owner": "SA_MU_TTG-BUILD",
+    "type": "WORKSPACE",
+    "url": "https:\/\/jazz.rsint.net\/ccm\/",
+    "uuid": "_6vqXwKXUEeay8fQ3Kg2-6A"
+  },
+  {
+    "name": "17.10.0_mddb_ttcn_lte_SA",
+    "owner": "SA_MU_TTG-BUILD",
+    "type": "WORKSPACE",
+    "url": "https:\/\/jazz.rsint.net\/ccm\/",
+    "uuid": "_TY7MgKXVEeay8fQ3Kg2-6A"
+  },
+  {
+    "name": "17.10.0_mddb_ttcn_nbiot_SA",
+    "owner": "SA_MU_TTG-BUILD",
+    "type": "WORKSPACE",
+    "url": "https:\/\/jazz.rsint.net\/ccm\/",
+    "uuid": "_OGBkYLGaEeaf9PewHKAU9A"
+  },
+  {
+    "name": "17.10.0_mddb_ttcn_pos_SA",
+    "owner": "SA_MU_TTG-BUILD",
+    "type": "WORKSPACE",
+    "url": "https:\/\/jazz.rsint.net\/ccm\/",
+    "uuid": "_k5sUkKXVEeay8fQ3Kg2-6A"
+  },
+  {
