@@ -1,0 +1,64 @@
+import groovy.json.JsonSlurper
+
+
+
+def textJson = new File("wkps.json").text
+
+
+def jsonSlurper = new JsonSlurper()
+
+
+
+def list = jsonSlurper.parseText(textJson)
+
+
+
+def printout = { workspace ->
+
+
+    /*println item.name + ' - ' + item.name
+
+
+    println item.name + ' - ' + item.uuid*/
+
+
+	println "Workspace name: ${workspace.name}, uuid: ${workspace.uuid}"
+
+
+
+ // get ss for each workspace
+
+
+    def textJson1 = new File("ss.json").text
+
+
+
+    def list1 = jsonSlurper.parseText(textJson1)
+
+
+    list1.each {snapshot->
+
+
+		println "-snapshot is uuid: ${snapshot.ownedby.uuid}"
+
+
+		if(snapshot.ownedby.uuid == workspace.uuid){
+
+
+			println "--snapshot matched is uuid: ${snapshot.ownedby.uuid}"
+
+
+		}
+
+
+    
+
+
+	}
+
+
+}
+
+
+
+list.each printout
